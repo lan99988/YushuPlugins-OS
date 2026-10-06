@@ -1,0 +1,125 @@
+from contextlib import contextmanager
+import hashlib
+import json
+import os
+import re
+import sqlite3
+import time
+from pathlib import Path, PurePosixPath
+
+MODELS=[('gpt-6-luna','medium'),('gpt-6.1-sol','medium'),('gpt-6.1-sol','high'),('gpt-6-astra','high')]
+FIELDS={'task_id','tree_sha','contract_sha','rules_sha','outcome','summary','tests','findings'}
+REPORT_SCHEMA={'type':'object','additionalProperties':False,'required':sorted(FIELDS),'properties':{**{k:{'type':'string'} for k in ['task_id','tree_sha','contract_sha','rules_sha','summary']},'outcome':{'type':'string','enum':['pass','fail']},'tests':{'type':'array','items':{'type':'string'}},'findings':{'type':'array','items':{'type':'string'}}}}
+def digest(value): return hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest()
+def model_for(risk,level): return MODELS[min(3, {'low':0,'medium':1,'high':2,'critical':3}[risk]+level)]
+def resolved_risk(risk,paths):
+    sensitive=('auth','secret','migration','publish','core','permission')
+    return 'critical' if any(any(s in p.lower() for s in sensitive) for p in paths) else risk
+def allowed(path,patterns):
+    path=path.replace('\\','/')
+    if path.startswith('/') or ':' in path or '..' in PurePosixPath(path).parts: return False
+    return any(path==p.rstrip('/') or (p.endswith('/') and path.startswith(p)) for p in patterns)
+def parse_report(raw,task,tree,contract,rules):
+    value=json.loads(raw)
+    if not isinstance(value,dict) or set(value)!=FIELDS: raise ValueError('report fields')
+    if any(not isinstance(value[k],str) for k in FIELDS-{'tests','findings'}): raise ValueError('report strings')
+    if any(not isinstance(value[k],list) or any(not isinstance(x,str) for x in value[k]) for k in ['tests','findings']): raise ValueError('report arrays')
+    if (value['task_id'],value['tree_sha'],value['contract_sha'],value['rules_sha'])!=(task,tree,contract,rules): raise ValueError('stale evidence')
+    if value['outcome'] not in ('pass','fail'): raise ValueError('report outcome')
+    return value
+
+def validate_manifest(tasks):
+    ids={t['id'] for t in tasks}
+    if len(ids)!=len(tasks): raise ValueError('duplicate task')
+    for t in tasks:
+        if not t['id'].replace('-','').replace('_','').isalnum(): raise ValueError('unsafe id')
+        if not t.get('allowed_paths') or any(not allowed(p,t['allowed_paths']) for p in t['allowed_paths']): raise ValueError('unsafe allowlist')
+        if not t.get('tests') or any(not isinstance(c,list) or not c or any(not isinstance(x,str) for x in c) for c in t['tests']): raise ValueError('tests argv required')
+        if t.get('risk','low') not in ('low','medium','high','critical'): raise ValueError('risk')
+        if not set(t.get('deps',[]))<=ids: raise ValueError('missing dependency')
+    seen=set()
+    while len(seen)<len(ids):
+        ready={t['id'] for t in tasks if set(t.get('deps',[]))<=seen}-seen
+        if not ready: raise ValueError('cyclic dependency')
+        seen|=ready
+
+def publish_gate(head,pr,review_head):
+    checks=pr.get('statusCheckRollup') or []
+    return bool(head==review_head==pr.get('headRefOid') and pr.get('reviewDecision')=='APPROVED' and checks and all((c.get('conclusion')=='SUCCESS' and c.get('status')=='COMPLETED') or c.get('state')=='SUCCESS' for c in checks))
+
+class Store:
+    def __init__(self,path):
+        self.path=Path(path); self.path.parent.mkdir(parents=True,exist_ok=True)
+        with self.connect() as db:
+            db.executescript('CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,data TEXT NOT NULL); CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY,value TEXT); CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY,at REAL,task TEXT,data TEXT);')
+    @contextmanager
+    def connect(self):
+        db=sqlite3.connect(self.path,timeout=30)
+        try:
+            db.execute('PRAGMA journal_mode=WAL')
+            with db: yield db
+        finally: db.close()
+    def meta(self,key,default=None):
+        with self.connect() as db: row=db.execute('SELECT value FROM meta WHERE key=?',(key,)).fetchone()
+        return json.loads(row[0]) if row else default
+    def control(self,value):
+        with self.connect() as db: db.execute('INSERT OR REPLACE INTO meta VALUES (?,?)',('control',json.dumps(value)))
+    def initialize(self,tasks):
+        validate_manifest(tasks)
+        with self.connect() as db:
+            for t in tasks:
+                old=db.execute('SELECT data FROM tasks WHERE id=?',(t['id'],)).fetchone()
+                if old:
+                    if json.loads(old[0])['contract_sha']!=digest(t): raise ValueError('manifest drift; use a new state directory')
+                    continue
+                data=dict(t,status='pending',attempt=0,level=0,next_run=0,contract_sha=digest(t),base_sha=None,tree_sha=None,head_sha=None,worktree=None,session=None,token_usage={},evidence=[],pr=None)
+                db.execute('INSERT INTO tasks VALUES (?,?)',(t['id'],json.dumps(data)))
+    def tasks(self):
+        with self.connect() as db: return [json.loads(r[0]) for r in db.execute('SELECT data FROM tasks ORDER BY id')]
+    def task(self,id): return next(t for t in self.tasks() if t['id']==id)
+    def lease(self,owner,now=None,ttl=90):
+        now=time.time() if now is None else now
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute("SELECT value FROM meta WHERE key='lease'").fetchone(); old=json.loads(row[0]) if row else {}
+            if old.get('until',0)>now and old.get('owner')!=owner: raise RuntimeError('coordinator lease held')
+            fence=old.get('fence',0)+(old.get('owner')!=owner or old.get('until',0)<=now)
+            db.execute('INSERT OR REPLACE INTO meta VALUES (?,?)',('lease',json.dumps({'owner':owner,'until':now+ttl,'fence':fence})))
+            return fence
+    def release(self,owner,fence):
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            row=db.execute("SELECT value FROM meta WHERE key='lease'").fetchone()
+            lease=json.loads(row[0]) if row else {}
+            if lease.get('owner')==owner and lease.get('fence')==fence:
+                lease['until']=0
+                db.execute('UPDATE meta SET value=? WHERE key=?',(json.dumps(lease),'lease'))
+    def set_task(self,id,fence=None,**values):
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            if fence is not None:
+                lease=json.loads(db.execute("SELECT value FROM meta WHERE key='lease'").fetchone()[0])
+                if lease['fence']!=fence: raise RuntimeError('stale coordinator')
+            row=db.execute('SELECT data FROM tasks WHERE id=?',(id,)).fetchone(); data=json.loads(row[0]); data.update(values)
+            db.execute('UPDATE tasks SET data=? WHERE id=?',(json.dumps(data),id))
+            db.execute('INSERT INTO events(at,task,data) VALUES (?,?,?)',(time.time(),id,json.dumps(values)))
+    def ready(self,now=None):
+        now=time.time() if now is None else now; tasks=self.tasks(); done={t['id'] for t in tasks if t['status'] in ('verified','published')}
+        return [t for t in tasks if t['status'] in ('pending','retry','waiting_network','waiting_quota') and t['next_run']<=now and set(t.get('deps',[]))<=done]
+    def recover(self,fence=None):
+        for t in self.tasks():
+            if t['status']=='publishing' and t.get('head_sha'): self.set_task(t['id'],fence=fence,status='awaiting_gates',error='publish restart; head retained')
+            elif t['status'] in ('running','reviewing','validating','publishing'): self.set_task(t['id'],fence=fence,status='interrupted',error='coordinator restarted; diff retained; resume required')
+    def failure(self,id,error,now=None,fence=None):
+        now=time.time() if now is None else now; t=self.task(id); text=error.lower(); attempt=t['attempt']; level=t['level']
+        repeated=t.get('last_failure')==error
+        status='retry'; delay=0
+        if 'auth' in text or 'login' in text: status='blocked_auth'
+        elif 'quota' in text or 'rate limit' in text:
+            status='waiting_quota'; delay=1800 if t.get('quota_waits',0)==0 else 3600
+            reset=re.search(r'resets?At[\"\s:=]+(\d{9,}|\d+)',error,re.IGNORECASE)
+            if reset: delay=max(0,float(reset.group(1))-now)
+        elif any(s in text for s in ('network','connection','timeout','timed out')): status='waiting_network'; delay=min(900,30*2**min(attempt,5))
+        elif attempt>=4: status='blocked'
+        else: level=min(3,level+1) if repeated or attempt>=2 else level
+        self.set_task(id,fence=fence,status=status,next_run=now+delay,level=level,error=error,last_failure=error,quota_waits=t.get('quota_waits',0)+(status=='waiting_quota'))
