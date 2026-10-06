@@ -13,7 +13,7 @@ from yushuos_sdk import StateStore
 
 
 PLUGIN_ID = "yushuos.task"
-PLUGIN_VERSION = "0.1.0"
+PLUGIN_VERSION = "0.2.0"
 STORE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}$")
 PERMISSIONS = ("task.read", "task.write", "task.delete")
 

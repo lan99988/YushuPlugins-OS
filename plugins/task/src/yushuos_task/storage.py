@@ -13,6 +13,7 @@ import math
 from pathlib import Path
 import re
 import sqlite3
+import uuid
 from typing import Any, Iterator, Mapping
 
 from .contracts import FINGERPRINT_SCHEME, PLUGIN_ID
@@ -34,7 +35,7 @@ from .domain import (
 )
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 RESULT_RETENTION_DAYS = 180
 _STORE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}$")
 _PLUGIN_ID = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9_-]*)*$")
@@ -43,10 +44,10 @@ _TASK_ID = re.compile(r"^tsk_[0-9a-f]{32}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _PROVIDER_VERSION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+-]{0,79}$")
 _WRITE_OPERATIONS = frozenset({
-    "task.create", "task.update", "task.complete", "task.reopen", "task.delete",
+    "task.create", "task.update", "task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive",
 })
 _EVENT_TYPES = frozenset({
-    "task.created", "task.updated", "task.completed", "task.reopened", "task.deleted",
+    "task.created", "task.updated", "task.completed", "task.reopened", "task.deleted", "task.cancelled", "task.archived",
 })
 _EVENT_STATES = frozenset({"none", "pending", "ledger_recorded"})
 
@@ -257,7 +258,7 @@ class TaskStore:
                 raise TaskSchemaVersionError("Task 数据库没有已知 schema 版本，拒绝覆盖")
             if not create:
                 raise TaskSchemaVersionError("Task 数据库尚未初始化")
-            self._create_schema_v1(db, store_id)
+            self._create_schema_v2(db, store_id)
             db.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
             return
 
@@ -267,18 +268,79 @@ class TaskStore:
         row = db.execute(
             "SELECT schema_version, store_id FROM schema_meta WHERE singleton=1"
         ).fetchone()
-        if row is None or row["schema_version"] != SCHEMA_VERSION:
+        if row is None or row["schema_version"] != user_version:
             raise TaskSchemaVersionError("Task schema_meta 与实现版本不匹配")
         if row["store_id"] != store_id:
             raise TaskStoreIdentityError("当前 Task 数据库绑定到其他 store_id")
+        if user_version == 1 and create:
+            self._migrate_v1(db, store_id)
+
+    def _migrate_v1(self, db: sqlite3.Connection, store_id: str) -> None:
+        """Keep an online v1 backup before a transactional v2 table rebuild.
+
+        BEGIN IMMEDIATE already excludes concurrent writers. A separate read
+        connection takes the committed snapshot without backing up this active
+        transaction. Core's ledger and all serialized proof fields are untouched.
+        """
+        backup_path = self.path.with_name(self.path.name + ".schema-v1-" + uuid.uuid4().hex + ".bak")
+        pending_path = backup_path.with_name(backup_path.name + ".incomplete")
+        created = False
+        source = target = None
+        try:
+            with pending_path.open("xb"):
+                pass
+            created = True
+            source = sqlite3.connect(self.path.resolve().as_uri() + "?mode=ro", uri=True,
+                                     timeout=self.busy_timeout_seconds)
+            target = sqlite3.connect(pending_path)
+            source.backup(target)
+            target.close()
+            target = None
+            source.close()
+            source = None
+            pending_path.rename(backup_path)
+        except (OSError, sqlite3.Error) as exc:
+            raise TaskDatabaseError("Task schema v1 备份失败，拒绝迁移") from exc
+        finally:
+            if target is not None:
+                target.close()
+            if source is not None:
+                source.close()
+            if created and pending_path.exists():
+                try:
+                    pending_path.unlink()
+                except OSError:
+                    # An incomplete file is never named as a usable .bak.
+                    pass
+
+        # Copy raw values: do not reinterpret original JSON snapshots or pins.
+        rows = {name: db.execute("SELECT * FROM " + name).fetchall()
+                for name in ("schema_meta", "tasks", "task_tags", "task_request_commits")}
+        columns = {name: [column[1] for column in db.execute("PRAGMA table_info(" + name + ")")]
+                   for name in rows}
+        for name in ("task_request_commits", "task_tags", "tasks", "schema_meta"):
+            db.execute("DROP TABLE " + name)
+        self._create_schema_v2(db, store_id)
+        db.execute("DELETE FROM schema_meta")
+        for name in ("schema_meta", "tasks", "task_tags", "task_request_commits"):
+            values = [tuple(row) for row in rows[name]]
+            if name == "schema_meta":
+                version_index = columns[name].index("schema_version")
+                values = [tuple(SCHEMA_VERSION if index == version_index else value
+                                for index, value in enumerate(row)) for row in values]
+            db.executemany("INSERT INTO " + name + "(" + ",".join(columns[name]) + ") VALUES(" +
+                           ",".join("?" for _ in columns[name]) + ")", values)
+        if db.execute("PRAGMA foreign_key_check").fetchall():
+            raise TaskDatabaseError("Task schema v2 外键校验失败")
+        db.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
 
     @staticmethod
-    def _create_schema_v1(db: sqlite3.Connection, store_id: str) -> None:
+    def _create_schema_v2(db: sqlite3.Connection, store_id: str) -> None:
         ddl = (
             """
             CREATE TABLE schema_meta (
                 singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
-                schema_version INTEGER NOT NULL CHECK(schema_version = 1),
+                schema_version INTEGER NOT NULL CHECK(schema_version = 2),
                 store_id TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )
@@ -289,7 +351,7 @@ class TaskStore:
                 id TEXT NOT NULL,
                 title TEXT NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 500),
                 notes TEXT CHECK(notes IS NULL OR length(notes) <= 20000),
-                status TEXT NOT NULL CHECK(status IN ('open', 'completed', 'deleted')),
+                status TEXT NOT NULL CHECK(status IN ('open', 'completed', 'cancelled', 'deleted')),
                 priority TEXT NOT NULL CHECK(priority IN ('low', 'normal', 'high', 'urgent')),
                 project_ref TEXT CHECK(project_ref IS NULL OR (length(trim(project_ref)) BETWEEN 1 AND 200 AND project_ref = trim(project_ref))),
                 due_at TEXT,
@@ -299,6 +361,7 @@ class TaskStore:
                 updated_at TEXT NOT NULL,
                 completed_at TEXT,
                 deleted_at TEXT,
+                archived_at TEXT,
                 version INTEGER NOT NULL CHECK(version > 0),
                 PRIMARY KEY(store_id, id),
                 UNIQUE(id),
@@ -309,6 +372,7 @@ class TaskStore:
                 CHECK(due_at IS NULL OR (length(due_at) = 27 AND substr(due_at, 27, 1) = 'Z')),
                 CHECK(completed_at IS NULL OR (length(completed_at) = 27 AND substr(completed_at, 27, 1) = 'Z')),
                 CHECK(deleted_at IS NULL OR (length(deleted_at) = 27 AND substr(deleted_at, 27, 1) = 'Z')),
+                CHECK(archived_at IS NULL OR (length(archived_at) = 27 AND substr(archived_at, 27, 1) = 'Z')),
                 CHECK(status != 'completed' OR completed_at IS NOT NULL),
                 CHECK(status != 'open' OR completed_at IS NULL),
                 CHECK(status != 'deleted' OR deleted_at IS NOT NULL),
@@ -334,7 +398,7 @@ class TaskStore:
                 request_fingerprint TEXT NOT NULL CHECK(length(request_fingerprint) = 64),
                 fingerprint_scheme TEXT NOT NULL CHECK(fingerprint_scheme = 'jcs-operation-v1'),
                 operation_name TEXT NOT NULL CHECK(operation_name IN (
-                    'task.create','task.update','task.complete','task.reopen','task.delete'
+                    'task.create','task.update','task.complete','task.reopen','task.delete','task.cancel','task.archive'
                 )),
                 core_project_ref TEXT NOT NULL CHECK(length(core_project_ref) <= 200),
                 provider_version TEXT NOT NULL,
@@ -392,6 +456,7 @@ class TaskStore:
             updated_at=row["updated_at"],
             completed_at=row["completed_at"],
             deleted_at=row["deleted_at"],
+            archived_at=row["archived_at"] if "archived_at" in row.keys() else None,
             version=row["version"],
         )
 
@@ -432,6 +497,8 @@ class TaskStore:
             statuses = filters.resolved_statuses()
             where.append("t.status IN (" + ",".join("?" for _ in statuses) + ")")
             params.extend(statuses)
+            if not filters.include_archived and db.execute("PRAGMA user_version").fetchone()[0] >= 2:
+                where.append("t.archived_at IS NULL")
             if filters.project_ref_specified:
                 if filters.project_ref is None:
                     where.append("t.project_ref IS NULL")
@@ -617,12 +684,12 @@ class TaskStore:
         db.execute(
             """INSERT INTO tasks(
                 store_id,id,title,notes,status,priority,project_ref,due_at,estimate_minutes,source_ref,
-                created_at,updated_at,completed_at,deleted_at,version
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                created_at,updated_at,completed_at,deleted_at,archived_at,version
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 task.store_id, task.id, task.title, task.notes, task.status, task.priority,
                 task.project_ref, task.due_at, task.estimate_minutes, task.source_ref,
-                task.created_at, task.updated_at, task.completed_at, task.deleted_at, task.version,
+                task.created_at, task.updated_at, task.completed_at, task.deleted_at, task.archived_at, task.version,
             ),
         )
         db.executemany(
@@ -633,12 +700,12 @@ class TaskStore:
     def _update_task(self, db: sqlite3.Connection, task: Task, *, expected_version: int) -> None:
         cursor = db.execute(
             """UPDATE tasks SET title=?,notes=?,status=?,priority=?,project_ref=?,due_at=?,estimate_minutes=?,
-                source_ref=?,updated_at=?,completed_at=?,deleted_at=?,version=?
+                source_ref=?,updated_at=?,completed_at=?,deleted_at=?,archived_at=?,version=?
                 WHERE store_id=? AND id=? AND version=?""",
             (
                 task.title, task.notes, task.status, task.priority, task.project_ref, task.due_at,
                 task.estimate_minutes, task.source_ref, task.updated_at, task.completed_at,
-                task.deleted_at, task.version, task.store_id, task.id, expected_version,
+                task.deleted_at, task.archived_at, task.version, task.store_id, task.id, expected_version,
             ),
         )
         if cursor.rowcount != 1:
@@ -660,7 +727,7 @@ def _validate_task(task: Task) -> None:
         raise TaskValidationError("Task 记录或 id 格式无效")
     if not _STORE_ID.fullmatch(task.store_id):
         raise TaskValidationError("Task store_id 格式无效")
-    if task.status != "open" or task.version != 1 or task.completed_at is not None or task.deleted_at is not None:
+    if task.status != "open" or task.version != 1 or task.completed_at is not None or task.deleted_at is not None or task.archived_at is not None:
         raise TaskValidationError("新建 Task 必须处于 open 状态且 version=1")
     expected = task_from_fields(
         task.store_id,

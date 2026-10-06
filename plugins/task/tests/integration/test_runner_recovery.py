@@ -63,7 +63,7 @@ def _write_core_config(root: Path) -> None:
     root.mkdir(parents=True, exist_ok=True)
     config = {
         "schema_version": 1,
-        "plugins": {"versions": {PLUGIN_ID: "0.1.0"}},
+        "plugins": {"versions": {PLUGIN_ID: "0.2.0"}},
         "state": {"ledger_path": "operations.sqlite3"},
         "bindings": {"resources": {"task_store": STORE_ID}},
         "permissions": {"grants": ["task.read", "task.write", "task.delete"]},
@@ -610,7 +610,7 @@ def test_core_version_gate_and_real_cli_disable_uninstall_preserve_shared_data(t
 
     # Core has no uninstall-plugin command. After disabling, remove only the
     # resolved immutable version directory; retain shared ledger and plugin data.
-    installed_version = config_root / "plugins" / PLUGIN_ID / "0.1.0"
+    installed_version = config_root / "plugins" / PLUGIN_ID / "0.2.0"
     assert installed_version.is_dir()
     shutil.rmtree(installed_version)
     doctor = _core_cli(config_root, "doctor")
@@ -641,7 +641,7 @@ def test_task_outbox_imports_one_persistent_core_event_and_is_idempotent(tmp_pat
     assert event["id"] == core_event["id"]
     assert event["type"] == "task.created"
     assert event["source_plugin"] == PLUGIN_ID
-    assert event["source_version"] == "0.1.0"
+    assert event["source_version"] == "0.2.0"
     assert event["provider_digest"] == provider_digest(runtime.registry.plugins[PLUGIN_ID], runtime.config)
     assert event["resource_refs"] == {"task_id": task_id}
     assert "private task title" not in json.dumps(event, ensure_ascii=False)
@@ -682,11 +682,11 @@ def test_provider_version_drift_blocks_recovery_and_keeps_the_original_lock(tmp_
     assert crashed.status == "unknown"
     marker.unlink()
 
-    source_v2 = tmp_path / "task-source-0.1.1"
-    shutil.copytree(config_root / "plugins" / PLUGIN_ID / "0.1.0", source_v2)
+    source_v2 = tmp_path / "task-source-0.2.1"
+    shutil.copytree(config_root / "plugins" / PLUGIN_ID / "0.2.0", source_v2)
     manifest_path = source_v2 / "plugin.yaml"
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
-    manifest["version"] = "0.1.1"
+    manifest["version"] = "0.2.1"
     manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
     locked = _core_cli(config_root, "lock-plugin", "--path", str(source_v2))
     assert locked["status"] == "succeeded"
@@ -694,7 +694,7 @@ def test_provider_version_drift_blocks_recovery_and_keeps_the_original_lock(tmp_
     assert installed["status"] == "succeeded"
 
     config = _read_core_config(config_root)
-    config["plugins"]["versions"][PLUGIN_ID] = "0.1.1"
+    config["plugins"]["versions"][PLUGIN_ID] = "0.2.1"
     _save_core_config(config_root, config)
     changed_provider_runtime = CoreRuntime(config_root)
     blocked = changed_provider_runtime.resume(request, host_mode="execute")
@@ -704,3 +704,77 @@ def test_provider_version_drift_blocks_recovery_and_keeps_the_original_lock(tmp_
     with changed_provider_runtime.state.connect() as db:
         assert db.execute("SELECT 1 FROM locks WHERE request_id=?", (request["request_id"],)).fetchone()
     assert _event_rows(changed_provider_runtime) == []
+
+
+@pytest.mark.parametrize("operation,event_type", [("task.cancel", "task.cancelled"), ("task.archive", "task.archived")])
+def test_extension_crash_restart_recovers_once_and_replay_keeps_original_result(tmp_path, operation, event_type):
+    runtime, config_root = _install_task(tmp_path, crash_stage="mutation_commit_before_ledger")
+    created = runtime.invoke(_request("ext-create", "task.create", {"title": "private original"}), mode="execute", host_mode="execute")
+    assert created.status == "succeeded"
+    task_id = created.data["task"]["id"]
+    request = _request("ext-operation", operation, {"task_id": task_id, "expected_version": 1}, target_task_id=task_id)
+    marker = config_root / ".task-crash-stage"
+    marker.write_text("mutation_commit_before_ledger", encoding="utf-8")
+    assert runtime.invoke(request, mode="execute", host_mode="execute").status == "unknown"
+    original_receipt = runtime.state.receipt("ext-operation")
+    from yushuos_task.storage import TaskStore
+    store = TaskStore(config_root / TASK_DB_RELATIVE)
+    proof_before = store.lookup_commit(PLUGIN_ID, STORE_ID, "ext-operation")
+    assert proof_before is not None and proof_before.event_recovery_state == "pending"
+    marker.unlink()
+    restarted = CoreRuntime(config_root)
+    recovered = restarted.resume(request, host_mode="execute")
+    assert recovered.status == "succeeded" and recovered.data["task"]["version"] == 2
+    assert restarted.state.receipt("ext-operation") == original_receipt
+    assert restarted.resume(request, host_mode="execute").data == recovered.data
+    events_before = _event_rows(restarted)
+    assert [row["type"] for row in events_before].count(event_type) == 1
+    assert all(row["resource_refs"] == {"task_id": task_id} for row in events_before)
+    reopen = restarted.invoke(_request("ext-reopen", "task.reopen", {"task_id": task_id, "expected_version": 2}, target_task_id=task_id), mode="execute", host_mode="execute")
+    assert reopen.status == "succeeded" and reopen.data["task"]["status"] == "open"
+    assert reopen.data["task"]["archived_at"] is None
+    replay = restarted.invoke(request, mode="execute", host_mode="execute")
+    assert replay.data == recovered.data
+    proof_after = store.lookup_commit(PLUGIN_ID, STORE_ID, "ext-operation")
+    assert proof_after.result_body == proof_before.result_body
+    assert proof_after.event_intents == proof_before.event_intents
+    assert [row for row in _event_rows(restarted) if row["request_id"] == "ext-operation"] == [row for row in events_before if row["request_id"] == "ext-operation"]
+    assert "private original" not in json.dumps(_event_rows(restarted))
+
+
+@pytest.mark.parametrize("operation", ["task.cancel", "task.archive"])
+def test_extension_preview_permissions_scope_noop_and_version_conflict(tmp_path, operation):
+    runtime, config_root = _install_task(tmp_path)
+    task_id = "tsk_" + "1" * 32
+    request = _request("ext-gates", operation, {"task_id": task_id, "expected_version": 1}, target_task_id=task_id)
+    preview = runtime.invoke(request, mode="preview", host_mode="execute")
+    assert preview.status == "preview" and not (config_root / TASK_DB_RELATIVE).exists()
+    assert runtime.state.receipt("ext-gates") is None
+    config = _read_core_config(config_root)
+    for permission in ("task.read", "task.write"):
+        config["permissions"]["denials"] = [permission]
+        _save_core_config(config_root, config)
+        assert CoreRuntime(config_root).invoke(request, mode="execute", host_mode="execute").status == "unavailable"
+    config["permissions"]["denials"] = []
+    config["bindings"]["resources"]["task_store"] = "wrong-store"
+    _save_core_config(config_root, config)
+    assert CoreRuntime(config_root).invoke(request, mode="execute", host_mode="execute").status == "unavailable"
+    assert not (config_root / TASK_DB_RELATIVE).exists()
+    config["bindings"]["resources"]["task_store"] = STORE_ID
+    _save_core_config(config_root, config)
+    runtime = CoreRuntime(config_root)
+    created = runtime.invoke(_request("ext-gates-create", "task.create", {"title": "test"}), mode="execute", host_mode="execute")
+    task_id = created.data["task"]["id"]
+    request = _request("ext-gates-write", operation, {"task_id": task_id, "expected_version": 1}, target_task_id=task_id)
+    changed = runtime.invoke(request, mode="execute", host_mode="execute")
+    assert changed.status == "succeeded" and changed.data["changed"]
+    stale = runtime.invoke(_request("ext-gates-stale", operation, {"task_id": task_id, "expected_version": 1}, target_task_id=task_id), mode="execute", host_mode="execute")
+    assert stale.status == "failed" and stale.error["code"] == "task.version_conflict"
+    repeated = runtime.invoke(_request("ext-gates-repeat", operation, {"task_id": task_id, "expected_version": 2}, target_task_id=task_id), mode="execute", host_mode="execute")
+    assert repeated.status == "succeeded" and repeated.data["changed"] is False
+    assert repeated.data["task"] == changed.data["task"]
+    assert len(_event_rows(runtime)) == 2
+    listed = runtime.invoke(_request("ext-gates-list", "task.list", {}), mode="execute", host_mode="execute")
+    assert len(listed.data["tasks"]) == (0 if operation == "task.archive" else 1)
+    included = runtime.invoke(_request("ext-gates-list-include", "task.list", {"include_archived": True}), mode="execute", host_mode="execute")
+    assert len(included.data["tasks"]) == 1

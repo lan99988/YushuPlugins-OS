@@ -113,8 +113,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--output",
-        default=str(ROOT / "dist" / "yushuos-task-0.1.0.zip"),
-        help="输出 zip 路径，默认 dist/yushuos-task-0.1.0.zip",
+        default=str(ROOT / "dist" / "yushuos-task-0.2.0.zip"),
+        help="输出 zip 路径，默认 dist/yushuos-task-0.2.0.zip",
     )
     args = parser.parse_args()
 

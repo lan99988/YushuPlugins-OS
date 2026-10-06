@@ -21,6 +21,8 @@ CAPABILITIES = (
     "task.complete",
     "task.reopen",
     "task.delete",
+    "task.cancel",
+    "task.archive",
 )
 READ_CAPABILITIES = {"task.get", "task.list"}
 WRITE_CAPABILITIES = set(CAPABILITIES) - READ_CAPABILITIES
@@ -263,6 +265,17 @@ def _full_demo(args: argparse.Namespace, cli: str) -> int:
         )
         if not completed or completed.get("status") != "succeeded":
             return 1
+
+        current = completed["data"]["task"]
+        for operation in ("task.reopen", "task.cancel", "task.archive", "task.reopen"):
+            result = _invoke(
+                cli, config_root,
+                _request(operation, {"task_id": current["id"], "expected_version": current["version"]},
+                         store_id, f"task-demo-{operation.replace('.', '-')}-{uuid.uuid4().hex}"),
+            )
+            if not result or result.get("status") != "succeeded":
+                return 1
+            current = result["data"]["task"]
 
         code, status = _run_core(cli, config_root, ["status", "--request-id", request_id])
         _print_json("Core status", status if status is not None else {"exit_code": code})

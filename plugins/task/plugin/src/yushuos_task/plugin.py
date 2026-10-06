@@ -35,7 +35,7 @@ from .storage import CommitIdentity, TaskStorageError, TaskStore
 
 
 _WRITE_CAPABILITIES = frozenset({
-    "task.create", "task.update", "task.complete", "task.reopen", "task.delete",
+    "task.create", "task.update", "task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive",
 })
 _CORE_VERSION = re.compile(r"^0\.3\.(?P<patch>[0-9]+)(?:\+[0-9A-Za-z.-]+)?$")
 _SAFE_CONTEXT_KEYS = (
@@ -158,7 +158,7 @@ def _validate_scope(request: Request, context: PluginContext) -> tuple[str, str 
     elif request.capability == "task.update":
         if set(fields) != {"task_id", "expected_version", "changes"}:
             raise TaskValidationError("update fields 与 Task Contract 不匹配")
-    elif request.capability in {"task.complete", "task.reopen", "task.delete"}:
+    elif request.capability in {"task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive"}:
         if set(fields) != {"task_id", "expected_version"}:
             raise TaskValidationError("transition fields 与 Task Contract 不匹配")
     store_id, task_id = validate_request_target(request.capability, request.fields, request.target)

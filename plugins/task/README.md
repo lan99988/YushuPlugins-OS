@@ -1,6 +1,8 @@
 # YushuOS Task Plugin
 
-`yushuos.task` is the first standalone YushuOS business plugin. Version 0.1.0 provides seven capabilities: create, get, list, update, complete, reopen, and soft-delete tasks. It is also the reference implementation for Core's Contract v3 `local_commit_v1` plugin protocol. The frozen behavior is in [Implementation Ready](docs/IMPLEMENTATION-READY.zh-CN.md), the public model and storage details are in [Contract and Storage](docs/CONTRACT-AND-STORAGE.md), and future plugin work follows the [Business Plugin Author Guide](docs/BUSINESS-PLUGIN-AUTHOR-GUIDE.en.md).
+`yushuos.task` is the first standalone YushuOS business plugin. Version 0.2.0 provides nine capabilities: create, get, list, update, complete, reopen, soft-delete, cancel, and archive tasks. It is also the reference implementation for Core's Contract v3 `local_commit_v1` plugin protocol. The frozen behavior is in [Implementation Ready](docs/IMPLEMENTATION-READY.zh-CN.md), the public model and storage details are in [Contract and Storage](docs/CONTRACT-AND-STORAGE.md), and future plugin work follows the [Business Plugin Author Guide](docs/BUSINESS-PLUGIN-AUTHOR-GUIDE.en.md).
+
+Cancel changes open tasks to cancelled. Archive sets `archived_at` while retaining status; reopen clears the archive and returns completed/cancelled/archived tasks to open. Lists exclude deleted and archived tasks by default; use `include_deleted` and `include_archived` explicitly. Existing schema v1 databases remain readable and receive a backup before their first write migrates them to v2. See the [0.2.0 specification](docs/TASK-0.2.0.md) for transition and recovery details.
 
 ## Compatibility and data boundaries
 
@@ -38,7 +40,7 @@ The ZIP contains only the verified `plugin/` tree. Extract it to a normal direct
 
 ```powershell
 python .\examples\setup_core.py --config-root .\.task-core --store-id personal
-Expand-Archive -LiteralPath .\dist\yushuos-task-0.1.0.zip -DestinationPath .\task-unpacked
+Expand-Archive -LiteralPath .\dist\yushuos-task-0.2.0.zip -DestinationPath .\task-unpacked
 yushuos --config-root .\.task-core install-plugin --path .\task-unpacked\plugin
 yushuos --config-root .\.task-core catalog --details
 ```
@@ -47,14 +49,14 @@ For bash, activate the venv from the build section, then run the equivalent comm
 
 ```bash
 python ./examples/setup_core.py --config-root ./.task-core --store-id personal
-python -m zipfile -e ./dist/yushuos-task-0.1.0.zip ./task-unpacked
+python -m zipfile -e ./dist/yushuos-task-0.2.0.zip ./task-unpacked
 yushuos --config-root ./.task-core install-plugin --path ./task-unpacked/plugin
 yushuos --config-root ./.task-core catalog --details
 ```
 
-The setup helper selects Task 0.1.0, binds `task_store`, and initializes an empty shared ledger without a seed request or Task database. It grants `task.read` and `task.write` by default; `--allow-delete` explicitly adds `task.delete`.
+The setup helper selects Task 0.2.0, binds `task_store`, and initializes an empty shared ledger without a seed request or Task database. It grants `task.read` and `task.write` by default; `--allow-delete` explicitly adds `task.delete`.
 
-Run the full real-CLI walkthrough against the locked plugin directory. It creates a temporary Core root, installs the plugin, executes create/list/update/complete, checks status, and replays create with the original request. The temporary root is deleted when the walkthrough finishes.
+Run the full real-CLI walkthrough against the locked plugin directory. It creates a temporary Core root, installs the plugin, executes create/list/update/complete/reopen/cancel/archive/reopen, checks status, and replays create with the original request. The temporary root is deleted when the walkthrough finishes.
 
 ```powershell
 python .\examples\demo.py --plugin-path .\plugin --yushuos yushuos
@@ -80,7 +82,7 @@ Reads require `task.read`; creation requires `task.write`; update/complete/reope
 
 ## Disable and remove installed code
 
-Core does not provide an `uninstall-plugin` command. First add `yushuos.task` to the `user_disabled` list in the relevant `config.yaml`, then inspect `catalog --details` and `doctor` to confirm the disable state. Resolve and verify the exact installed version directory, normally `<config-root>/plugins/yushuos.task/0.1.0`, before removing only that code directory. Keep `<config-root>/plugin-data/yushuos.task` and the shared operation ledger: they contain user data and Core-owned recovery history.
+Core does not provide an `uninstall-plugin` command. First add `yushuos.task` to the `user_disabled` list in the relevant `config.yaml`, then inspect `catalog --details` and `doctor` to confirm the disable state. Resolve and verify the exact installed version directory, normally `<config-root>/plugins/yushuos.task/0.2.0`, before removing only that code directory. Keep `<config-root>/plugin-data/yushuos.task` and the shared operation ledger: they contain user data and Core-owned recovery history.
 
 ## Release verification
 

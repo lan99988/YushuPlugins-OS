@@ -18,7 +18,7 @@ _RFC3339 = re.compile(
     r"(?P<time>[0-9]{2}:[0-9]{2}:[0-9]{2})(?:\.(?P<fraction>[0-9]{1,6}))?"
     r"(?P<zone>[Zz]|[+-][0-9]{2}:[0-9]{2})$"
 )
-_STATUSES = frozenset({"open", "completed", "deleted"})
+_STATUSES = frozenset({"open", "completed", "cancelled", "deleted"})
 _PRIORITIES = frozenset({"low", "normal", "high", "urgent"})
 _UPDATE_FIELDS = frozenset(UPDATE_FIELDS)
 _CREATE_FIELDS = _UPDATE_FIELDS
@@ -26,6 +26,8 @@ _TRANSITIONS = {
     "task.complete": ("open", "completed", "task.completed"),
     "task.reopen": ("completed", "open", "task.reopened"),
     "task.delete": (None, "deleted", "task.deleted"),
+    "task.cancel": ("open", "cancelled", "task.cancelled"),
+    "task.archive": (None, None, "task.archived"),
 }
 
 
@@ -225,6 +227,7 @@ class Task:
     completed_at: str | None
     deleted_at: str | None
     version: int
+    archived_at: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Return the public Task model without the private store identifier."""
@@ -243,6 +246,7 @@ class Task:
             "updated_at": self.updated_at,
             "completed_at": self.completed_at,
             "deleted_at": self.deleted_at,
+            "archived_at": self.archived_at,
             "version": self.version,
         }
 
@@ -324,7 +328,19 @@ def apply_transition(task: Task, operation_name: str, *, now: datetime | str) ->
             return Mutation(task=task, changed=False, event_intents=())
         raise TaskDeletedError("已删除的 Task 为终态")
     previous_status, target_status, event_type = _TRANSITIONS[operation_name]
-    if previous_status is not None and task.status != previous_status:
+    if operation_name == "task.cancel":
+        if task.status == "cancelled":
+            return Mutation(task=task, changed=False, event_intents=())
+        if task.status != "open":
+            raise TaskValidationError("cancel 只允许 open Task")
+    elif operation_name == "task.archive":
+        if task.archived_at is not None:
+            return Mutation(task=task, changed=False, event_intents=())
+        target_status = task.status
+    elif operation_name == "task.reopen":
+        if task.status == "open" and task.archived_at is None:
+            return Mutation(task=task, changed=False, event_intents=())
+    elif previous_status is not None and task.status != previous_status:
         return Mutation(task=task, changed=False, event_intents=())
 
     changed_at = utc_timestamp(now)
@@ -337,6 +353,11 @@ def apply_transition(task: Task, operation_name: str, *, now: datetime | str) ->
         changes["completed_at"] = changed_at
     elif operation_name == "task.reopen":
         changes["completed_at"] = None
+        changes["archived_at"] = None
+    elif operation_name == "task.archive":
+        changes["archived_at"] = changed_at
+    elif operation_name == "task.cancel":
+        pass
     else:
         changes["deleted_at"] = changed_at
     new_task = replace(task, **changes)
@@ -347,6 +368,7 @@ def apply_transition(task: Task, operation_name: str, *, now: datetime | str) ->
 class TaskFilters:
     statuses: tuple[str, ...] | None = None
     include_deleted: bool = False
+    include_archived: bool = False
     project_ref: str | None = None
     project_ref_specified: bool = False
     priority: str | None = None
@@ -356,12 +378,14 @@ class TaskFilters:
     updated_after: str | None = None
 
     def __post_init__(self) -> None:
+        if type(self.include_archived) is not bool:
+            raise TaskValidationError("include_archived 必须是布尔值")
         if type(self.include_deleted) is not bool:
             raise TaskValidationError("include_deleted 必须是布尔值")
         if type(self.project_ref_specified) is not bool:
             raise TaskValidationError("project_ref_specified 必须是布尔值")
         if self.statuses is not None:
-            if (not isinstance(self.statuses, tuple) or not 1 <= len(self.statuses) <= 3
+            if (not isinstance(self.statuses, tuple) or not 1 <= len(self.statuses) <= 4
                     or any(not isinstance(status, str) or status not in _STATUSES for status in self.statuses)
                     or len(self.statuses) != len(set(self.statuses))):
                 raise TaskValidationError("TaskFilters.statuses 无效")
@@ -384,11 +408,12 @@ class TaskFilters:
     @classmethod
     def from_fields(cls, fields: Mapping[str, Any]) -> "TaskFilters":
         allowed = {
-            "status", "include_deleted", "project_ref", "priority", "due_before",
+            "status", "include_deleted", "include_archived", "project_ref", "priority", "due_before",
             "due_after", "tag", "updated_after",
         }
         if not isinstance(fields, Mapping) or set(fields) - allowed:
             raise TaskValidationError("list 过滤条件包含不支持字段")
+        include_archived = fields.get("include_archived", False)
         include_deleted = fields.get("include_deleted", False)
         if type(include_deleted) is not bool:
             raise TaskValidationError("include_deleted 必须是布尔值")
@@ -398,8 +423,8 @@ class TaskFilters:
         if "status" not in fields:
             statuses = None
         else:
-            if not isinstance(raw_status, (list, tuple)) or not 1 <= len(raw_status) <= 3:
-                raise TaskValidationError("status 必须是包含 1 到 3 个值的数组")
+            if not isinstance(raw_status, (list, tuple)) or not 1 <= len(raw_status) <= 4:
+                raise TaskValidationError("status 必须是包含 1 到 4 个值的数组")
             if any(not isinstance(item, str) or item not in _STATUSES for item in raw_status):
                 raise TaskValidationError("status 包含无效状态")
             if len(raw_status) != len(set(raw_status)):
@@ -436,6 +461,7 @@ class TaskFilters:
         return cls(
             statuses=statuses,
             include_deleted=include_deleted,
+            include_archived=include_archived,
             project_ref=project_ref,
             project_ref_specified=project_ref_specified,
             priority=priority,
@@ -449,13 +475,14 @@ class TaskFilters:
         if self.statuses is not None:
             return self.statuses
         if self.include_deleted:
-            return ("open", "completed", "deleted")
-        return ("open", "completed")
+            return ("open", "completed", "cancelled", "deleted")
+        return ("open", "completed", "cancelled")
 
     def cursor_payload(self) -> dict[str, Any]:
         return {
             "statuses": list(self.resolved_statuses()),
             "include_deleted": self.include_deleted,
+            "include_archived": self.include_archived,
             "project_ref_specified": self.project_ref_specified,
             "project_ref": self.project_ref,
             "priority": self.priority,
@@ -469,7 +496,7 @@ class TaskFilters:
 def validate_request_target(capability: str, fields: Mapping[str, Any], target: Mapping[str, Any]) -> tuple[str, str | None]:
     """Validate target store binding and duplicated task identity fields."""
     if capability not in {
-        "task.create", "task.get", "task.list", "task.update", "task.complete", "task.reopen", "task.delete",
+        "task.create", "task.get", "task.list", "task.update", "task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive",
     }:
         raise TaskValidationError("未知 Task capability")
     if not isinstance(fields, Mapping) or not isinstance(target, Mapping):
@@ -479,7 +506,7 @@ def validate_request_target(capability: str, fields: Mapping[str, Any], target: 
     if "store_id" not in target:
         raise TaskValidationError("target 缺少 store_id")
     store_id = _validate_store_id(target["store_id"])
-    item_action = capability in {"task.get", "task.update", "task.complete", "task.reopen", "task.delete"}
+    item_action = capability in {"task.get", "task.update", "task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive"}
     target_task_id = target.get("task_id")
     field_task_id = fields.get("task_id")
     if item_action:

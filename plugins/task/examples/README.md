@@ -33,7 +33,9 @@ yushuos --config-root .\.task-demo-core install-plugin --path .\plugin
 python examples/demo.py --config-root .\.task-demo-core --store-id personal --capability task.list --fields '{"limit":20}' --yushuos yushuos
 ```
 
-`setup_core.py` 固定选择 `yushuos.task@0.1.0`，绑定 `task_store` 到指定的 `store_id`，并用 Core SDK 初始化空共享操作台账。默认权限只有 `task.read` 和 `task.write`；只有显式传入 `--allow-delete` 才增加 `task.delete`。setup 不安装插件，也不会创建 Task 私有 SQLite 数据库；该数据库只会在首次获准的 Task 写操作时创建。
+`setup_core.py` 固定选择 `yushuos.task@0.2.0`，绑定 `task_store` 到指定的 `store_id`，并用 Core SDK 初始化空共享操作台账。默认权限只有 `task.read` 和 `task.write`；只有显式传入 `--allow-delete` 才增加 `task.delete`。setup 不安装插件，也不会创建 Task 私有 SQLite 数据库；该数据库只会在首次获准的 Task 写操作时创建。
+
+0.2.0 单次调用可选 task.cancel 或 task.archive，fields 都为 `{"task_id":"tsk_…","expected_version":1}`。取消仅允许 open（cancelled 为 no-op），归档不改变 status；task.reopen 清除归档。task.list 使用 `{"include_archived":true}` 包含归档任务。完整隔离 demo 包含 complete/reopen/cancel/archive/reopen 链路。
 
 省略 `--config-root` 时，setup 会创建一个新的系统临时目录并保留它，便于用户后续使用；路径会打印在终端。若要授权删除，初始化时运行：
 
