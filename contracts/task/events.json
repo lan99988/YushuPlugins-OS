@@ -1,0 +1,33 @@
+{
+  "plugin": "task",
+  "events": [
+    {
+      "name": "task.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "task.updated",
+      "payload": "reference-only"
+    },
+    {
+      "name": "task.completed",
+      "payload": "reference-only"
+    },
+    {
+      "name": "task.reopened",
+      "payload": "reference-only"
+    },
+    {
+      "name": "task.deleted",
+      "payload": "reference-only"
+    },
+    {
+      "name": "task.cancelled",
+      "payload": "reference-only"
+    },
+    {
+      "name": "task.archived",
+      "payload": "reference-only"
+    }
+  ]
+}

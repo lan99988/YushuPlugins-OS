@@ -1,0 +1,21 @@
+{
+  "plugin": "review",
+  "events": [
+    {
+      "name": "review.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "review.finalize",
+      "payload": "reference-only"
+    },
+    {
+      "name": "review.generate",
+      "payload": "reference-only"
+    },
+    {
+      "name": "review.interpret",
+      "payload": "reference-only"
+    }
+  ]
+}

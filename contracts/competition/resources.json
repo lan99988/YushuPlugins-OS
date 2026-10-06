@@ -1,0 +1,14 @@
+{
+  "plugin": "competition",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "competition_store"
+  }
+}

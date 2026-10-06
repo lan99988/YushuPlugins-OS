@@ -1,0 +1,410 @@
+id: yushuos.feishu
+name: feishu
+version: 0.1.0
+contract_version: 3
+type: app
+enabled: true
+dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties:
+    binding_file: &id001
+      type: string
+      minLength: 1
+      maxLength: 2000
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+emitted_events: []
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 45
+  protocol: json-stdio-v2
+capabilities:
+- name: feishu.task.create
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      tasklist_guid: *id001
+      title: *id001
+      description:
+        type: string
+        maxLength: 20000
+      due_at:
+        type: string
+        maxLength: 40
+    required:
+    - tasklist_guid
+    - title
+    additionalProperties: false
+  outputs: &id003
+    type: object
+    properties:
+      provider_id: *id001
+      operation_status:
+        type: string
+        enum:
+        - confirmed
+        - not_submitted
+      result_state:
+        type: string
+        enum:
+        - available
+        - not_submitted
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  permissions:
+  - feishu.write
+  intents:
+  - command
+  resource_scopes:
+    tasklist_guid: tasklist
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.task.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      tasklist_guid: *id001
+      task_guid: *id001
+    required:
+    - tasklist_guid
+    - task_guid
+    additionalProperties: false
+  outputs: &id004
+    type: object
+    properties:
+      entity: &id002
+        type: object
+        properties:
+          id: *id001
+          title:
+            type: string
+          content:
+            type: string
+        required:
+        - id
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  permissions:
+  - feishu.read
+  intents:
+  - query
+  resource_scopes:
+    tasklist_guid: tasklist
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.task.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      tasklist_guid: *id001
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor:
+        type: string
+        maxLength: 2000
+      completed:
+        type: boolean
+    required:
+    - tasklist_guid
+    additionalProperties: false
+  outputs: &id005
+    type: object
+    properties:
+      items:
+        type: array
+        items: *id002
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  permissions:
+  - feishu.read
+  intents:
+  - query
+  resource_scopes:
+    tasklist_guid: tasklist
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.task.update
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      tasklist_guid: *id001
+      task_guid: *id001
+      title: *id001
+      description:
+        type: string
+        maxLength: 20000
+      due_at:
+        type: string
+        maxLength: 40
+    required:
+    - tasklist_guid
+    - task_guid
+    - title
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - feishu.write
+  intents:
+  - command
+  resource_scopes:
+    tasklist_guid: tasklist
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.task.complete
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      tasklist_guid: *id001
+      task_guid: *id001
+    required:
+    - tasklist_guid
+    - task_guid
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - feishu.write
+  intents:
+  - command
+  resource_scopes:
+    tasklist_guid: tasklist
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.calendar.event.create
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      calendar_id: *id001
+      start_at:
+        type: string
+        maxLength: 40
+      end_at:
+        type: string
+        maxLength: 40
+      summary: *id001
+      description:
+        type: string
+        maxLength: 20000
+      timezone: *id001
+    required:
+    - calendar_id
+    - start_at
+    - end_at
+    - summary
+    - timezone
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - feishu.write
+  intents:
+  - command
+  resource_scopes:
+    calendar_id: calendar
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.calendar.event.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      calendar_id: *id001
+      event_id: *id001
+    required:
+    - calendar_id
+    - event_id
+    additionalProperties: false
+  outputs: *id004
+  permissions:
+  - feishu.read
+  intents:
+  - query
+  resource_scopes:
+    calendar_id: calendar
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.calendar.event.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      calendar_id: *id001
+      start_at:
+        type: string
+        maxLength: 40
+      end_at:
+        type: string
+        maxLength: 40
+    required:
+    - calendar_id
+    - start_at
+    - end_at
+    additionalProperties: false
+  outputs: *id005
+  permissions:
+  - feishu.read
+  intents:
+  - query
+  resource_scopes:
+    calendar_id: calendar
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.calendar.event.update
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      calendar_id: *id001
+      event_id: *id001
+      start_at:
+        type: string
+        maxLength: 40
+      end_at:
+        type: string
+        maxLength: 40
+      summary: *id001
+      description:
+        type: string
+        maxLength: 20000
+      timezone: *id001
+    required:
+    - calendar_id
+    - event_id
+    - start_at
+    - end_at
+    - summary
+    - timezone
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - feishu.write
+  intents:
+  - command
+  resource_scopes:
+    calendar_id: calendar
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.message.send
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      receive_id: *id001
+      receive_id_type:
+        type: string
+        enum:
+        - chat_id
+        - open_id
+      text:
+        type: string
+        minLength: 1
+        maxLength: 200000
+    required:
+    - receive_id
+    - receive_id_type
+    - text
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - feishu.write
+  intents:
+  - command
+  resource_scopes:
+    receive_id: recipient
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: feishu.resource.bindings.get
+  effect: read_only
+  inputs:
+    type: object
+    properties: {}
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      bindings:
+        type: object
+        properties:
+          tasklist:
+            type: array
+            items: *id001
+          calendar:
+            type: array
+            items: *id001
+          recipient:
+            type: array
+            items: *id001
+        required:
+        - tasklist
+        - calendar
+        - recipient
+        additionalProperties: false
+    required:
+    - bindings
+    additionalProperties: false
+  permissions:
+  - feishu.read
+  intents:
+  - query
+  resource_scopes: {}
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true

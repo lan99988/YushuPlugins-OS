@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "plugin": "yushuos.habit",
+  "seed": {
+    "capability": "habit.create",
+    "intent": "command",
+    "fields": {
+      "name": "walk",
+      "timezone": "Asia/Shanghai"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "habit"
+}

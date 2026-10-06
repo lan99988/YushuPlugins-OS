@@ -1,0 +1,37 @@
+{
+  "plugin": "decision",
+  "events": [
+    {
+      "name": "decision.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.choose",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.outcome",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.review",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.update",
+      "payload": "reference-only"
+    }
+  ]
+}

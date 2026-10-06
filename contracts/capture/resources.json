@@ -1,0 +1,14 @@
+{
+  "plugin": "capture",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "capture_store"
+  }
+}

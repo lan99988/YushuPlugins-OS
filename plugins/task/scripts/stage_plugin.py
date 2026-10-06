@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import shutil
-import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]

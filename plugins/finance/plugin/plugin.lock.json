@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LICENSE": "82744c1b108e36e0b5510446291edfde9385d1b64de2f53a792605dcc5dbc097",
+    "README.md": "14ef8bff1cc49657d672e14bb5ac5c89f9281fb97b47e944a42544f2a0af707d",
+    "SKILL.md": "45fac3fbcb633758265a6d4559bd55a89fdd6cbb7cc3057f83ac7909426fe310",
+    "business_runtime/__init__.py": "ddce81071f7789574684d14eac94dd19c50fa55f56c74e2fa1439824f8d75f3f",
+    "business_runtime/adapter.py": "fa6c8de2c7676ae36bdd2d8efb22f53459ffda82628e5c2a91b8eb30635f6aa5",
+    "business_runtime/contracts.py": "f194aeef9cb580ace716450fa191551cbadbbccb931c826a0734244b8e6ce6a0",
+    "business_runtime/domains.py": "09d5f5a939ddf24d2c4ff258ae641b8f8979b0b22c5d99e92402e513bfb4afc0",
+    "business_runtime/store.py": "e4a6d5b344714752304861b2275ac24c3684fd1ea6ad6263dd710bbafdaa336d",
+    "plugin.yaml": "1790bc7fef7ef956f3ca8bad3b7118c19fd65da2dcd58c31c15c2ff76f5d9d22",
+    "run.py": "58fa92c8546d500f42de9b108d0c80c1d63660d36c18af6c33c15040964efc7e"
+  },
+  "format": 1,
+  "plugin_id": "yushuos.finance",
+  "version": "0.1.0"
+}

@@ -1,0 +1,21 @@
+{
+  "plugin": "finance",
+  "events": [
+    {
+      "name": "finance.month.closed",
+      "payload": "reference-only"
+    },
+    {
+      "name": "finance.monthly_snapshot.close",
+      "payload": "reference-only"
+    },
+    {
+      "name": "finance.monthly_snapshot.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "finance.statement.created",
+      "payload": "reference-only"
+    }
+  ]
+}

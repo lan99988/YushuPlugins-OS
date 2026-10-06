@@ -1,6 +1,6 @@
 # Business Plugin Reference Skeleton
 
-This directory documents the reusable starting point for a YushuOS business plugin. The executable Task 0.1.0 plugin remains the reference implementation; this skeleton does not duplicate its domain schema or Core ledger code.
+This directory documents the reusable starting point for a YushuOS business plugin. The executable Task 0.2.0 plugin remains the reference implementation; this skeleton does not duplicate its domain schema or Core ledger code.
 
 ## Compatibility
 

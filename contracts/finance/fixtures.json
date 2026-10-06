@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "plugin": "yushuos.finance",
+  "seed": {
+    "capability": "finance.statement.create",
+    "intent": "command",
+    "fields": {
+      "month": "2026-10",
+      "currency": "CNY",
+      "source_id": "s1",
+      "transactions": []
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "finance.statement"
+}

@@ -1,0 +1,14 @@
+{
+  "plugin": "planner",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "planner_store"
+  }
+}

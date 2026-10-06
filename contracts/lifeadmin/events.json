@@ -1,0 +1,33 @@
+{
+  "plugin": "lifeadmin",
+  "events": [
+    {
+      "name": "lifeadmin.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "lifeadmin.complete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "lifeadmin.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "lifeadmin.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "lifeadmin.renew",
+      "payload": "reference-only"
+    },
+    {
+      "name": "lifeadmin.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "lifeadmin.update",
+      "payload": "reference-only"
+    }
+  ]
+}

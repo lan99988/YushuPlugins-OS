@@ -2,7 +2,7 @@
   "protocol": "json-stdio-v2",
   "action": "invoke",
   "plugin_id": "fixture.protocol",
-  "plugin_version": "0.1.0",
+  "plugin_version": "0.2.0",
   "capability": "fixture.echo",
   "capability_effect": "read_only",
   "request": {

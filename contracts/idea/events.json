@@ -1,0 +1,33 @@
+{
+  "plugin": "idea",
+  "events": [
+    {
+      "name": "idea.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "idea.convert",
+      "payload": "reference-only"
+    },
+    {
+      "name": "idea.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "idea.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "idea.discard",
+      "payload": "reference-only"
+    },
+    {
+      "name": "idea.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "idea.update",
+      "payload": "reference-only"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "plugin": "knowledge",
+  "events": [
+    {
+      "name": "knowledge.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.concept.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.insight.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.link.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.update",
+      "payload": "reference-only"
+    }
+  ]
+}

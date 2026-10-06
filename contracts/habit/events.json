@@ -1,0 +1,41 @@
+{
+  "plugin": "habit",
+  "events": [
+    {
+      "name": "habit.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.checkin",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.pause",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.resume",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.undo_checkin",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.update",
+      "payload": "reference-only"
+    }
+  ]
+}

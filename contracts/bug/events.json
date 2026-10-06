@@ -1,0 +1,41 @@
+{
+  "plugin": "bug",
+  "events": [
+    {
+      "name": "bug.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.close",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.link_task",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.reopen",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.resolve",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.update",
+      "payload": "reference-only"
+    }
+  ]
+}

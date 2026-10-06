@@ -1,0 +1,14 @@
+{
+  "plugin": "cognition",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "cognition_store"
+  }
+}

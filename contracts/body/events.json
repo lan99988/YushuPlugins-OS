@@ -1,0 +1,17 @@
+{
+  "plugin": "body",
+  "events": [
+    {
+      "name": "body.sleep.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "body.state.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "body.training.created",
+      "payload": "reference-only"
+    }
+  ]
+}

@@ -10,3 +10,10 @@ dist/
 .env.*
 .devflow/
 .ruff_cache/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.bak
+*.incomplete
+.core/

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "plugin": "yushuos.body",
+  "seed": {
+    "capability": "body.state.record",
+    "intent": "command",
+    "fields": {
+      "at": "2026-10-06T00:00:00Z",
+      "source": "manual",
+      "energy": 5
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "body.state"
+}

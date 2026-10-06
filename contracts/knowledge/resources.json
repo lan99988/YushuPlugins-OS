@@ -1,0 +1,14 @@
+{
+  "plugin": "knowledge",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "knowledge_store"
+  }
+}

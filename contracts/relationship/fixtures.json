@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "plugin": "yushuos.relationship",
+  "seed": {
+    "capability": "relationship.person.create",
+    "intent": "command",
+    "fields": {
+      "name": "test person"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "relationship.person"
+}

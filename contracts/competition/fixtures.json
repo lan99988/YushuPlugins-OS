@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "plugin": "yushuos.competition",
+  "seed": {
+    "capability": "competition.create",
+    "intent": "command",
+    "fields": {
+      "title": "contest"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "competition"
+}

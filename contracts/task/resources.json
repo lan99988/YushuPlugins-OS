@@ -1,0 +1,14 @@
+{
+  "plugin": "task",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "task_store"
+  }
+}

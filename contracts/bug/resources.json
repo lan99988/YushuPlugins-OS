@@ -1,0 +1,14 @@
+{
+  "plugin": "bug",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "bug_store"
+  }
+}

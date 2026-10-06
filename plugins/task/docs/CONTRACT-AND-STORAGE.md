@@ -1,10 +1,10 @@
-# Task Contract 与存储参考（0.1.0）
+# Task Contract 与存储参考（0.2.0）
 
-本文是 Task 0.1.0 的面向实现者参考，覆盖七项能力、输入输出、持久化模型、查询游标和结果保留策略。权威契约定义在 [`contracts.py`](../src/yushuos_task/contracts.py)，字段规范化与状态迁移定义在 [`domain.py`](../src/yushuos_task/domain.py)，SQLite DDL 和 Repository 定义在 [`storage.py`](../src/yushuos_task/storage.py)。Repository 的冻结 Python 接口与错误边界见 [`STORAGE-API.md`](STORAGE-API.md)。
+本文是 Task 0.2.0 的面向实现者参考，覆盖九项能力、输入输出、持久化模型、查询游标和结果保留策略。权威契约定义在 [`contracts.py`](../src/yushuos_task/contracts.py)，字段规范化与状态迁移定义在 [`domain.py`](../src/yushuos_task/domain.py)，SQLite DDL 和 Repository 定义在 [`storage.py`](../src/yushuos_task/storage.py)。Repository 的冻结 Python 接口与错误边界见 [`STORAGE-API.md`](STORAGE-API.md)。
 
 ## 能力与请求形状
 
-所有请求都通过 Core capability 执行，并将 `target.store_id` 绑定到 Core 提供的 `task_store` 资源。单条 Task 操作还需同时在 `fields.task_id` 和 `target.task_id` 提供相同 ID。Task ID 的格式为 `tsk_` 加 32 位小写 UUID hex。Task 0.1.0 不提供插件专属 CLI 或外部系统写入。
+所有请求都通过 Core capability 执行，并将 `target.store_id` 绑定到 Core 提供的 `task_store` 资源。单条 Task 操作还需同时在 `fields.task_id` 和 `target.task_id` 提供相同 ID。Task ID 的格式为 `tsk_` 加 32 位小写 UUID hex。Task 0.2.0 不提供插件专属 CLI 或外部系统写入。
 
 | Capability | Effect / Permission | 输入字段 | 成功 `data` |
 |---|---|---|---|
@@ -14,11 +14,13 @@
 | `task.update` | `internal_write` / `task.read` + `task.write` | `task_id`、`expected_version`、`changes` 必填 | 与 create 相同的写结果分支。 |
 | `task.complete` | `internal_write` / `task.read` + `task.write` | `task_id`、`expected_version` 必填 | 与 create 相同的写结果分支。 |
 | `task.reopen` | `internal_write` / `task.read` + `task.write` | `task_id`、`expected_version` 必填 | 与 create 相同的写结果分支。 |
+| `task.cancel` | `internal_write` / `task.read` + `task.write` | `task_id`、`expected_version` 必填 | 与 create 相同的写结果分支。 |
+| `task.archive` | `internal_write` / `task.read` + `task.write` | `task_id`、`expected_version` 必填 | 与 create 相同的写结果分支。 |
 | `task.delete` | `internal_write` / `task.read` + `task.delete` | `task_id`、`expected_version` 必填 | 与 create 相同的写结果分支。 |
 
-`task.update.changes` 是字段白名单对象，只允许 `title`、`notes`、`priority`、`project_ref`、`source_ref`、`due_at`、`estimate_minutes`、`tags`。禁止修改 `id`、`status`、`version`、任何创建/更新时间和完成/删除时间。状态只能由 complete/reopen/delete 操作改变。除 create 外，每个修改请求都必须带 `expected_version`，并在 SQLite 写锁内比较；版本冲突先于 no-op 判定。
+`task.update.changes` 是字段白名单对象，只允许 `title`、`notes`、`priority`、`project_ref`、`source_ref`、`due_at`、`estimate_minutes`、`tags`。禁止修改 `id`、`status`、`version`、任何创建/更新时间和完成/删除/归档时间。状态只能由 complete/reopen/delete/cancel 操作改变；archive 只设置 archived_at。除 create 外，每个修改请求都必须带 `expected_version`，并在 SQLite 写锁内比较；版本冲突先于 no-op 判定。
 
-`task.list` 支持以下字段：`status`（1–3 个不同状态组成的数组）、`include_deleted`、`project_ref`（省略与显式 null 可区分）、`priority`、`due_before`、`due_after`、`tag`、`updated_after`、`limit`（1–200，默认 50）和 `cursor`。可查询 `deleted` 状态时必须显式传 `include_deleted=true`。默认查询排除 deleted；显式状态过滤不会自动改变这一授权式可见性约束。
+`task.list` 支持以下字段：`status`（1–4 个不同状态组成的数组）、`include_deleted`、`include_archived`、`project_ref`（省略与显式 null 可区分）、`priority`、`due_before`、`due_after`、`tag`、`updated_after`、`limit`（1–200，默认 50）和 `cursor`。可查询 `deleted` 状态时必须显式传 `include_deleted=true`。默认查询排除 deleted 和 archived_at 非 null 的任务；include_archived=true 显式包含归档。取消任务默认可见；显式状态过滤不会自动改变这一授权式可见性约束。
 
 ## Task 公共模型与规范化
 
@@ -29,13 +31,14 @@ Task 的公开 JSON 字段固定如下；内部 `store_id` 不返回给调用方
 | `id` | `tsk_` + 32 位小写 UUID hex。 |
 | `title` | trim 后 1–500 字符，必填。 |
 | `notes` | 字符串或 null，最多 20,000 字符；保留原文，不 trim。 |
-| `status` | `open`、`completed`、`deleted`。新建值为 `open`。 |
+| `status` | `open`、`completed`、`cancelled`、`deleted`。新建值为 `open`。 |
 | `priority` | `low`、`normal`、`high`、`urgent`；默认 `normal`。 |
 | `project_ref`、`source_ref` | 字符串或 null；非 null 值 trim 后 1–200 字符。`project_ref` 是业务分类，不是权限边界。 |
 | `due_at` | RFC3339 时刻或 null；必须显式带时区，归一化为 UTC 六位小数并以 `Z` 结尾。日期型截止时间由 Host 解释。 |
 | `estimate_minutes` | 整数或 null；范围 1–10,080。布尔值不作为整数接受。 |
 | `tags` | 最多 32 个字符串；每个 trim 后 1–64 字符，按首次出现顺序去重。 |
 | `created_at`、`updated_at` | UTC 六位小数、`Z` 结尾的时间字符串。 |
+| `archived_at` | UTC 六位小数时间或 null；独立于 status，archive 设置、reopen 清空。 |
 | `completed_at`、`deleted_at` | 同格式时间字符串或 null；与状态保持一致。 |
 | `version` | 从 1 开始的正整数；仅有实际业务变化时递增。 |
 
@@ -60,7 +63,7 @@ Task 的公开 JSON 字段固定如下；内部 `store_id` 不返回给调用方
 
 ### Event contract
 
-Task 声明五类事件：`task.created`、`task.updated`、`task.completed`、`task.reopened`、`task.deleted`。私有提交证明中的事件意图只允许以下形状，禁止额外字段；`task_id` 必须等于该次提交的 Task ID：
+Task 声明七类事件：`task.created`、`task.updated`、`task.completed`、`task.reopened`、`task.deleted`、`task.cancelled`、`task.archived`。私有提交证明中的事件意图只允许以下形状，禁止额外字段；`task_id` 必须等于该次提交的 Task ID：
 
 ```json
 {"type":"task.created","resource_refs":{"task_id":"tsk_00000000000000000000000000000001"}}
@@ -68,13 +71,13 @@ Task 声明五类事件：`task.created`、`task.updated`、`task.completed`、`
 
 事件类型的权威列表是 `contracts.py` 的 `TASK_EVENTS`；私有意图结构由 `storage.py` 的 `_insert_proof` 校验。Core SDK 按自己的 Event Envelope 合同添加稳定 event ID、source/provider、request/project 和因果链信息。Task 不另建 EventBus，不给意图添加标题、notes、状态正文或变更字段。真实集成测试覆盖 receipt/outbox、PersistentEvent 导入及去重。
 
-## SQLite schema v1
+## SQLite schema v2
 
 一个 Task SQLite 文件只绑定一个 `store_id`。`schema_meta` 记录单例 schema 版本与 store 身份；DDL 和首次获准业务写入在同一事务中创建。每次读取或写入都会校验 schema 版本和 store 身份；未知/部分 schema、高版本或 store 不匹配均 fail closed。表、列、键与索引的完整冻结说明见 [`STORAGE-API.md`](STORAGE-API.md)。
 
 | 表 | 主键 / 关键内容 | 作用 |
 |---|---|---|
-| `schema_meta` | `singleton=1`；`schema_version=1`、`store_id`、`created_at` | 验证数据库身份及 DDL 版本。 |
+| `schema_meta` | `singleton=1`；`schema_version=2`、`store_id`、`created_at` | 验证数据库身份及 DDL 版本。 |
 | `tasks` | `(store_id,id)`；Task 公共字段及内部 `store_id` | 保存 Task 当前事实；`id` 另有唯一约束。 |
 | `task_tags` | `(store_id,task_id,tag)`；顺序由 `position` 保存 | 保存有序去重标签；复合外键指向 Task。 |
 | `task_request_commits` | `(plugin_id,store_id,request_id)` | 保存 Core 绑定身份、JCS fingerprint、operation/provider pins、task_id、提交状态、结果正文与到期时刻、事件意图和恢复状态。 |
@@ -103,3 +106,5 @@ Task 成功结果正文从首次提交时刻起保留 180 天。到期后结果�
 | `task.storage_error` | Storage 层通用错误基类。 |
 | `task.database_error` | SQLite 打开、锁等待、约束或事务错误。 |
 | `task.result_expired` | 成功 commit 的原结果正文已过期；它出现在正常的最小终态 `data` 中。 |
+
+旧 schema v1 在只读查询时兼容读取，archived_at 返回 null。首次获准写入先锁定写库并用 SQLite online backup 保存 `<db>.schema-v1-<uuid>.bak`，再在同一 Task 事务重建 schema v2；备份失败拒绝写入，迁移异常回滚。迁移保存全部任务、标签、schema_meta.created_at 及提交证明原字段，不重写 JSON 快照、provider pins 或事件意图。完整规则见 [0.2.0 扩展规格](TASK-0.2.0.md)。

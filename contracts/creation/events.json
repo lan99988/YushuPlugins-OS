@@ -1,0 +1,33 @@
+{
+  "plugin": "creation",
+  "events": [
+    {
+      "name": "creation.advance_stage",
+      "payload": "reference-only"
+    },
+    {
+      "name": "creation.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "creation.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "creation.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "creation.publication",
+      "payload": "reference-only"
+    },
+    {
+      "name": "creation.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "creation.update",
+      "payload": "reference-only"
+    }
+  ]
+}

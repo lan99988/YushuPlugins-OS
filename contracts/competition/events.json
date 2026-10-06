@@ -1,0 +1,37 @@
+{
+  "plugin": "competition",
+  "events": [
+    {
+      "name": "competition.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.milestone",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.progress",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.review",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.update",
+      "payload": "reference-only"
+    }
+  ]
+}

@@ -7,7 +7,7 @@ import yaml
 
 
 PLUGIN_ID = "yushuos.task"
-PLUGIN_VERSION = "0.1.0"
+PLUGIN_VERSION = "0.2.0"
 FINGERPRINT_SCHEME = "jcs-operation-v1"
 OPERATION_SUPPORT = "local_commit_v1"
 
@@ -19,6 +19,8 @@ CAPABILITY_NAMES = (
     "task.complete",
     "task.reopen",
     "task.delete",
+    "task.cancel",
+    "task.archive",
 )
 TASK_EVENTS = (
     "task.created",
@@ -26,6 +28,8 @@ TASK_EVENTS = (
     "task.completed",
     "task.reopened",
     "task.deleted",
+    "task.cancelled",
+    "task.archived",
 )
 TASK_FIELDS = (
     "id",
@@ -42,6 +46,7 @@ TASK_FIELDS = (
     "updated_at",
     "completed_at",
     "deleted_at",
+    "archived_at",
     "version",
 )
 UPDATE_FIELDS = (
@@ -97,7 +102,7 @@ def _task_schema() -> dict[str, Any]:
         "id": {"type": "string", "minLength": 36, "maxLength": 36},
         "title": _string(1, 500),
         "notes": _nullable_string(0, 20000),
-        "status": {"type": "string", "enum": ["open", "completed", "deleted"]},
+        "status": {"type": "string", "enum": ["open", "completed", "cancelled", "deleted"]},
         "priority": {"type": "string", "enum": ["low", "normal", "high", "urgent"]},
         "project_ref": _nullable_string(1, 200),
         "due_at": _nullable_utc_timestamp(),
@@ -112,6 +117,7 @@ def _task_schema() -> dict[str, Any]:
         "updated_at": {"type": "string", "minLength": 27, "maxLength": 27},
         "completed_at": _nullable_utc_timestamp(),
         "deleted_at": _nullable_utc_timestamp(),
+        "archived_at": _nullable_utc_timestamp(),
         "version": {"type": "integer", "minimum": 1},
     }
     return _object(props, required=TASK_FIELDS)
@@ -162,10 +168,11 @@ LIST_INPUT = _object(
         "status": {
             "type": "array",
             "minItems": 1,
-            "maxItems": 3,
-            "items": {"type": "string", "enum": ["open", "completed", "deleted"]},
+            "maxItems": 4,
+            "items": {"type": "string", "enum": ["open", "completed", "cancelled", "deleted"]},
         },
         "include_deleted": {"type": "boolean"},
+        "include_archived": {"type": "boolean"},
         "project_ref": {"type": ["string", "null"]},
         "priority": _PRIORITY,
         "due_before": _string(1, 35),
@@ -202,6 +209,8 @@ TARGET_SCHEMAS = {
     "task.complete": TASK_TARGET_SCHEMA,
     "task.reopen": TASK_TARGET_SCHEMA,
     "task.delete": TASK_TARGET_SCHEMA,
+    "task.cancel": TASK_TARGET_SCHEMA,
+    "task.archive": TASK_TARGET_SCHEMA,
 }
 
 WRITE_OUTPUT = _object(
@@ -237,7 +246,7 @@ def validate_result_data(capability: str, data: Any) -> None:
         raise ValueError("未知 Task capability")
     if not isinstance(data, dict):
         raise ValueError("Task result data 必须是对象")
-    if capability in {"task.create", "task.update", "task.complete", "task.reopen", "task.delete"}:
+    if capability in {"task.create", "task.update", "task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive"}:
         if data.get("operation_status") != "committed":
             raise ValueError("Task 写结果 operation_status 必须为 committed")
         state = data.get("result_state")
@@ -296,6 +305,8 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
     "task.complete": _capability("task.complete", "internal_write", TRANSITION_INPUT, WRITE_OUTPUT, ("task.read", "task.write"), "command"),
     "task.reopen": _capability("task.reopen", "internal_write", TRANSITION_INPUT, WRITE_OUTPUT, ("task.read", "task.write"), "command"),
     "task.delete": _capability("task.delete", "internal_write", TRANSITION_INPUT, WRITE_OUTPUT, ("task.read", "task.delete"), "command"),
+    "task.cancel": _capability("task.cancel", "internal_write", TRANSITION_INPUT, WRITE_OUTPUT, ("task.read", "task.write"), "command"),
+    "task.archive": _capability("task.archive", "internal_write", TRANSITION_INPUT, WRITE_OUTPUT, ("task.read", "task.write"), "command"),
 }
 
 

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "plugin": "yushuos.bug",
+  "seed": {
+    "capability": "bug.create",
+    "intent": "command",
+    "fields": {
+      "title": "broken",
+      "severity": "high"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "bug"
+}

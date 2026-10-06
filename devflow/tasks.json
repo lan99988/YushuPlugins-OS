@@ -1,0 +1,672 @@
+{
+  "version": 1,
+  "note": "Desktop implementations are delivered; twenty read-only acceptance tasks avoid redundant implementation. Each runs actual tests then one independent review, makes no commit/publication, and retains findings. New development uses separate implement tasks. Requires approved CLI models.",
+  "tasks": [
+    {
+      "id": "task-acceptance",
+      "plugin": "task",
+      "risk": "high",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/task/",
+        "contracts/task/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/task/tests",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "capture-acceptance",
+      "plugin": "capture",
+      "risk": "medium",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/capture/",
+        "contracts/capture/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/capture/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "capture",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "idea-acceptance",
+      "plugin": "idea",
+      "risk": "medium",
+      "deps": [
+        "task-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/idea/",
+        "contracts/idea/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/idea/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "idea",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "bug-acceptance",
+      "plugin": "bug",
+      "risk": "medium",
+      "deps": [
+        "task-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/bug/",
+        "contracts/bug/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/bug/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "bug",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "finance-acceptance",
+      "plugin": "finance",
+      "risk": "high",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/finance/",
+        "contracts/finance/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/finance/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "finance",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "relationship-acceptance",
+      "plugin": "relationship",
+      "risk": "medium",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/relationship/",
+        "contracts/relationship/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/relationship/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "relationship",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "habit-acceptance",
+      "plugin": "habit",
+      "risk": "medium",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/habit/",
+        "contracts/habit/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/habit/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "habit",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "body-acceptance",
+      "plugin": "body",
+      "risk": "medium",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/body/",
+        "contracts/body/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/body/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "body",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "lifeadmin-acceptance",
+      "plugin": "lifeadmin",
+      "risk": "medium",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/lifeadmin/",
+        "contracts/lifeadmin/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/lifeadmin/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "lifeadmin",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "decision-acceptance",
+      "plugin": "decision",
+      "risk": "medium",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/decision/",
+        "contracts/decision/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/decision/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "decision",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "feishu-acceptance",
+      "plugin": "feishu",
+      "risk": "high",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/feishu/",
+        "contracts/feishu/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_app_connectors.py",
+          "tests/test_app_connectors_core.py",
+          "tests/test_feishu_calendar_identity.py",
+          "-k",
+          "feishu",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "ima-acceptance",
+      "plugin": "ima",
+      "risk": "high",
+      "deps": [],
+      "allowed_paths": [
+        "plugins/ima/",
+        "contracts/ima/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_app_connectors.py",
+          "tests/test_app_connectors_core.py",
+          "tests/test_feishu_calendar_identity.py",
+          "-k",
+          "ima",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "planner-acceptance",
+      "plugin": "planner",
+      "risk": "high",
+      "deps": [
+        "task-acceptance",
+        "body-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/planner/",
+        "contracts/planner/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/planner/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "planner",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "deepwork-acceptance",
+      "plugin": "deepwork",
+      "risk": "medium",
+      "deps": [
+        "task-acceptance",
+        "planner-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/deepwork/",
+        "contracts/deepwork/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/deepwork/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "deepwork",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "competition-acceptance",
+      "plugin": "competition",
+      "risk": "medium",
+      "deps": [
+        "task-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/competition/",
+        "contracts/competition/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/competition/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "competition",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "knowledge-acceptance",
+      "plugin": "knowledge",
+      "risk": "medium",
+      "deps": [
+        "ima-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/knowledge/",
+        "contracts/knowledge/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/knowledge/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "knowledge",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "creation-acceptance",
+      "plugin": "creation",
+      "risk": "medium",
+      "deps": [
+        "idea-acceptance",
+        "task-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/creation/",
+        "contracts/creation/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/creation/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "creation",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "review-acceptance",
+      "plugin": "review",
+      "risk": "medium",
+      "deps": [
+        "task-acceptance",
+        "finance-acceptance",
+        "habit-acceptance",
+        "body-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/review/",
+        "contracts/review/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/review/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "review",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "personal_model-acceptance",
+      "plugin": "personal_model",
+      "risk": "high",
+      "deps": [
+        "review-acceptance",
+        "decision-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/personal_model/",
+        "contracts/personal_model/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/personal_model/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "personal_model",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    },
+    {
+      "id": "cognition-acceptance",
+      "plugin": "cognition",
+      "risk": "high",
+      "deps": [
+        "knowledge-acceptance",
+        "decision-acceptance",
+        "review-acceptance",
+        "personal_model-acceptance"
+      ],
+      "allowed_paths": [
+        "plugins/cognition/",
+        "contracts/cognition/"
+      ],
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
+      "tests": [
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "tests/test_contract_inventory.py",
+          "-q"
+        ],
+        [
+          "{python}",
+          "-m",
+          "pytest",
+          "plugins/cognition/tests",
+          "tests/test_all_capabilities.py",
+          "tests/test_plugin_join_faults.py",
+          "-k",
+          "cognition",
+          "-q"
+        ]
+      ],
+      "kind": "verify"
+    }
+  ]
+}

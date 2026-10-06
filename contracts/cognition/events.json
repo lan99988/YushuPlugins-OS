@@ -1,0 +1,37 @@
+{
+  "plugin": "cognition",
+  "events": [
+    {
+      "name": "cognition.analyze",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.analyze",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.review",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.update",
+      "payload": "reference-only"
+    },
+    {
+      "name": "cognition.pattern.withdraw",
+      "payload": "reference-only"
+    }
+  ]
+}

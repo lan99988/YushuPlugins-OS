@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LICENSE": "82744c1b108e36e0b5510446291edfde9385d1b64de2f53a792605dcc5dbc097",
+    "README.md": "e01f190f9f9891ea9706a7bc44e8a67f0ff5730b7213e5c8e064cfaa8f503885",
+    "SKILL.md": "09d224d7013ed8d829112a1333eec965d120a9c1ba9668f49e0b0b1f4af1232e",
+    "business_runtime/__init__.py": "ddce81071f7789574684d14eac94dd19c50fa55f56c74e2fa1439824f8d75f3f",
+    "business_runtime/adapter.py": "fa6c8de2c7676ae36bdd2d8efb22f53459ffda82628e5c2a91b8eb30635f6aa5",
+    "business_runtime/contracts.py": "f194aeef9cb580ace716450fa191551cbadbbccb931c826a0734244b8e6ce6a0",
+    "business_runtime/domains.py": "09d5f5a939ddf24d2c4ff258ae641b8f8979b0b22c5d99e92402e513bfb4afc0",
+    "business_runtime/store.py": "e4a6d5b344714752304861b2275ac24c3684fd1ea6ad6263dd710bbafdaa336d",
+    "plugin.yaml": "c7c59a43e633f7e227dc00efdc0ff464c58c11e0efdf1140adbcf5cc0ee1aba7",
+    "run.py": "676403de13da624ef60cf7170bf306b824411e2095ea5233e48d921eb75e5f81"
+  },
+  "format": 1,
+  "plugin_id": "yushuos.creation",
+  "version": "0.1.0"
+}

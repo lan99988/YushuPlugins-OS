@@ -1,0 +1,17 @@
+{
+  "files": {
+    "LICENSE": "82744c1b108e36e0b5510446291edfde9385d1b64de2f53a792605dcc5dbc097",
+    "README.md": "cdc50017855125b9f892f1f0aea177656991464d4043675e7186108800271925",
+    "SKILL.md": "2872f35e355f75859a4b14e13ae2900228ecd1d84c2143f49ed0e6f8f56bb70f",
+    "business_runtime/__init__.py": "ddce81071f7789574684d14eac94dd19c50fa55f56c74e2fa1439824f8d75f3f",
+    "business_runtime/adapter.py": "fa6c8de2c7676ae36bdd2d8efb22f53459ffda82628e5c2a91b8eb30635f6aa5",
+    "business_runtime/contracts.py": "f194aeef9cb580ace716450fa191551cbadbbccb931c826a0734244b8e6ce6a0",
+    "business_runtime/domains.py": "09d5f5a939ddf24d2c4ff258ae641b8f8979b0b22c5d99e92402e513bfb4afc0",
+    "business_runtime/store.py": "e4a6d5b344714752304861b2275ac24c3684fd1ea6ad6263dd710bbafdaa336d",
+    "plugin.yaml": "062631eba7f1090dd49210d6b0b855d7b8d66fba73ccc2a23ac27f6b020bcca1",
+    "run.py": "80879f950c6300c3b9905c9a9ecf71f8cc970dbb4dada286bc93922d2a90b3d4"
+  },
+  "format": 1,
+  "plugin_id": "yushuos.lifeadmin",
+  "version": "0.1.0"
+}

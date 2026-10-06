@@ -1,0 +1,14 @@
+{
+  "plugin": "creation",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "creation_store"
+  }
+}

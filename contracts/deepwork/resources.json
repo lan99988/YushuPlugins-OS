@@ -1,0 +1,14 @@
+{
+  "plugin": "deepwork",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "deepwork_store"
+  }
+}

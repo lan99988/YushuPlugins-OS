@@ -1,0 +1,2593 @@
+{
+  "contract_version": 3,
+  "plugin": "task",
+  "provider_id": "yushuos.task",
+  "capabilities": [
+    {
+      "name": "task.create",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 0,
+            "maxLength": 20000
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high",
+              "urgent"
+            ]
+          },
+          "project_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "maxLength": 35
+          },
+          "estimate_minutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 10080
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task create capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.get",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "include_deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "task"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task get capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.list",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "required": [],
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 4,
+            "items": {
+              "type": "string",
+              "enum": [
+                "open",
+                "completed",
+                "cancelled",
+                "deleted"
+              ]
+            }
+          },
+          "include_deleted": {
+            "type": "boolean"
+          },
+          "include_archived": {
+            "type": "boolean"
+          },
+          "project_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high",
+              "urgent"
+            ]
+          },
+          "due_before": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 35
+          },
+          "due_after": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 35
+          },
+          "tag": {
+            "type": "string"
+          },
+          "updated_after": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 35
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "tasks",
+          "next_cursor"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "title",
+                "notes",
+                "status",
+                "priority",
+                "project_ref",
+                "due_at",
+                "estimate_minutes",
+                "tags",
+                "source_ref",
+                "created_at",
+                "updated_at",
+                "completed_at",
+                "deleted_at",
+                "archived_at",
+                "version"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                "notes": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 0,
+                  "maxLength": 20000
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "completed",
+                    "cancelled",
+                    "deleted"
+                  ]
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "normal",
+                    "high",
+                    "urgent"
+                  ]
+                },
+                "project_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "due_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 27,
+                  "maxLength": 27
+                },
+                "estimate_minutes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 1,
+                  "maximum": 10080
+                },
+                "tags": {
+                  "type": "array",
+                  "maxItems": 32,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "source_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "created_at": {
+                  "type": "string",
+                  "minLength": 27,
+                  "maxLength": 27
+                },
+                "updated_at": {
+                  "type": "string",
+                  "minLength": 27,
+                  "maxLength": 27
+                },
+                "completed_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 27,
+                  "maxLength": 27
+                },
+                "deleted_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 27,
+                  "maxLength": 27
+                },
+                "archived_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 27,
+                  "maxLength": 27
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task list capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.update",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "expected_version",
+          "changes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "changes": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read",
+        "task.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task update capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.complete",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "expected_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read",
+        "task.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task complete capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.reopen",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "expected_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read",
+        "task.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task reopen capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.delete",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "expected_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read",
+        "task.delete"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task delete capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.cancel",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "expected_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read",
+        "task.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task cancel capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    },
+    {
+      "name": "task.archive",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "expected_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "task": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "notes",
+              "status",
+              "priority",
+              "project_ref",
+              "due_at",
+              "estimate_minutes",
+              "tags",
+              "source_ref",
+              "created_at",
+              "updated_at",
+              "completed_at",
+              "deleted_at",
+              "archived_at",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "completed",
+                  "cancelled",
+                  "deleted"
+                ]
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "completed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "deleted_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "archived_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 27,
+                "maxLength": 27
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "preview"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "planned",
+              "expired"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "planned": {
+            "type": "object",
+            "required": [],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "urgent"
+                ]
+              },
+              "project_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "source_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "due_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 35
+              },
+              "estimate_minutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 10080
+              },
+              "tags": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": [],
+      "permissions": [
+        "task.read",
+        "task.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "YushuOS Task archive capability.",
+      "resource_scopes": {
+        "store_id": "task_store"
+      }
+    }
+  ]
+}

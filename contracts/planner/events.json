@@ -1,0 +1,37 @@
+{
+  "plugin": "planner",
+  "events": [
+    {
+      "name": "planner.apply",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.generate",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.apply",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.replan",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.replan",
+      "payload": "reference-only"
+    }
+  ]
+}

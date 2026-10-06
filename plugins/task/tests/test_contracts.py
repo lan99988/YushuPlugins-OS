@@ -18,7 +18,7 @@ from yushuos.manifest import load_manifest, validate_schema
 def test_contract_declares_exact_capabilities_permissions_and_events():
     assert set(CAPABILITIES) == {
         "task.create", "task.get", "task.list", "task.update",
-        "task.complete", "task.reopen", "task.delete",
+        "task.complete", "task.reopen", "task.delete", "task.cancel", "task.archive",
     }
     assert CAPABILITIES["task.create"]["permissions"] == ["task.write"]
     assert CAPABILITIES["task.get"]["permissions"] == ["task.read"]
@@ -27,7 +27,7 @@ def test_contract_declares_exact_capabilities_permissions_and_events():
     assert PLUGIN_MANIFEST["permissions"] == []
     assert PLUGIN_MANIFEST["operation_support"] == "local_commit_v1"
     assert PLUGIN_MANIFEST["emitted_events"] == [
-        "task.created", "task.updated", "task.completed", "task.reopened", "task.deleted",
+        "task.created", "task.updated", "task.completed", "task.reopened", "task.deleted", "task.cancelled", "task.archived",
     ]
     assert all(item["execution_mode"] == "standalone" for item in CAPABILITIES.values())
 

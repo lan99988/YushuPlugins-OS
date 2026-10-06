@@ -1,0 +1,25 @@
+{
+  "plugin": "capture",
+  "events": [
+    {
+      "name": "capture.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.mark_processed",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.route",
+      "payload": "reference-only"
+    }
+  ]
+}

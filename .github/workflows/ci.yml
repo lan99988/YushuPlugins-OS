@@ -1,0 +1,54 @@
+name: suite-quality
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quality:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: '3.11'}
+          - {os: ubuntu-latest, python: '3.12'}
+          - {os: ubuntu-latest, python: '3.13'}
+          - {os: windows-latest, python: '3.12'}
+          - {os: macos-latest, python: '3.12'}
+    env:
+      PYTHONUTF8: '1'
+      YUSHUOS_CORE_SOURCE: ${{ github.workspace }}/.core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: lan99988/YushuCore-OS
+          ref: a198be8eb463581b8d18440fb46558c35fe62f5f
+          path: .core
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install pinned source and test tools
+        run: python -m pip install -e ".core[automation]" -e ".[dev]"
+      - name: Build all twenty independent packages
+        run: python -m scripts.build_suite --output dist
+      - name: Static checks
+        run: python -m ruff check business_runtime integration scripts devflow tests plugins --select F,E9
+      - name: Suite and system tests
+        run: python -m pytest tests -q --junitxml=dist/suite-tests.xml
+      - name: Task migration and recovery regression
+        run: python -m pytest plugins/task/tests -q --junitxml=dist/task-tests.xml
+      - name: Independent local plugin join tests
+        run: python -m pytest plugins --ignore=plugins/task --ignore=plugins/feishu --ignore=plugins/ima -q --junitxml=dist/plugin-tests.xml
+      - name: Clean installation and package validation
+        run: python -m scripts.verify_release --artifacts dist --core-source .core --clean-install
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/

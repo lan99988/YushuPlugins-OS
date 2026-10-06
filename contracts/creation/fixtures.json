@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "plugin": "yushuos.creation",
+  "seed": {
+    "capability": "creation.create",
+    "intent": "command",
+    "fields": {
+      "title": "draft"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "creation"
+}

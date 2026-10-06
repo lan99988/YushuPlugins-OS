@@ -1,0 +1,14 @@
+{
+  "plugin": "feishu",
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "feishu_store"
+  }
+}

@@ -1,0 +1,915 @@
+{
+  "schema_version": 1,
+  "app": "ima",
+  "version": "0.1.0",
+  "capabilities": [
+    {
+      "id": "ima.note.create",
+      "effect": "external_write",
+      "intent": "command",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "folder_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "folder_id",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "folder_id": "notebook"
+      }
+    },
+    {
+      "id": "ima.note.append",
+      "effect": "external_write",
+      "intent": "command",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "note_id",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
+    },
+    {
+      "id": "ima.note.get",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "note_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "title": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
+    },
+    {
+      "id": "ima.note.list",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "folder_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "folder_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "folder_id": "notebook"
+      }
+    },
+    {
+      "id": "ima.note.search",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "search_type": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {}
+    },
+    {
+      "id": "ima.notebook.list",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {}
+    },
+    {
+      "id": "ima.kb.get",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "knowledge_base_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "knowledge_base_id": "kb"
+      }
+    },
+    {
+      "id": "ima.kb.list",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "knowledge_base_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "knowledge_base_id": "kb"
+      }
+    },
+    {
+      "id": "ima.kb.search",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {}
+    },
+    {
+      "id": "ima.knowledge.search",
+      "effect": "read_only",
+      "intent": "query",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "knowledge_base_id",
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "knowledge_base_id": "kb"
+      }
+    },
+    {
+      "id": "ima.note.delete",
+      "effect": "external_write",
+      "intent": "command",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "note_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
+    },
+    {
+      "id": "ima.note.overwrite",
+      "effect": "external_write",
+      "intent": "command",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "note_id",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
+    },
+    {
+      "id": "ima.kb.associate",
+      "effect": "external_write",
+      "intent": "command",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "note_id",
+          "knowledge_base_id",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note",
+        "knowledge_base_id": "kb"
+      }
+    }
+  ]
+}

@@ -1,0 +1,849 @@
+{
+  "contract_version": 3,
+  "plugin": "feishu",
+  "provider_id": "yushuos.feishu",
+  "capabilities": [
+    {
+      "name": "feishu.task.create",
+      "effect": "external_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "tasklist_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "due_at": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "tasklist_guid",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "resource_scopes": {
+        "tasklist_guid": "tasklist"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.task.get",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "tasklist_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "task_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "tasklist_guid",
+          "task_guid"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "title": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "resource_scopes": {
+        "tasklist_guid": "tasklist"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.task.list",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "tasklist_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "tasklist_guid"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "resource_scopes": {
+        "tasklist_guid": "tasklist"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.task.update",
+      "effect": "external_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "tasklist_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "task_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "due_at": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "tasklist_guid",
+          "task_guid",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "resource_scopes": {
+        "tasklist_guid": "tasklist"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.task.complete",
+      "effect": "external_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "tasklist_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "task_guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "tasklist_guid",
+          "task_guid"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "resource_scopes": {
+        "tasklist_guid": "tasklist"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.calendar.event.create",
+      "effect": "external_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "start_at": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "end_at": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "timezone": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "calendar_id",
+          "start_at",
+          "end_at",
+          "summary",
+          "timezone"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "resource_scopes": {
+        "calendar_id": "calendar"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.calendar.event.get",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "calendar_id",
+          "event_id"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "title": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "resource_scopes": {
+        "calendar_id": "calendar"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.calendar.event.list",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "start_at": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "end_at": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "calendar_id",
+          "start_at",
+          "end_at"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "resource_scopes": {
+        "calendar_id": "calendar"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.calendar.event.update",
+      "effect": "external_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "start_at": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "end_at": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "timezone": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "calendar_id",
+          "event_id",
+          "start_at",
+          "end_at",
+          "summary",
+          "timezone"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "resource_scopes": {
+        "calendar_id": "calendar"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.message.send",
+      "effect": "external_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "receive_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "receive_id_type": {
+            "type": "string",
+            "enum": [
+              "chat_id",
+              "open_id"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "receive_id",
+          "receive_id_type",
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "resource_scopes": {
+        "receive_id": "recipient"
+      },
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    },
+    {
+      "name": "feishu.resource.bindings.get",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "bindings": {
+            "type": "object",
+            "properties": {
+              "tasklist": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              },
+              "calendar": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              },
+              "recipient": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              }
+            },
+            "required": [
+              "tasklist",
+              "calendar",
+              "recipient"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "bindings"
+        ],
+        "additionalProperties": false
+      },
+      "permissions": [
+        "feishu.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "resource_scopes": {},
+      "execution_mode": "standalone",
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true
+    }
+  ]
+}

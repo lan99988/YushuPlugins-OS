@@ -1,0 +1,25 @@
+{
+  "plugin": "relationship",
+  "events": [
+    {
+      "name": "relationship.interaction.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "relationship.person.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "relationship.person.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "relationship.person.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "relationship.person.update",
+      "payload": "reference-only"
+    }
+  ]
+}

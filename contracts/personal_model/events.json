@@ -1,0 +1,41 @@
+{
+  "plugin": "personal_model",
+  "events": [
+    {
+      "name": "personal-model.attach",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.evaluate",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.attach",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.evaluate",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.update",
+      "payload": "reference-only"
+    },
+    {
+      "name": "personal-model.hypothesis.withdraw",
+      "payload": "reference-only"
+    }
+  ]
+}

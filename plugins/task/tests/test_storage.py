@@ -88,7 +88,7 @@ def test_reads_do_not_create_database_and_first_create_commits_fact_proof_and_ev
     with sqlite3.connect(path) as db:
         names = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         assert {"schema_meta", "tasks", "task_tags", "task_request_commits"} <= names
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 1
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 2
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
         assert db.execute("SELECT count(*) FROM tasks").fetchone()[0] == 1
         assert db.execute("SELECT count(*) FROM task_request_commits").fetchone()[0] == 1
@@ -106,7 +106,7 @@ def test_database_is_bound_to_one_store_and_unknown_schema_is_read_write_fail_cl
 
     unknown_path = tmp_path / "future.sqlite"
     with sqlite3.connect(unknown_path) as db:
-        db.execute("PRAGMA user_version=2")
+        db.execute("PRAGMA user_version=3")
     with pytest.raises(TaskSchemaVersionError):
         TaskStore(unknown_path).list_tasks("store-a", TaskFilters.from_fields({}))
     with pytest.raises(TaskSchemaVersionError):
@@ -192,7 +192,7 @@ def test_completed_task_can_be_edited_reopened_then_soft_deleted_without_losing_
 def test_deleted_is_terminal_except_matching_version_delete_noop(tmp_path):
     store = TaskStore(tmp_path / "task.sqlite")
     task_id = create(store).data["task"]["id"]
-    deleted = store.commit_mutation(
+    store.commit_mutation(
         task_id, 1, identity("store-a", "delete", "task.delete"), now="2026-01-01T01:00:00Z"
     )
     repeated = store.commit_mutation(
@@ -411,8 +411,8 @@ def test_real_processes_reusing_same_request_commit_one_task_and_one_proof(tmp_p
 def test_first_schema_transaction_rolls_back_all_ddl_on_failure_and_can_retry(tmp_path):
     class FailingInitializationStore(TaskStore):
         @staticmethod
-        def _create_schema_v1(db, store_id):
-            TaskStore._create_schema_v1(db, store_id)
+        def _create_schema_v2(db, store_id):
+            TaskStore._create_schema_v2(db, store_id)
             raise RuntimeError("injected migration failure")
 
     path = tmp_path / "rollback.sqlite"
