@@ -1,8 +1,10 @@
 import json
+import os
 from pathlib import Path
 import sys
 import time
 import pytest
+from unittest.mock import Mock, patch
 from tests import test_devflow_runtime as fixtures
 from devflow.runtime import CommandRunner, Coordinator, tree_sha, rules_sha
 from devflow.engine import failure_kind
@@ -17,6 +19,27 @@ def test_timeout_kills_descendant_after_parent_exit(tmp_path):
     assert time.monotonic() - start < 2
     time.sleep(1.1)
     assert not (tmp_path / "survived").exists()
+
+
+def test_contained_runner_terminates_direct_child_without_killing_inherited_group():
+    runner = CommandRunner()
+    runner.contained = True
+    process = Mock(pid=4321)
+    with patch('devflow.runtime.os.name', 'posix'), patch('devflow.runtime.signal.SIGKILL', 9, create=True), \
+            patch('devflow.runtime.os.killpg', create=True) as group:
+        runner.kill(process)
+    process.kill.assert_called_once()
+    group.assert_not_called()
+
+
+@pytest.mark.skipif(os.name == 'nt', reason='POSIX process-group containment')
+def test_successful_parent_exit_cleans_orphaned_background_descendant(tmp_path):
+    child = "import time; from pathlib import Path; time.sleep(.8); Path('escaped').write_text('bad')"
+    parent = ("import subprocess,sys; subprocess.Popen([sys.executable,'-c'," + repr(child)
+              + "],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)")
+    assert CommandRunner().run([sys.executable, '-c', parent], tmp_path, timeout=5) == ''
+    time.sleep(1)
+    assert not (tmp_path / 'escaped').exists()
 
 
 @pytest.mark.parametrize("label", ["login required", "rate limit", "connection reset"])

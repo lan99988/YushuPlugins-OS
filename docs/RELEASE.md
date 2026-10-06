@@ -34,9 +34,9 @@ CI 矩阵固定 Core Git SHA，执行 Ruff、根测试、Task 测试、Suite 构
 
 ## 本机调度与模型可用性
 
-后台 ChatGPT CLI 当前不支持所请求的 CLI 6 模型时，调度必须记录 <code>blocked_capability</code> 并保留工作进度，不得自动降级或换成未经批准的模型。后续普通 watch 将每 30 分钟探测模型是否可用，可用后再继续；这项 30 分钟 watch/probe 尚未交付，本文件不把它描述为已实现功能。
+后台 ChatGPT CLI 当前不支持所请求的 CLI 6 模型时，调度记录 <code>blocked_capability</code> 并保留工作进度，不自动降级或换成未经批准的模型。已实现的普通 watch 每 30 分钟查询 CLI 模型能力，策略核对通过后再继续派工；等待期间不发起模型 turn。每 5 秒检查暂停和停止，停止时取消在途探测子树。
 
-Windows autostart 脚本应先以 PlanOnly 检查，再注册登录启动；实际运行使用隐藏窗口、重启和防重复实例。电脑关机期间不会运行。session 恢复、失败证据、使用量和发布逻辑以 <code>DEVFLOW.md</code> 为准；不得把 fresh retry 描述成恢复旧 session。
+Windows autostart 脚本应先以 <code>-Mode Plan</code> 检查，再以 <code>-Mode Install</code> 注册登录启动；实际运行使用隐藏窗口、重启和防重复实例。电脑关机期间不会运行。session 恢复、失败证据、使用量和发布逻辑以 <code>DEVFLOW.md</code> 为准；不得把 fresh retry 描述成恢复旧 session。
 
 ## English
 
@@ -52,6 +52,6 @@ Release sequence: candidate commit → independent review → PR → all require
 
 Milestone A includes Task, Capture, Idea, Bug, Body, Planner, DeepWork, and Feishu. Milestone B adds Finance, Relationship, Habit, LifeAdmin, Decision, IMA, Knowledge, Competition, and Creation. Milestone C adds Review, PersonalModel, and Cognition. Task is 0.2.0 and the other plugins are 0.1.0. The Suite plans staged suite-v0.1.0 releases; it is not uploaded to PyPI, does not install Core automatically, and does not grant permissions.
 
-When the background ChatGPT CLI does not support the requested CLI 6 model, the scheduler must record <code>blocked_capability</code> and preserve progress. It must not downgrade or switch to an unapproved model. A regular watch is planned to probe model availability every 30 minutes and continue when available; that watch/probe has not been delivered and is not described here as implemented.
+When the background ChatGPT CLI does not support the requested CLI 6 model, the scheduler records <code>blocked_capability</code> and preserves progress without downgrading or selecting unapproved models. The implemented ordinary watch queries CLI model capabilities every 30 minutes and dispatches only after the full policy passes. Waiting makes no model turn. Pause/stop checks run every five seconds, and stopping cancels an in-flight probe tree.
 
-On Windows, inspect the autostart script in PlanOnly before registering it for login. Runtime uses a hidden window, restart behavior, and duplicate-instance protection; it does not run while the computer is off. See <code>DEVFLOW.md</code> for the actual support status of session recovery, failure evidence, usage limits, and release logic. Do not describe a fresh retry as recovery of an old session.
+On Windows, inspect the autostart script with <code>-Mode Plan</code> before using <code>-Mode Install</code> to register login startup. Runtime uses a hidden window, restart behavior, and duplicate-instance protection; it does not run while the computer is off. See <code>DEVFLOW.md</code> for the actual support status of session recovery, failure evidence, usage limits, and release logic. Do not describe a fresh retry as recovery of an old session.

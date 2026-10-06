@@ -90,7 +90,9 @@ class CommandRunner:
             if job: job.close()
             elif p.poll() is None: subprocess.run(['taskkill','/PID',str(p.pid),'/T','/F'],capture_output=True,env=non_gh_environment(),timeout=5)
         else:
-            try: os.killpg(p.pid,signal.SIGKILL)
+            try:
+                if getattr(self,'contained',False): p.kill()
+                else: os.killpg(p.pid,signal.SIGKILL)
             except ProcessLookupError: pass
     def cancel(self):
         with self.lock:
@@ -138,6 +140,10 @@ class CommandRunner:
             return out
         finally:
             if getattr(p,'devflow_job',None): p.devflow_job.close()
+            elif os.name != 'nt' and not getattr(self,'contained',False):
+                # Even a successful parent can leave descendants with detached
+                # stdio. Only the runner that created this group may close it.
+                self.kill(p)
             with self.lock: self.processes.pop(p.pid,None); self.record_processes()
     def codex(self,worktree,prompt,model,effort,sandbox,schema,output,log,timeout=1800):
         from .capabilities import resolve_codex, ALLOWED_MODELS
