@@ -1,4 +1,7 @@
 from hashlib import sha256
+from calendar import monthrange
+from datetime import date, datetime, timezone
+from decimal import Decimal
 import json
 from urllib.parse import quote
 
@@ -121,3 +124,94 @@ class Flows:
         return self.call("review", "review.generate", {"period_start": period_start, "period_end": period_end,
                         "sources": {"task": {"planned": len(selected), "completed": sum(t["status"] == "completed" for t in selected)}},
                         "missing_sources": ["finance", "habit", "body"], "source_refs": refs})
+
+    def sync_plan_calendar(self, plan_id, calendar_id, timezone):
+        """Explicit external side effects, stable step IDs; never auto-apply a plan."""
+        plan = self.call("calendar_plan", "planner.plan.get", {"id": plan_id})["entity"]
+        if plan["fields"].get("status") != "applied":
+            raise FlowError({"status": "failed", "error": {"code": "plan_not_applied"}})
+        references = []
+        for index, item in enumerate(plan["fields"]["scheduled"]):
+            task = self.call("calendar_task_" + str(index), "task.get", {"task_id": item["id"]})["task"]
+            if task["version"] != item["task_version"] or task["status"] != "open":
+                raise FlowError({"status": "failed", "error": {"code": "plan_drift"}})
+            data = self.call("calendar_create_" + str(index), "feishu.calendar.event.create",
+                             {"calendar_id": calendar_id, "summary": task["title"], "timezone": timezone,
+                              "start_at": item["start"], "end_at": item["end"]}, target={"calendar_id": calendar_id})
+            references.append(reference("yushuos.feishu", "calendar.event", data["provider_id"], calendar_id))
+        return references
+
+    def knowledge_to_ima(self, knowledge_id, folder_id):
+        source = self.call("knowledge_read", "knowledge.get", {"id": knowledge_id})["entity"]
+        existing = source["fields"].get("ima_ref")
+        if existing:
+            return existing
+        data = self.call("ima_create", "ima.note.create", {"folder_id": folder_id,
+                         "content": source["fields"].get("content") or source["fields"]["title"]}, target={"folder_id": folder_id})
+        ref = reference("yushuos.ima", "note", data["provider_id"], folder_id)
+        self.call("knowledge_confirm", "knowledge.update", {"id": knowledge_id,
+                  "expected_version": source["version"], "changes": {"ima_ref": ref}})
+        return ref
+
+    def ima_to_knowledge(self, note_id):
+        data = self.call("ima_read", "ima.note.get", {"note_id": note_id}, target={"note_id": note_id})
+        note = data["entity"]
+        ref = reference("yushuos.ima", "note", note["id"], note_id)
+        return self.call("knowledge_import", "knowledge.create", {"title": note.get("title") or "IMA note",
+                         "content": note.get("content", ""), "ima_ref": ref})["entity"]
+
+    def period_review(self, period_start, period_end, *, currency, habit_expected):
+        """Collect through Core; state-record UTC dates and explicit habit denominators."""
+        start, end = date.fromisoformat(period_start), date.fromisoformat(period_end)
+        if start > end or any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in habit_expected.values()):
+            raise ValueError("invalid_review_window_or_denominator")
+        sources, refs, missing, metadata = {}, [], [], {}
+        def pages(label, cap, fields, key="items"):
+            values, cursor, index = [], None, 0
+            while True:
+                query = {**fields, "limit": 100}
+                if cursor:
+                    query["cursor"] = cursor
+                result = self.call(label + "_" + str(index), cap, query)
+                values.extend(result[key])
+                cursor = result["next_cursor"]
+                if not cursor:
+                    return values
+                index += 1
+        tasks = pages("period_tasks", "task.list", {"include_archived": True}, "tasks") if "task" in self.stores else []
+        tasks = [t for t in tasks if period_start <= t["created_at"][:10] <= period_end]
+        if "task" in self.stores:
+            sources["task"] = {"planned": len(tasks), "completed": sum(t["status"] == "completed" for t in tasks)}
+        else:
+            missing.append("task")
+        refs.extend(reference("yushuos.task", "task", t["id"], self.stores["task"]) for t in tasks)
+        states = pages("period_body", "body.state.history", {}) if "body" in self.stores else []
+        states = [s for s in states if start <= datetime.fromisoformat(s["fields"]["at"]).astimezone(timezone.utc).date() <= end]
+        if "body" in self.stores:
+            sources["body"] = {"records": len(states)}
+        else:
+            missing.append("body")
+        refs.extend(reference("yushuos.body", "body.state", s["id"], self.stores["body"]) for s in states)
+        missing.extend(["body.sleep_metrics", "body.training_metrics"])
+        total = 0
+        for index, (habit_id, expected) in enumerate(sorted(habit_expected.items())):
+            checkins = pages("period_habit_" + str(index), "habit.history", {"habit_id": habit_id})
+            checkins = [h for h in checkins if period_start <= h["fields"]["date"] <= period_end and not h["fields"].get("undone")]
+            if len(checkins) > expected:
+                raise ValueError("checkins_exceed_explicit_expected")
+            total += len(checkins)
+            refs.extend(reference("yushuos.habit", "habit.checkin", h["id"], self.stores["habit"]) for h in checkins)
+        if habit_expected:
+            sources["habit"] = {"expected": sum(habit_expected.values()), "checkins": total}
+        else:
+            missing.append("habit")
+        if "finance" in self.stores and start.day == 1 and start.year == end.year and start.month == end.month and end.day == monthrange(end.year, end.month)[1]:
+            summary = self.call("period_finance", "finance.summary", {"month": period_start[:7], "currency": currency})
+            sources["finance"] = {"statements": len(summary["statement_ids"]), "income_minor": int(Decimal(summary["income"]) * 100),
+                                  "expense_minor": int(Decimal(summary["expense"]) * 100)}
+            metadata["finance_context"] = {"currency": currency, "month": period_start[:7], "unit": "minor"}
+            refs.extend(reference("yushuos.finance", "finance.statement", rid, self.stores["finance"]) for rid in summary["statement_ids"])
+        else:
+            missing.append("finance")  # Monthly inputs cannot establish daily/weekly totals.
+        return self.call("period_review", "review.generate", {"period_start": period_start, "period_end": period_end,
+                         "sources": sources, "missing_sources": missing, "source_refs": refs, **metadata})

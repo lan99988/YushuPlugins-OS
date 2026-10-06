@@ -49,7 +49,9 @@ class AdditionalRuntimeTests(unittest.TestCase):
             def run(self,argv,cwd,**kw):
                 self.argv=argv; self.kw=kw
                 return '{"type":"thread.started","thread_id":"s"}\n{"type":"turn.completed","usage":{"input_tokens":9}}'
-        r=Capture(); result=r.codex('.', 'private prompt','gpt-6.1-sol','max','read-only','schema','report','log')
+        r=Capture()
+        with patch('devflow.capabilities.resolve_codex',return_value='fake-codex'):
+            result=r.codex('.', 'private prompt','gpt-6.1-sol','max','read-only','schema','report','log')
         self.assertEqual(r.kw['input'],'private prompt')
         self.assertNotIn('private prompt',r.argv)
         self.assertEqual(r.argv[r.argv.index('-m')+1],'gpt-6.1-sol')
@@ -112,8 +114,8 @@ class DependencyTests(RuntimeTests):
                 if argv[1]=='api': return '[]'
                 if argv[1:3]==['pr','list']: return json.dumps([{'number':1,'url':'https://github.invalid/pull/1','headRefOid':head}])
                 if argv[1:3]==['pr','view']:
-                    if argv[-1]=='state,mergeCommit': return json.dumps({'state':'MERGED','mergeCommit':{'oid':head}})
-                    return json.dumps({'headRefOid':head,'reviewDecision':'APPROVED','state':'OPEN','statusCheckRollup':[{'status':'COMPLETED','conclusion':'SUCCESS'}]})
+                    if argv[-1]=='state,baseRefName,mergeCommit': return json.dumps({'state':'MERGED','baseRefName':'main','mergeCommit':{'oid':head}})
+                    return json.dumps({'headRefOid':head,'baseRefName':'main','reviewDecision':'APPROVED','state':'OPEN','statusCheckRollup':[{'status':'COMPLETED','conclusion':'SUCCESS'}]})
                 return ''
         fake=FakeGh(); worker.runner=fake; worker.publish_task('a')
         self.assertEqual(self.store.task('a')['status'],'published')
@@ -123,7 +125,7 @@ class ProcessRecoveryTests(unittest.TestCase):
     def test_orphan_process_identity_recovered_without_touching_diff(self):
         from devflow.runtime import process_identity
         with tempfile.TemporaryDirectory() as tmp:
-            process=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)'])
+            process=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)'],start_new_session=os.name!='nt')
             try:
                 registry=Path(tmp)/'processes.json'; marker=Path(tmp)/'diff.txt'; marker.write_text('preserved')
                 registry.write_text(json.dumps({str(process.pid):{'birth':process_identity(process.pid)}}))
@@ -143,7 +145,7 @@ class GhTransportTests(unittest.TestCase):
             def poll(self): return self.returncode
         with tempfile.TemporaryDirectory() as tmp:
             log=Path(tmp)/'log'
-            with patch('devflow.runtime.gh_environment',return_value={'GH_TOKEN':'private-token','HTTP_PROXY':'proxy'}), patch('devflow.runtime.subprocess.Popen',Process), patch('devflow.runtime.process_identity',return_value='birth'):
+            with patch('devflow.runtime.gh_environment',return_value={'GH_TOKEN':'private-token','HTTP_PROXY':'proxy'}), patch('devflow.runtime.subprocess.Popen',Process), patch('devflow.runtime.process_identity',return_value='birth'), patch('devflow.process_job.ProcessJob'):
                 out=CommandRunner().run(['gh','api','user'],'.',log=log)
             self.assertNotIn('private-token',out)
             self.assertNotIn('private-token',log.read_text())
@@ -205,9 +207,8 @@ class AutostartTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='devflow path ') as tmp:
             root=Path(tmp); repo=root/'repo'; repo.mkdir(); manifest=root/'tasks file.json'; manifest.write_text('{"version":1,"tasks":[]}')
             script=Path.cwd()/'devflow/install_autostart.ps1'
-            from devflow.capabilities import resolve_codex
-            gh=Path('C:/Program Files/GitHub CLI/gh.exe')
-            result=subprocess.run(['powershell','-NoProfile','-File',str(script),'-Mode','Plan','-Repo',str(repo),'-Python',sys.executable,'-Manifest',str(manifest),'-Codex',resolve_codex(),'-Gh',str(gh),'-State',str(root/'outside state')],capture_output=True,text=True,encoding='utf-8')
+            # Plan validates paths only; fixtures must not depend on live CLI installs/auth.
+            result=subprocess.run(['powershell','-NoProfile','-File',str(script),'-Mode','Plan','-Repo',str(repo),'-Python',sys.executable,'-Manifest',str(manifest),'-Codex',sys.executable,'-Gh',sys.executable,'-State',str(root/'outside state')],capture_output=True,text=True,encoding='utf-8')
             self.assertEqual(result.returncode,0,result.stderr)
             plan=json.loads(result.stdout)
             self.assertTrue(plan['TaskName'].startswith('YushuOS-Devflow-'))

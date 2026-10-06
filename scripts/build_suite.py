@@ -101,6 +101,8 @@ def build(output, *, apps=True):
             for name in ("README.md", "SKILL.md"):
                 if (folder / name).is_file():
                     shutil.copyfile(folder / name, plugin / name)
+            shutil.copyfile(ROOT / "LICENSE", plugin / "LICENSE")
+            (plugin / "app-descriptor.json").write_text(json.dumps(module.descriptor(), indent=2) + "\n", encoding="utf-8", newline="\n")
             (plugin / "plugin.yaml").write_text(yaml.safe_dump(module.MANIFEST, sort_keys=False), encoding="utf-8", newline="\n")
             (plugin / "run.py").write_text("from adapter import main\nraise SystemExit(main())\n", encoding="utf-8", newline="\n")
             lock_plugin(plugin)
@@ -108,7 +110,7 @@ def build(output, *, apps=True):
                 raise ValueError("App package failed lock validation")
             (plugin / "plugin.lock.json").write_bytes((plugin / "plugin.lock.json").read_bytes().replace(b"\r\n", b"\n"))
             destination = output / ("yushuos-" + slug + "-0.1.0.zip")
-            contract_files(slug, module.CAPABILITIES, [])
+            contract_files(slug, {cap["name"]: cap for cap in module.MANIFEST["capabilities"]}, [])
             index.append({"plugin": "yushuos." + slug, "version": "0.1.0", "file": destination.name,
                           "sha256": archive(plugin, destination),
                           "validation": {"mock": "pending", "live_read": "not_verified", "live_write": "not_verified"}})

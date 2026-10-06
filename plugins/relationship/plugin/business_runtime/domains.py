@@ -228,6 +228,11 @@ class DomainService:
             if entity["fields"].get("status") in {"completed", "closed", "discarded"}:
                 raise DomainError("invalid_transition")
             changes = fields["changes"]
+            if self.slug == "habit" and "timezone" in changes:
+                try:
+                    ZoneInfo(changes["timezone"])
+                except (KeyError, ValueError):
+                    raise DomainError("invalid_timezone") from None
             if self.slug == "decision" and "options" in changes:
                 chosen = entity["fields"].get("chosen_option")
                 if chosen is not None and chosen not in [o["id"] for o in changes["options"]]:
@@ -457,6 +462,16 @@ class DomainService:
             if task.get("completed", 0) > denominator:
                 raise DomainError("invalid_metric")
             metrics["task_completion_rate"] = task.get("completed", 0) / denominator if denominator else None
+            habit = fields["sources"].get("habit", {})
+            expected = habit.get("expected", 0)
+            if habit.get("checkins", 0) > expected:
+                raise DomainError("invalid_metric")
+            metrics["habit_checkin_rate"] = habit.get("checkins", 0) / expected if expected else None
+            if "finance" in fields["sources"]:
+                context = fields.get("finance_context", {})
+                if not re.fullmatch(r"[A-Z]{3}", context.get("currency", "")) or context.get("unit") != "minor":
+                    raise DomainError("finance_context_required")
+                date.fromisoformat(context.get("month", "") + "-01")
             entity = self.store.create(db, "review", scope, {**fields, "metrics": metrics, "status": "draft"})
             return self._write_result(entity, True, scope, "review.created")
         if action in {"get", "list"}:
@@ -467,8 +482,14 @@ class DomainService:
         if action == "compare":
             other = self._required("review", scope, fields["other_id"], db)
             left, right = entity["fields"]["metrics"], other["fields"]["metrics"]
+            a, b = entity["fields"], other["fields"]
+            comparable = (set(a["sources"]) == set(b["sources"]) and set(a["missing_sources"]) == set(b["missing_sources"])
+                          and (date.fromisoformat(a["period_end"]) - date.fromisoformat(a["period_start"]))
+                              == (date.fromisoformat(b["period_end"]) - date.fromisoformat(b["period_start"])))
+            if "finance" in a["sources"]:
+                comparable = comparable and a.get("finance_context", {}).get("currency") == b.get("finance_context", {}).get("currency")
             return {"left": left, "right": right,
-                    "comparable": set(entity["fields"]["sources"]) == set(other["fields"]["sources"])}, []
+                    "comparable": comparable}, []
         if action == "finalize":
             changes = {"status": "finalized"}
         else:

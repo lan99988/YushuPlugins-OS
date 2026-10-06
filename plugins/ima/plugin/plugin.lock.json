@@ -1,8 +1,10 @@
 {
   "files": {
+    "LICENSE": "82744c1b108e36e0b5510446291edfde9385d1b64de2f53a792605dcc5dbc097",
     "README.md": "c408c074f6f38c3f826c32e3a0072057eca56b4048a88209d7dd857a9df7c9d1",
     "SKILL.md": "2dcfb642c74860db99bb452b72b4afbfc020352e2a8b752ba5a001bc6610190c",
     "adapter.py": "24ab2e46f5417cbf6828dc0ac8ffee075db266d9e8a3e43aeeabf3ca53a6d25f",
+    "app-descriptor.json": "70b2b57bac4b90d839b06f1aa868b6b5ee05490dbe917e9328f95fcdd7ea3a14",
     "configure.py": "8bcafee61768f3d8de1876be9d4b8f2b23b9b85da5b33a12c348c0f2417f5cf8",
     "definition.py": "ddc3701a63d3ce6560c9caa1906b3a834d079bd45122cdcfc23e454ad812eca3",
     "plugin.yaml": "e1df13d7c0016d587fabea8208566e833b18478d27e3f65143f73cfd8f5d7203",

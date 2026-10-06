@@ -177,7 +177,9 @@ SOURCE_METRICS = obj({
     "finance": obj({"statements": integer(), "income_minor": integer(), "expense_minor": integer()}),
 })
 add("review.generate", {"period_start": DATE, "period_end": DATE, "sources": SOURCE_METRICS,
-                        "missing_sources": STRING_LIST, "source_refs": REFS}, ("period_start", "period_end", "sources", "missing_sources"))
+                        "missing_sources": STRING_LIST, "source_refs": REFS,
+                        "finance_context": obj({"currency": text(), "month": text(), "unit": enum("minor")}, ("currency", "month", "unit"))},
+    ("period_start", "period_end", "sources", "missing_sources"))
 add("review.get", {"id": text()}, ("id",), read=True)
 add("review.list", LIST_FIELDS, read=True, output=PAGE)
 add("review.finalize", ID_VERSION, tuple(ID_VERSION))

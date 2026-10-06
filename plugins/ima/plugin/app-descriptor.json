@@ -1,12 +1,13 @@
 {
-  "contract_version": 3,
-  "plugin": "ima",
-  "provider_id": "yushuos.ima",
+  "schema_version": 1,
+  "app": "ima",
+  "version": "0.1.0",
   "capabilities": [
     {
-      "name": "ima.note.create",
+      "id": "ima.note.create",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "folder_id": {
@@ -26,7 +27,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -55,25 +56,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "folder_id": "notebook"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "folder_id": "notebook"
+      }
     },
     {
-      "name": "ima.note.append",
+      "id": "ima.note.append",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "note_id": {
@@ -93,7 +91,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -122,25 +120,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "note_id": "note"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
     },
     {
-      "name": "ima.note.get",
+      "id": "ima.note.get",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "note_id": {
@@ -154,7 +149,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "entity": {
@@ -183,25 +178,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "note_id": "note"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
     },
     {
-      "name": "ima.note.list",
+      "id": "ima.note.list",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "folder_id": {
@@ -224,7 +216,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -263,25 +255,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "folder_id": "notebook"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "folder_id": "notebook"
+      }
     },
     {
-      "name": "ima.note.search",
+      "id": "ima.note.search",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "query": {
@@ -315,7 +304,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -354,25 +343,20 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "account_ref": "account"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {}
     },
     {
-      "name": "ima.notebook.list",
+      "id": "ima.notebook.list",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "limit": {
@@ -388,7 +372,7 @@
         "required": [],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -427,25 +411,20 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "account_ref": "account"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {}
     },
     {
-      "name": "ima.kb.get",
+      "id": "ima.kb.get",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "knowledge_base_id": {
@@ -459,7 +438,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -498,25 +477,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "knowledge_base_id": "kb"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "knowledge_base_id": "kb"
+      }
     },
     {
-      "name": "ima.kb.list",
+      "id": "ima.kb.list",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "knowledge_base_id": {
@@ -539,7 +515,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -578,25 +554,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "knowledge_base_id": "kb"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "knowledge_base_id": "kb"
+      }
     },
     {
-      "name": "ima.kb.search",
+      "id": "ima.kb.search",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "query": {
@@ -619,7 +592,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -658,25 +631,20 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "account_ref": "account"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {}
     },
     {
-      "name": "ima.knowledge.search",
+      "id": "ima.knowledge.search",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "knowledge_base_id": {
@@ -700,7 +668,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -739,25 +707,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "knowledge_base_id": "kb"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.read"
+        ]
+      },
+      "resource_bindings": {
+        "knowledge_base_id": "kb"
+      }
     },
     {
-      "name": "ima.note.delete",
+      "id": "ima.note.delete",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "note_id": {
@@ -771,7 +736,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -800,25 +765,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "note_id": "note"
-      },
       "execution_mode": "standalone",
-      "implemented": false,
-      "verified": false,
-      "authorized": false,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
     },
     {
-      "name": "ima.note.overwrite",
+      "id": "ima.note.overwrite",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "note_id": {
@@ -838,7 +800,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -867,25 +829,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "note_id": "note"
-      },
       "execution_mode": "standalone",
-      "implemented": false,
-      "verified": false,
-      "authorized": false,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
+        "note_id": "note"
+      }
     },
     {
-      "name": "ima.kb.associate",
+      "id": "ima.kb.associate",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "note_id": {
@@ -911,7 +870,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -940,21 +899,17 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "ima.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
+      "execution_mode": "standalone",
+      "auth": {
+        "required": true,
+        "scopes": [
+          "ima.write"
+        ]
+      },
+      "resource_bindings": {
         "note_id": "note",
         "knowledge_base_id": "kb"
-      },
-      "execution_mode": "standalone",
-      "implemented": false,
-      "verified": false,
-      "authorized": false,
-      "enabled": true
+      }
     }
   ]
 }

@@ -1,7 +1,6 @@
 """Release assets are built from the confirmed merge commit, never a stale worker tree."""
 import hashlib
 import json
-import os
 import sys
 from pathlib import Path
 from .security import non_gh_environment
@@ -13,6 +12,7 @@ def build_release_assets(repo,merged,tag,directory,task,runner):
     directory=Path(directory).resolve(); directory.mkdir(parents=True,exist_ok=True)
     if git(repo,'rev-parse',merged+'^{commit}')!=merged: raise RuntimeError('release merge SHA must be exact')
     checkout=directory/'merge-worktree'
+    if checkout.is_symlink() or checkout.resolve()!=directory/'merge-worktree': raise RuntimeError('release worktree target escapes its release directory')
     if checkout.exists():
         if git(checkout,'rev-parse','HEAD')!=merged or git(checkout,'status','--porcelain'): raise RuntimeError('release checkout drift')
     else: git(repo,'worktree','add','--detach',str(checkout),merged)

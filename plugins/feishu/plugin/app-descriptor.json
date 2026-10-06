@@ -1,12 +1,13 @@
 {
-  "contract_version": 3,
-  "plugin": "feishu",
-  "provider_id": "yushuos.feishu",
+  "schema_version": 1,
+  "app": "feishu",
+  "version": "0.1.0",
   "capabilities": [
     {
-      "name": "feishu.task.create",
+      "id": "feishu.task.create",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "tasklist_guid": {
@@ -34,7 +35,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -63,25 +64,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "tasklist_guid": "tasklist"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.write"
+        ]
+      },
+      "resource_bindings": {
+        "tasklist_guid": "tasklist"
+      }
     },
     {
-      "name": "feishu.task.get",
+      "id": "feishu.task.get",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "tasklist_guid": {
@@ -101,7 +99,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "entity": {
@@ -130,25 +128,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "tasklist_guid": "tasklist"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.read"
+        ]
+      },
+      "resource_bindings": {
+        "tasklist_guid": "tasklist"
+      }
     },
     {
-      "name": "feishu.task.list",
+      "id": "feishu.task.list",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "tasklist_guid": {
@@ -174,7 +169,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -213,25 +208,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "tasklist_guid": "tasklist"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.read"
+        ]
+      },
+      "resource_bindings": {
+        "tasklist_guid": "tasklist"
+      }
     },
     {
-      "name": "feishu.task.update",
+      "id": "feishu.task.update",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "tasklist_guid": {
@@ -265,7 +257,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -294,25 +286,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "tasklist_guid": "tasklist"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.write"
+        ]
+      },
+      "resource_bindings": {
+        "tasklist_guid": "tasklist"
+      }
     },
     {
-      "name": "feishu.task.complete",
+      "id": "feishu.task.complete",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "tasklist_guid": {
@@ -332,7 +321,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -361,25 +350,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "tasklist_guid": "tasklist"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.write"
+        ]
+      },
+      "resource_bindings": {
+        "tasklist_guid": "tasklist"
+      }
     },
     {
-      "name": "feishu.calendar.event.create",
+      "id": "feishu.calendar.event.create",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "calendar_id": {
@@ -419,7 +405,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -448,25 +434,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "calendar_id": "calendar"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.write"
+        ]
+      },
+      "resource_bindings": {
+        "calendar_id": "calendar"
+      }
     },
     {
-      "name": "feishu.calendar.event.get",
+      "id": "feishu.calendar.event.get",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "calendar_id": {
@@ -486,7 +469,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "entity": {
@@ -515,25 +498,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "calendar_id": "calendar"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.read"
+        ]
+      },
+      "resource_bindings": {
+        "calendar_id": "calendar"
+      }
     },
     {
-      "name": "feishu.calendar.event.list",
+      "id": "feishu.calendar.event.list",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {
           "calendar_id": {
@@ -557,7 +537,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "items": {
@@ -596,25 +576,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {
-        "calendar_id": "calendar"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.read"
+        ]
+      },
+      "resource_bindings": {
+        "calendar_id": "calendar"
+      }
     },
     {
-      "name": "feishu.calendar.event.update",
+      "id": "feishu.calendar.event.update",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "calendar_id": {
@@ -660,7 +637,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -689,25 +666,22 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "calendar_id": "calendar"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.write"
+        ]
+      },
+      "resource_bindings": {
+        "calendar_id": "calendar"
+      }
     },
     {
-      "name": "feishu.message.send",
+      "id": "feishu.message.send",
       "effect": "external_write",
-      "inputs": {
+      "intent": "command",
+      "input_schema": {
         "type": "object",
         "properties": {
           "receive_id": {
@@ -735,7 +709,7 @@
         ],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "provider_id": {
@@ -764,31 +738,28 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.write"
-      ],
-      "intents": [
-        "command"
-      ],
-      "resource_scopes": {
-        "receive_id": "recipient"
-      },
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.write"
+        ]
+      },
+      "resource_bindings": {
+        "receive_id": "recipient"
+      }
     },
     {
-      "name": "feishu.resource.bindings.get",
+      "id": "feishu.resource.bindings.get",
       "effect": "read_only",
-      "inputs": {
+      "intent": "query",
+      "input_schema": {
         "type": "object",
         "properties": {},
         "required": [],
         "additionalProperties": false
       },
-      "outputs": {
+      "output_schema": {
         "type": "object",
         "properties": {
           "bindings": {
@@ -832,18 +803,14 @@
         ],
         "additionalProperties": false
       },
-      "permissions": [
-        "feishu.read"
-      ],
-      "intents": [
-        "query"
-      ],
-      "resource_scopes": {},
       "execution_mode": "standalone",
-      "implemented": true,
-      "verified": true,
-      "authorized": true,
-      "enabled": true
+      "auth": {
+        "required": true,
+        "scopes": [
+          "feishu.read"
+        ]
+      },
+      "resource_bindings": {}
     }
   ]
 }

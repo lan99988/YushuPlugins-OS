@@ -38,7 +38,7 @@ jobs:
       - name: Build all twenty independent packages
         run: python -m scripts.build_suite --output dist
       - name: Static checks
-        run: python -m ruff check business_runtime integration scripts devflow tests plugins --select F,E9 --exclude "plugins/*/plugin/*"
+        run: python -m ruff check business_runtime integration scripts devflow tests plugins --select F,E9
       - name: Suite and system tests
         run: python -m pytest tests -q --junitxml=dist/suite-tests.xml
       - name: Task migration and recovery regression

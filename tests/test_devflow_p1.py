@@ -2,14 +2,13 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 from tests import test_devflow_runtime as fixtures
-from devflow.engine import Store, model_for
+from devflow.engine import model_for
 from devflow.runtime import Coordinator, CommandRunner, git
 
 class P1Tests(unittest.TestCase):
@@ -122,6 +121,7 @@ class ReleaseAssetTests(P1Tests):
         code='from pathlib import Path; import sys; p=Path(sys.argv[1]); (p/"plugin.zip").write_bytes(b"built"); (p/"suite-manifest.json").write_text("{}"); (p/"SHA256SUMS").write_text("builder sums")'
         task={'contract_sha':'contract','publish':{'build_commands':[[sys.executable,'-c',code,'{output_dir}']]}}
         assets=build_release_assets(self.repo,merged,'v1',self.root/'output',task,CommandRunner())
+        self.assertIn('plugin.zip', {asset.name for asset in assets})
         lock=json.loads((self.root/'output/release.lock.json').read_text())
         self.assertIn('plugin.zip',lock['assets']); self.assertIn('suite-manifest.json',lock['assets']); self.assertIn('suite-SHA256SUMS',lock['assets'])
         self.assertEqual(lock['merge_sha'],merged)

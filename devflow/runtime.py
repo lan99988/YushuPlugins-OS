@@ -4,6 +4,7 @@ import json
 import os
 import signal
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -55,6 +56,13 @@ def process_identity(pid):
             if not kernel.GetProcessTimes(handle,*[ctypes.byref(x) for x in [creation,exit_time,kernel_time,user_time]]): return None
             return str((creation.dwHighDateTime<<32)|creation.dwLowDateTime)
         finally: kernel.CloseHandle(handle)
+    if sys.platform=='darwin':
+        import ctypes
+        class BSDInfo(ctypes.Structure):
+            _fields_=[(name,ctypes.c_uint32) for name in ('flags','status','xstatus','pid','ppid','uid','gid','ruid','rgid','svuid','svgid','rfu')]+[('comm',ctypes.c_char*16),('name',ctypes.c_char*32)]+[(name,ctypes.c_uint32) for name in ('nfiles','pgid','jobc','tdev','tpgid')]+[('nice',ctypes.c_int32),('start_seconds',ctypes.c_uint64),('start_microseconds',ctypes.c_uint64)]
+        library=ctypes.CDLL('/usr/lib/libproc.dylib'); library.proc_pidinfo.argtypes=[ctypes.c_int,ctypes.c_int,ctypes.c_uint64,ctypes.c_void_p,ctypes.c_int]
+        value=BSDInfo()
+        return f'{value.start_seconds}:{value.start_microseconds}' if library.proc_pidinfo(int(pid),3,0,ctypes.byref(value),ctypes.sizeof(value))==ctypes.sizeof(value) else None
     try: return Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()[19]
     except (OSError,IndexError): return None
 
@@ -77,8 +85,10 @@ class CommandRunner:
                     except ProcessLookupError: pass
         self.registry.write_text('{}',encoding='utf-8')
     def kill(self,p):
-        if p.poll() is not None: return
-        if os.name=='nt': subprocess.run(['taskkill','/PID',str(p.pid),'/T','/F'],capture_output=True,env=non_gh_environment())
+        if os.name=='nt':
+            job=getattr(p,'devflow_job',None)
+            if job: job.close()
+            elif p.poll() is None: subprocess.run(['taskkill','/PID',str(p.pid),'/T','/F'],capture_output=True,env=non_gh_environment(),timeout=5)
         else:
             try: os.killpg(p.pid,signal.SIGKILL)
             except ProcessLookupError: pass
@@ -86,18 +96,33 @@ class CommandRunner:
         with self.lock:
             for p,birth in self.processes.values(): self.kill(p)
     def run(self,argv,cwd,input=None,timeout=1800,log=None,env=None,_proxy_retry=False):
-        kwargs={'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {'start_new_session':True}
+        kwargs={'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.CREATE_NO_WINDOW|0x4} if os.name=='nt' else {'start_new_session':not getattr(self,'contained',False)}
         is_gh=Path(argv[0]).name.lower() in ('gh','gh.exe')
         original_env=dict(os.environ if env is None else env)
         env=gh_environment() if is_gh and env is None else (dict(env) if is_gh else non_gh_environment(original_env))
         secrets=github_secrets(os.environ,original_env,env)
         p=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',env=env,**kwargs)
+        if os.name=='nt':
+            from .process_job import ProcessJob
+            try:
+                p.devflow_job=ProcessJob(); p.devflow_job.attach_and_resume(p)
+            except BaseException:
+                if getattr(p,'devflow_job',None): p.devflow_job.close()
+                if p.poll() is None: p.kill()
+                p.wait(timeout=5)
+                raise
         with self.lock: self.processes[p.pid]=(p,process_identity(p.pid)); self.record_processes()
         try:
             timed_out=False
             try: out,err=p.communicate(input,timeout=timeout)
             except subprocess.TimeoutExpired:
-                self.kill(p); out,err=p.communicate(); timed_out=True
+                self.kill(p); timed_out=True
+                try: out,err=p.communicate(timeout=2)
+                except subprocess.TimeoutExpired as expired:
+                    out,err=expired.output or '',expired.stderr or ''
+                    if isinstance(out,bytes): out=out.decode('utf-8','replace')
+                    if isinstance(err,bytes): err=err.decode('utf-8','replace')
+                    p.stdout.close(); p.stderr.close()
             out=redact(out,secrets); err=redact(err,secrets)
             if is_gh and p.returncode and not timed_out and not _proxy_retry and any(x in (out+err).lower() for x in ('eof','connection reset','proxyconnect')):
                 direct={k:v for k,v in env.items() if k.lower() not in ('http_proxy','https_proxy','all_proxy')}
@@ -108,9 +133,11 @@ class CommandRunner:
                 raise error
             if p.returncode:
                 error=RuntimeError((err or out)[-12000:] or f'command exited {p.returncode}'); error.output=out; error.stderr=err
+                if not is_gh and Path(argv[0]).name.lower() not in ('codex','codex.exe'): error.failure_kind='validation'
                 raise error
             return out
         finally:
+            if getattr(p,'devflow_job',None): p.devflow_job.close()
             with self.lock: self.processes.pop(p.pid,None); self.record_processes()
     def codex(self,worktree,prompt,model,effort,sandbox,schema,output,log,timeout=1800):
         from .capabilities import resolve_codex, ALLOWED_MODELS
@@ -224,7 +251,7 @@ class Coordinator:
                 log_path=Path(evidence.get('log','')).resolve()
                 if self.state in log_path.parents and log_path.is_file(): failure_context['log_tails'].append(log_path.read_text(encoding='utf-8')[-12000:])
             instructions+='\nREPAIR_EVIDENCE='+json.dumps(failure_context)
-            instructions+='\nIMPLEMENTATION_CONTRACT='+json.dumps({'task_id':id,'contract_sha':t['contract_sha'],'rules_sha':rules_sha(worktree)})+'\nReturn strict schema report with tree_sha equal to git write-tree after staging your final changes. Retry uses a fresh session with retained worktree and supplied failure evidence.'
+            instructions+='\nIMPLEMENTATION_CONTRACT='+json.dumps({'task_id':id,'contract_sha':t['contract_sha'],'rules_sha':rules_sha(worktree)})+'\nReturn strict schema report with tree_sha equal to git write-tree after staging final changes. Recompute rules_sha after final changes using devflow.runtime.rules_sha(worktree): SHA256 of json.dumps(mapping,sort_keys=True).encode(), mapping each repository-relative AGENTS.md path to its UTF-8 text, excluding .git. The initial rules_sha is only a starting value. Retry uses a fresh session with retained worktree and supplied failure evidence.'
             result=self.invoke_codex(id,attempt,'implementation',worktree,instructions,model,effort,'workspace-write',schema,artifact/'implementation.json',artifact/'implementation.jsonl')
             self.update(id,session=result['session'],status='validating')
             t=self.store.task(id); paths=self.check_scope(t,worktree)
@@ -235,6 +262,7 @@ class Coordinator:
             test_evidence=[]; validated_tree=tree_sha(worktree)
             for index,command in enumerate(t['tests']):
                 if tree_sha(worktree)!=validated_tree: raise RuntimeError('test tree drift before test')
+                command=[part.replace('{python}',sys.executable).replace('{worktree}',str(worktree)) for part in command]
                 log=artifact/f'test-{index}.txt'
                 passed=False
                 try:
@@ -280,12 +308,14 @@ class Coordinator:
             url=self.runner.run([gh,'pr','create','--base',base,'--head',branch,'--title',f'devflow: {id}','--body-file',str(body)],worktree).strip()
             pr={'url':url}
         self.update(id,pr=pr,status='awaiting_gates')
-        data=json.loads(self.runner.run([gh,'pr','view',pr.get('url',str(pr.get('number'))),'--json','headRefOid,reviewDecision,statusCheckRollup,state'],worktree))
+        data=json.loads(self.runner.run([gh,'pr','view',pr.get('url',str(pr.get('number'))),'--json','headRefOid,baseRefName,reviewDecision,statusCheckRollup,state'],worktree))
+        if data.get('baseRefName')!=base: raise RuntimeError('PR base mismatch')
         policy=branch_review_policy(self.runner,worktree,gh,base)
         self.update(id,branch_policy=policy)
         if not publish_gate(head,data,t['review_head'],policy): return
         if data['state']!='MERGED': self.runner.run([gh,'pr','merge',pr.get('url',str(pr.get('number'))),'--merge','--match-head-commit',head],worktree)
-        confirmed=json.loads(self.runner.run([gh,'pr','view',pr.get('url',str(pr.get('number'))),'--json','state,mergeCommit'],worktree))
+        confirmed=json.loads(self.runner.run([gh,'pr','view',pr.get('url',str(pr.get('number'))),'--json','state,baseRefName,mergeCommit'],worktree))
+        if confirmed.get('baseRefName')!=base: raise RuntimeError('merged PR base mismatch')
         if confirmed['state']!='MERGED': return
         release=t.get('publish',{}).get('release_tag')
         if release:

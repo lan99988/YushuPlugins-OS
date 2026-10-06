@@ -306,6 +306,8 @@ def dispatch(name, f, config, transport, rid):
                 "next_cursor": None,
             }
         entity = item(value.get("event"), "event_id")
+        if op == "update" and entity["id"] != f["event_id"]:
+            raise ProviderError(ambiguous=True)
         if not write:
             if entity["id"] != f["event_id"]:
                 raise ProviderError()

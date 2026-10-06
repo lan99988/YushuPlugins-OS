@@ -142,6 +142,26 @@ capabilities:
           additionalProperties: false
         minItems: 0
         maxItems: 1000
+      finance_context:
+        type: object
+        properties:
+          currency:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          month:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          unit:
+            type: string
+            enum:
+            - minor
+        required:
+        - currency
+        - month
+        - unit
+        additionalProperties: false
     required:
     - period_start
     - period_end
