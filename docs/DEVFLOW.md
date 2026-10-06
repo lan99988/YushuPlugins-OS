@@ -33,7 +33,7 @@ python -m devflow --repo C:/path/repo report
 
 执行任务最多占用 3 个槽位。单 SQLite 协调器租约与 fencing 阻止重复协调；共享白名单目录/文件的任务串行。每项有独立 Git 分支与工作树，依赖任务已验证 head 会合并到后继任务基线；冲突保留现场。主检出不受任务修改影响。所有跟踪和未跟踪修改都检查白名单，独立测试由协调器执行；测试完成后的 Git tree、任务契约摘要、AGENTS 规则摘要共同绑定独立只读审查。任务模型声明成功无法令任务完成。
 
-模型阶梯为 L1 `gpt-6-luna/medium`、L2 `gpt-6.1-sol/medium`、L3 `gpt-6.1-sol/high`、L4 `gpt-6-astra/high`。任务风险决定起点；敏感路径自动升至 L4。普通错误最多 4 次，重复失败或后续失败升级。仅明确不可用的 Astra 才回退到 Sol/max，记录原因。网络失败指数退避；额度不足等待 30/60 分钟或服务 resetAt；认证失败阻塞。单命令 30 分钟超时，终止进程树。重新启动依据 PID 和进程创建标识清理登记的遗留进程，保留差异；中断任务需 `resume`。
+模型阶梯为 L1 `gpt-6-luna/max`、L2 `gpt-6.1-sol/medium`、L3 `gpt-6.1-sol/high`、L4 `gpt-6.1-sol/max`。任务风险决定起点；敏感路径自动升至 L4。普通错误最多 4 次，重复失败或后续失败升级。仅允许 GPT 6.1 Sol 与 Luna/max，禁止 Astra、5.6 或任何隐式模型回退。网络失败指数退避；额度不足等待 30/60 分钟或服务 resetAt；认证失败阻塞。单命令 30 分钟超时，终止进程树。重新启动依据 PID 和进程创建标识清理登记的遗留进程，保留差异；中断任务需 `resume`。
 
 发布默认 `manual`。`auto` 仅对清单 `publish.enabled=true` 项推送并创建/复用 PR。发布再次检查 head、tree、干净状态；PR head 必须等于本地审查 head，必须有当前提交通过的 CI 检查；通过 GraphQL 查询实际分支保护，再查询仓库/组织的活动 branch rulesets。规则要求外部审批时必须 `APPROVED`，明确无外部审批要求时使用本地独立 head 审查；未知规则（包括无法判断权限的 404）保持等待。然后使用 `gh pr merge --match-head-commit`。不使用管理员绕过或关闭分支保护。待 CI/审批期间保留 `awaiting_gates` 并继续轮询。合并后可创建指向 merge commit 的版本标签和 GitHub Release，重复执行验证已有标签目标。
 
@@ -57,15 +57,15 @@ python -m unittest discover -s tests -p 'test_devflow*.py'
 ```json
 {
   "levels": [
-    {"model": "gpt-5.6-luna", "effort": "medium"},
-    {"model": "gpt-5.6-sol", "effort": "medium"},
-    {"model": "gpt-5.6-sol", "effort": "high"},
-    {"model": "gpt-5.6-sol", "effort": "max"}
+    {"model": "gpt-6-luna", "effort": "max"},
+    {"model": "gpt-6.1-sol", "effort": "medium"},
+    {"model": "gpt-6.1-sol", "effort": "high"},
+    {"model": "gpt-6.1-sol", "effort": "max"}
   ]
 }
 ```
 
-这是备用策略格式示例，默认不会自动采用。可选 `l4_fallback` 具有 `model/effort`，仅 L4 模型明确不在动态清单时使用，并记录原因。模型存在但指定 effort 不受支持会阻塞。
+这是备用策略格式示例，默认不会自动采用。策略只接受四级 levels，不允许 l4_fallback。仅 Sol 与 Luna/max 可被授权；模型不存在、CLI 账号拒绝，或指定 effort 不受支持均阻塞，不能改用 5.6。
 
 ## Windows 后台登录启动
 
@@ -76,3 +76,17 @@ powershell -NoProfile -File C:/path/repo/devflow/install_autostart.ps1 -Mode Pla
 ```
 
 将 Mode 改为 Install 才注册登录启动；可选 `-StartNow` 立即启动。任务名包含仓库摘要，配置与日志写到外部 State。调度器 `IgnoreNew`、全局命名 mutex 和数据库租约共同避免双实例；所有 native 参数使用 Windows 引号规则。PowerShell 和 Python 子进程隐藏窗口，子进程失败 30 秒后重启，登录任务也配置失败重启。`stop` 或能力/清单阻塞会令启动器结束，不运行业务写入。未在测试中实际注册计划任务。
+
+
+## 验证、重试与发布资产
+
+发布只由协调器主线程执行，并有独占 publisher lock；worker 只生成 verified 状态。非 gh 的全部子进程剥离 GH_TOKEN/GITHUB_TOKEN，日志同时脱敏原始环境和 gh 私有环境中的两个令牌。后台启动器也清除其子进程环境中的 GitHub 令牌。
+
+独立测试在每条命令前后固定 Git tree，失败命令同样保存前后 tree 和日志；源码发生变化即拒绝。实现阶段与审查阶段报告都严格校验 schema、task、tree、contract、rules；实现声明通过不能代替独立测试。依赖保存 head/tree/contract/rules 审查快照，依赖审查或工作树失效时后继阻塞并保留现场。
+
+重试明确使用新会话（session_strategy=fresh_retry），保留 prior_session、工作树及所有 attempt 的原始用量记录。新 prompt 携带 last_failure、先前证据摘要和失败日志尾部。usage_records 追加保存实施/审查各阶段、成功/失败、原始 usage_events；token_usage 是已报告数字的累计，不把缺失用量当作零。异常记录结构化 failure_kind，能力、依赖、认证、额度和网络分别处理，普通测试中出现 auth 单词不会误判认证。
+
+确认 PR merge SHA 后，在仓库外建立独立 detached checkout 构建。publish 可提供 build_commands，每项是 argv，支持 {python}/{output_dir}；统一套件入口为 [{python}, -m, scripts.build_suite, --output, {output_dir}]。构建器生成 checkout 文件时，必须在 build_write_paths 明确声明生成路径（如 contracts/ 和各 plugins/<slug>/plugin/）；源文件变化则拒绝。assets 可声明额外外部输出文件，统一构建的 ZIP、suite-manifest.json 自动收集，构建器校验和保留为 suite-SHA256SUMS。
+
+每次发布包含合并 SHA 的 source ZIP、release.lock.json（merge/source/build tree、来源锁、契约和逐资产 SHA256）及总 SHA256SUMS。GitHub release 创建时上传资产，重试核对已有资产 digest 或下载后哈希；哈希不符拒绝覆盖。版本标签必须绑定确认的 merge commit。
+初始化会先校验并持久化完整任务队列，再核对 CLI 能力；blocked_capability 时任务仍显示 pending，同一 manifest 重新 init 保留既有工作树和状态。当前 Windows 启动器遇到能力阻塞会正常退出，不启动不受支持的模型，也不会进入失败重启循环。此版本尚未提供能力阻塞期间的定时重探测；需能力变更后重 init 并重新启动。task kind=verify 尚未实现，普通任务仍要求实际实现 diff。

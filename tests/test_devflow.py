@@ -34,7 +34,7 @@ class DevflowTests(unittest.TestCase):
     def test_models_paths_and_gate(self):
         self.assertEqual(model_for('low',0)[0],'gpt-6-luna')
         self.assertEqual(model_for('low',2)[0],'gpt-6.1-sol')
-        self.assertEqual(model_for('critical',0)[0],'gpt-6-astra')
+        self.assertEqual(model_for('critical',0)[0],'gpt-6.1-sol')
         self.assertTrue(allowed('plugins/a/file.py',['plugins/a/']))
         self.assertFalse(allowed('plugins/ab/file.py',['plugins/a/']))
         self.assertFalse(allowed('../plugins/a/file.py',['plugins/a/']))

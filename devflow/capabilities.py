@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import threading
 from pathlib import Path
+from .security import non_gh_environment
 
 REQUIRED_FLAGS=['--json','--output-schema','--output-last-message','--model','--config','--sandbox']
 def resolve_codex():
@@ -18,28 +19,26 @@ def resolve_codex():
         if len(native)==1: path=native[0].resolve()
         else: raise RuntimeError('blocked_capability: configure DEVFLOW_CODEX with absolute native codex.exe')
     return str(path)
-DEFAULT_POLICY={'levels':[{'model':m,'effort':e} for m,e in [('gpt-6-luna','medium'),('gpt-6.1-sol','medium'),('gpt-6.1-sol','high'),('gpt-6-astra','high')]],'l4_fallback':{'model':'gpt-6.1-sol','effort':'max'}}
+ALLOWED_MODELS={'gpt-6-luna','gpt-6.1-sol'}
+DEFAULT_POLICY={'levels':[{'model':m,'effort':e} for m,e in [('gpt-6-luna','max'),('gpt-6.1-sol','medium'),('gpt-6.1-sol','high'),('gpt-6.1-sol','max')]]}
+
 def select_verified_model(model,effort,catalog,fallback=None):
+    if model not in ALLOWED_MODELS or (model=='gpt-6-luna' and effort!='max'): raise RuntimeError('blocked_capability: model/effort not authorized')
     supported={item['model']:{x['reasoningEffort'] for x in item.get('supportedReasoningEfforts',[])} for item in catalog}
     if model in supported:
         if effort not in supported[model]: raise RuntimeError(f'blocked_capability: {model}/{effort} unsupported by CLI model/list')
         return model,effort,None
-    fallback={'model':'gpt-6.1-sol','effort':'max'} if fallback is None and model=='gpt-6-astra' else fallback
-    if fallback and fallback['effort'] in supported.get(fallback['model'],set()):
-        return fallback['model'],fallback['effort'],model+' unavailable in CLI model/list'
     raise RuntimeError(f'blocked_capability: {model} unavailable in CLI model/list')
 def validate_model_policy(policy,catalog):
-    if not isinstance(policy,dict) or set(policy)-{'levels','l4_fallback'} or len(policy.get('levels',[]))!=4: raise RuntimeError('blocked_capability: model policy must define exactly four levels')
-    if 'l4_fallback' in policy and (not isinstance(policy['l4_fallback'],dict) or set(policy['l4_fallback'])!={'model','effort'}): raise RuntimeError('blocked_capability: invalid L4 fallback')
+    if not isinstance(policy,dict) or set(policy)-{'levels'} or len(policy.get('levels',[]))!=4: raise RuntimeError('blocked_capability: model policy must define exactly four levels')
     selected=[]
     for index,item in enumerate(policy['levels']):
         if not isinstance(item,dict) or set(item)!={'model','effort'} or any(not isinstance(item[k],str) or not item[k] for k in ['model','effort']): raise RuntimeError('blocked_capability: model policy fields')
-        fallback=policy.get('l4_fallback') if index==3 else {}
-        selected.append(select_verified_model(item['model'],item['effort'],catalog,fallback))
+        selected.append(select_verified_model(item['model'],item['effort'],catalog))
     return selected
 def probe_catalog(command,timeout=30):
     options={'creationflags':subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {'start_new_session':True}
-    process=subprocess.Popen([command,'app-server','--stdio'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,encoding='utf-8',**options)
+    process=subprocess.Popen([command,'app-server','--stdio'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,encoding='utf-8',env=non_gh_environment(),**options)
     responses=queue.Queue()
     def read():
         for line in process.stdout:

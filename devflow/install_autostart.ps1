@@ -25,6 +25,8 @@ if ($Mode -eq 'Launch') {
     $Python = Absolute-Existing $configuration.Python 'Python'
     $Codex = Absolute-Existing $configuration.Codex 'Codex'
     $Gh = Absolute-Existing $configuration.Gh 'Gh'
+    Remove-Item Env:GH_TOKEN -ErrorAction SilentlyContinue
+    Remove-Item Env:GITHUB_TOKEN -ErrorAction SilentlyContinue
     Set-Location -LiteralPath $Repo
     $taskName = $configuration.TaskName
     $mutex = [Threading.Mutex]::new($false, ('Global\' + $taskName))

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from devflow.engine import Store, publish_gate
-from devflow.runtime import Coordinator, CommandRunner, changed_paths, git
+from devflow.runtime import Coordinator, CommandRunner, changed_paths, git, tree_sha, rules_sha
 
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
@@ -13,6 +13,7 @@ class RuntimeTests(unittest.TestCase):
         self.git('init'); self.git('config','user.email','test@example.invalid'); self.git('config','user.name','Test')
         (self.repo/'README.md').write_text('initial'); self.git('add','.'); self.git('commit','-m','initial')
         self.store=Store(self.root/'state'/'state.db')
+        self.store.set_meta('capabilities',{'command':'fake','models':[{'model':m,'supportedReasoningEfforts':[{'reasoningEffort':e} for e in ['medium','high','max']]} for m in ['gpt-6-luna','gpt-6.1-sol']]})
         self.store.initialize([{'id':'a','deps':[],'allowed_paths':['plugins/a/'],'tests':[[sys.executable,'-c','from pathlib import Path; assert Path("plugins/a/file.txt").read_text()=="ok"']],'risk':'low','prompt':'create file'}])
     def tearDown(self): self.tmp.cleanup()
     def git(self,*args): return subprocess.run(['git',*args],cwd=self.repo,capture_output=True,text=True,check=True).stdout.strip()
@@ -21,6 +22,8 @@ class RuntimeTests(unittest.TestCase):
             def codex(self,worktree,prompt,model,effort,sandbox,schema,output,log,timeout=1800):
                 if sandbox=='workspace-write':
                     path=Path(worktree)/'plugins/a/file.txt'; path.parent.mkdir(parents=True,exist_ok=True); path.write_text('ok')
+                    binding=json.loads(prompt.split('IMPLEMENTATION_CONTRACT=')[1].split('\n')[0]); binding.update(tree_sha=tree_sha(worktree),rules_sha=rules_sha(worktree))
+                    Path(output).write_text(json.dumps(dict(binding,outcome='pass',summary='implemented',tests=[],findings=[])))
                 else:
                     binding=json.loads(prompt.split('EVIDENCE_BINDING=')[1].split('\n')[0])
                     Path(output).write_text(json.dumps(dict(binding,outcome='pass',summary='reviewed',tests=['checked'],findings=[])))
@@ -46,11 +49,11 @@ class AdditionalRuntimeTests(unittest.TestCase):
             def run(self,argv,cwd,**kw):
                 self.argv=argv; self.kw=kw
                 return '{"type":"thread.started","thread_id":"s"}\n{"type":"turn.completed","usage":{"input_tokens":9}}'
-        r=Capture(); result=r.codex('.', 'private prompt','gpt-6-astra','high','read-only','schema','report','log')
+        r=Capture(); result=r.codex('.', 'private prompt','gpt-6.1-sol','max','read-only','schema','report','log')
         self.assertEqual(r.kw['input'],'private prompt')
         self.assertNotIn('private prompt',r.argv)
-        self.assertEqual(r.argv[r.argv.index('-m')+1],'gpt-6-astra')
-        self.assertIn('model_reasoning_effort="high"',r.argv)
+        self.assertEqual(r.argv[r.argv.index('-m')+1],'gpt-6.1-sol')
+        self.assertIn('model_reasoning_effort="max"',r.argv)
         self.assertEqual(result['usage']['input_tokens'],9)
     def test_cli_status_and_resume(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -88,7 +91,7 @@ class DependencyTests(RuntimeTests):
         first=Coordinator(self.repo,self.store).worktree(self.store.task('a'))
         (first/'marker.txt').write_text('dependency')
         git(first,'add','.'); git(first,'commit','-m','dependency')
-        self.store.set_task('a',status='verified',head_sha=git(first,'rev-parse','HEAD'))
+        self.store.set_task('a',status='verified',head_sha=git(first,'rev-parse','HEAD'),review_head=git(first,'rev-parse','HEAD'),review_tree=git(first,'rev-parse','HEAD^{tree}'))
         self.store.initialize([{'id':'a','deps':[],'allowed_paths':['plugins/a/'],'tests':[[sys.executable,'-c','from pathlib import Path; assert Path("plugins/a/file.txt").read_text()=="ok"']],'risk':'low','prompt':'create file'}, {'id':'b','deps':['a'],'allowed_paths':['plugins/b/'],'tests':[[sys.executable,'-V']],'risk':'low','prompt':'b'}])
         worker=Coordinator(self.repo,self.store)
         worktree=worker.worktree(self.store.task('b'))
@@ -168,7 +171,7 @@ class CapabilityTests(unittest.TestCase):
     def test_unknown_model_is_blocked_not_guessed(self):
         from devflow.capabilities import select_verified_model
         catalog=[{'model':'gpt-6.1-sol','supportedReasoningEfforts':[{'reasoningEffort':'max'}]}]
-        self.assertEqual(select_verified_model('gpt-6-astra','high',catalog),('gpt-6.1-sol','max','gpt-6-astra unavailable in CLI model/list'))
+        with self.assertRaises(RuntimeError): select_verified_model('gpt-6-astra','high',catalog)
         with self.assertRaises(RuntimeError): select_verified_model('gpt-6-luna','medium',catalog)
     def test_missing_manifest_is_blocked_spec(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -179,10 +182,10 @@ class CapabilityTests(unittest.TestCase):
 class ModelPolicyTests(unittest.TestCase):
     def test_explicit_policy_effort_verified(self):
         from devflow.capabilities import validate_model_policy
-        models=[{'model':'available','supportedReasoningEfforts':[{'reasoningEffort':'high'}]}]
-        policy={'levels':[{'model':'available','effort':'high'}]*4}
-        self.assertEqual(validate_model_policy(policy,models),[('available','high',None)]*4)
-        bad={'levels':[{'model':'available','effort':'max'}]*4}
+        models=[{'model':'gpt-6.1-sol','supportedReasoningEfforts':[{'reasoningEffort':'high'}]}]
+        policy={'levels':[{'model':'gpt-6.1-sol','effort':'high'}]*4}
+        self.assertEqual(validate_model_policy(policy,models),[('gpt-6.1-sol','high',None)]*4)
+        bad={'levels':[{'model':'gpt-6.1-sol','effort':'max'}]*4}
         with self.assertRaises(RuntimeError): validate_model_policy(bad,models)
     def test_blocked_init_retains_observed_capabilities(self):
         from devflow.__main__ import main
@@ -194,6 +197,8 @@ class ModelPolicyTests(unittest.TestCase):
             store=Store(root/'state/state.db')
             self.assertEqual(store.meta('capabilities')['models'][0]['model'],'available')
             self.assertEqual(store.meta('control'),'blocked_capability')
+            self.assertEqual(len(store.tasks()),1)
+            self.assertEqual(store.task('a')['status'],'pending')
 class AutostartTests(unittest.TestCase):
     def test_windows_launcher_plan_quotes_absolute_paths_without_registration(self):
         if os.name!='nt': self.skipTest('Windows scheduler script')

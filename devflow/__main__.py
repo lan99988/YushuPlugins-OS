@@ -34,6 +34,7 @@ def main(argv=None):
             if not manifest.get('tasks'):
                 store.control('blocked_spec'); store.set_meta('initialization_error','manifest tasks must not be empty')
                 raise ValueError('blocked_spec: manifest tasks must not be empty')
+            store.initialize(manifest['tasks'])
             from .capabilities import probe_cli, validate_model_policy, DEFAULT_POLICY
             try:
                 capabilities=probe_cli(CommandRunner(),repo)
@@ -44,11 +45,13 @@ def main(argv=None):
                 capabilities['selected']=selected; store.set_meta('capabilities',capabilities)
             except (RuntimeError,ValueError,OSError) as exc:
                 store.control('blocked_capability'); store.set_meta('initialization_error',str(exc)); raise
-            store.initialize(manifest['tasks']); store.control('running'); store.set_meta('initialization_error',None)
+            store.control('running'); store.set_meta('initialization_error',None)
             print(json.dumps({'initialized':len(store.tasks()),'state':str(state)}))
         elif args.command=='run':
             if not store.tasks(): raise ValueError('blocked_spec: initialize a nonempty task manifest first')
             if store.meta('control')=='blocked_capability' or not store.meta('capabilities'): raise ValueError('blocked_capability: initialize CLI capability evidence first')
+            from .capabilities import validate_model_policy, DEFAULT_POLICY
+            validate_model_policy(store.meta('models_policy',DEFAULT_POLICY),store.meta('capabilities')['models'])
             Coordinator(repo,store,args.workers,publish=args.publish).run(args.watch)
             print(json.dumps({'tasks':store.tasks()},ensure_ascii=False))
         elif args.command in ('pause','stop'): store.control('paused' if args.command=='pause' else 'stopped'); print(args.command)
@@ -60,5 +63,7 @@ def main(argv=None):
         else: print(json.dumps({'control':store.meta('control','running'),'state':str(state),'capabilities':store.meta('capabilities'),'models_policy':store.meta('models_policy'),'initialization_error':store.meta('initialization_error'),'tasks':store.tasks()},ensure_ascii=False,indent=2))
         return 0
     except (ValueError,RuntimeError,OSError) as exc:
+        if str(exc).startswith('blocked_capability:'): store.control('blocked_capability'); store.set_meta('initialization_error',str(exc))
+        elif str(exc).startswith('blocked_spec:'): store.control('blocked_spec'); store.set_meta('initialization_error',str(exc))
         print(str(exc),file=sys.stderr); return 1
 if __name__=='__main__': raise SystemExit(main())
