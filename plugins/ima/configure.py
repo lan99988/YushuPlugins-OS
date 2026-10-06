@@ -80,7 +80,9 @@ def configure(core_root, *, plugin_root=None, binding_file=None):
     ledger = _ordinary(Path(configured_ledger) if Path(configured_ledger).is_absolute() else root / configured_ledger)
     if not ledger.is_file():
         raise ValueError("existing_core_ledger_required")
-    python = _ordinary(loaded["runtime"]["python_executable"] or sys.executable)
+    # venv/system Python normally uses symlinks on POSIX. Resolve only this
+    # explicitly selected executable; private data/package paths still reject links.
+    python = Path(loaded["runtime"]["python_executable"] or sys.executable).expanduser().resolve(strict=True)
     if not python.is_file():
         raise ValueError("python_unavailable")
     account_file = _outside_repository(binding_file or root / "app-bindings" / (APP + ".json"))

@@ -119,6 +119,25 @@ def test_configure_native_pointer_and_hashes_without_grants(staged):
     assert 'permission_not_granted' in refused.error['reasons']
 
 
+def test_python_executable_link_resolves_without_relaxing_private_paths(staged, tmp_path):
+    _, helper, source, core, binding = staged
+    executable = tmp_path / 'python-link'
+    try:
+        executable.symlink_to(Path(sys.executable).resolve())
+    except OSError:
+        pytest.skip('OS does not permit this test user to create file symlinks')
+    config_path = core / 'config.yaml'
+    config = yaml.safe_load(config_path.read_text(encoding='utf-8'))
+    config['runtime']['python_executable'] = str(executable)
+    config_path.write_text(yaml.safe_dump(config), encoding='utf-8')
+    helper.configure(core, plugin_root=source, binding_file=binding)
+    loaded = load_config(core)
+    pointer = Path(next(iter(loaded['bindings']['apps'].values()))['active_pointer'])
+    assert json.loads(pointer.read_text(encoding='utf-8'))['python_executable'] == str(Path(sys.executable).resolve())
+    with pytest.raises(ValueError, match='linked_path'):
+        helper._ordinary(executable)
+
+
 def test_real_core_runtime_read_and_unverified_membership(staged):
     app, helper, source, core, binding = staged
     helper.configure(core, plugin_root=source, binding_file=binding)
