@@ -1,52 +1,37 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "knowledge",
   "events": [
     {
-      "name": "knowledge.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "knowledge.archive",
+      "payload": "reference-only"
     },
     {
-      "name": "knowledge.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "knowledge.concept.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.insight.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.link.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "knowledge.update",
+      "payload": "reference-only"
     }
   ]
 }

@@ -1,89 +1,75 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": 3,
   "plugin": "capture",
   "provider_id": "yushuos.capture",
   "capabilities": [
     {
       "name": "capture.create",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
           "content": {
             "type": "string",
-            "description": "content",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
           "source": {
             "type": "string",
-            "description": "source",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
           "captured_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "captured at"
-          },
-          "store_id": {
-            "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
           }
         },
         "required": [
           "content",
-          "source",
-          "captured_at",
-          "store_id"
+          "source"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "content": {
-                    "type": "string",
-                    "description": "content",
-                    "minLength": 1
-                  },
-                  "source": {
-                    "type": "string",
-                    "description": "source",
-                    "minLength": 1
-                  },
-                  "captured_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "captured at"
-                  }
-                },
-                "additionalProperties": false
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -109,44 +95,55 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "capture.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.create",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
     },
     {
       "name": "capture.get",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           }
         },
         "required": [
@@ -154,29 +151,36 @@
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -184,7 +188,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -204,33 +209,33 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "capture.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.get",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
     },
     {
       "name": "capture.list",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 100
           },
           "cursor": {
             "type": [
@@ -239,16 +244,13 @@
             ]
           },
           "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "boolean"
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": [],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "items": {
@@ -257,22 +259,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "kind": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "version": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 1,
+                  "maximum": 1000000
                 },
                 "created_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "updated_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "archived": {
                   "type": "boolean"
@@ -280,7 +289,8 @@
                 "fields": {
                   "type": "object",
                   "properties": {},
-                  "additionalProperties": false
+                  "required": [],
+                  "additionalProperties": true
                 }
               },
               "required": [
@@ -293,7 +303,9 @@
                 "fields"
               ],
               "additionalProperties": false
-            }
+            },
+            "minItems": 0,
+            "maxItems": 1000
           },
           "next_cursor": {
             "type": [
@@ -308,82 +320,85 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "capture.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.list",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
     },
     {
-      "name": "capture.route",
-      "input": {
+      "name": "capture.archive",
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "classification": {
-            "type": "string",
-            "description": "classification",
-            "minLength": 1
-          },
-          "store_id": {
+          "id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
           }
         },
         "required": [
-          "classification",
-          "store_id"
+          "id",
+          "expected_version"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "classification": {
-                    "type": "string",
-                    "description": "classification",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -409,59 +424,346 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "capture.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.archive",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
+    },
+    {
+      "name": "capture.restore",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "capture.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.restore",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
+    },
+    {
+      "name": "capture.route",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "task",
+              "idea",
+              "bug",
+              "knowledge",
+              "ignore"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "classification"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "capture.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.route",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
     },
     {
       "name": "capture.mark_processed",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "processing_state": {
+          "id": {
             "type": "string",
-            "description": "processing state",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
-          "reference": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "target_ref": {
             "type": "object",
             "properties": {
               "provider": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "store_id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               }
             },
             "required": [
@@ -470,197 +772,50 @@
               "id",
               "store_id"
             ],
-            "additionalProperties": false,
-            "description": "明确的私有资源引用"
+            "additionalProperties": false
           },
           "ignored_reason": {
             "type": "string",
-            "description": "ignored reason",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
-          }
-        },
-        "required": [
-          "processing_state",
-          "store_id"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {
-                  "processing_state": {
-                    "type": "string",
-                    "description": "processing state",
-                    "minLength": 1
-                  },
-                  "reference": {
-                    "type": "object",
-                    "properties": {
-                      "provider": {
-                        "type": "string"
-                      },
-                      "kind": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "type": "string"
-                      },
-                      "store_id": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "provider",
-                      "kind",
-                      "id",
-                      "store_id"
-                    ],
-                    "additionalProperties": false,
-                    "description": "明确的私有资源引用"
-                  },
-                  "ignored_reason": {
-                    "type": "string",
-                    "description": "ignored reason",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
-            "type": "string",
-            "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
-            ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "capture.archive",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
-          },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
+            "maxLength": 20000
           }
         },
         "required": [
           "id",
-          "store_id",
           "expected_version"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -668,7 +823,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -694,146 +850,44 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
             ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "capture.restore",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
           },
-          "store_id": {
+          "original_request_id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
           },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "id",
-          "store_id",
-          "expected_version"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
+          "code": {
             "type": "string",
             "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "capture.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "capture.mark_processed",
+      "resource_scopes": {
+        "store_id": "capture_store"
+      }
     }
   ]
 }

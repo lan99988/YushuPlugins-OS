@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": 3,
   "plugin": "ima",
   "provider_id": "yushuos.ima",
   "capabilities": [
@@ -8,134 +8,149 @@
       "input": {
         "type": "object",
         "properties": {
-          "title": {
+          "folder_id": {
             "type": "string",
-            "description": "title",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 2000
           },
           "content": {
             "type": "string",
-            "description": "content",
-            "minLength": 1
-          },
-          "notebook_id": {
-            "type": "string",
-            "description": "notebook id",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 200000
           }
         },
         "required": [
-          "title",
-          "content",
-          "notebook_id",
-          "store_id"
+          "folder_id",
+          "content"
         ],
         "additionalProperties": false
       },
       "output": {
         "type": "object",
         "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string",
-                    "description": "title",
-                    "minLength": 1
-                  },
-                  "content": {
-                    "type": "string",
-                    "description": "content",
-                    "minLength": 1
-                  },
-                  "notebook_id": {
-                    "type": "string",
-                    "description": "notebook id",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
           },
           "operation_status": {
             "type": "string",
             "enum": [
-              "committed"
+              "confirmed",
+              "not_submitted"
             ]
           },
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "not_submitted"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
+      "effect": "external_write",
       "intents": [
-        "explicit_user_request"
+        "command"
+      ],
+      "permissions": [
+        "ima.write"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "provider_write",
+      "resource_scopes": {
+        "folder_id": "notebook"
+      },
+      "transaction": "external_receipt_v1",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
+      ]
+    },
+    {
+      "name": "ima.note.append",
+      "input": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "note_id",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "external_write",
+      "intents": [
+        "command"
+      ],
+      "permissions": [
+        "ima.write"
+      ],
+      "execution_mode": "standalone",
+      "resource_scopes": {
+        "note_id": "note"
+      },
+      "transaction": "external_receipt_v1",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
+      "errors": [
+        "invalid_input",
+        "permission_denied",
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     },
     {
@@ -143,14 +158,14 @@
       "input": {
         "type": "object",
         "properties": {
-          "id": {
+          "note_id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 2000
           }
         },
         "required": [
-          "id"
+          "note_id"
         ],
         "additionalProperties": false
       },
@@ -161,40 +176,19 @@
             "type": "object",
             "properties": {
               "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "title": {
                 "type": "string"
               },
-              "kind": {
+              "content": {
                 "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
               }
             },
             "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
+              "id"
             ],
             "additionalProperties": false
           }
@@ -204,21 +198,28 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
+      "effect": "read_only",
       "intents": [
-        "explicit_user_request"
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
+      "resource_scopes": {
+        "note_id": "note"
+      },
       "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     },
     {
@@ -226,25 +227,23 @@
       "input": {
         "type": "object",
         "properties": {
+          "folder_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 20
           },
           "cursor": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "string",
+            "maxLength": 2000
           }
         },
         "required": [
-          "limit"
+          "folder_id"
         ],
         "additionalProperties": false
       },
@@ -257,40 +256,19 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
                   "type": "string"
                 },
-                "kind": {
+                "content": {
                   "type": "string"
-                },
-                "version": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "created_at": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updated_at": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "archived": {
-                  "type": "boolean"
-                },
-                "fields": {
-                  "type": "object",
-                  "properties": {},
-                  "additionalProperties": false
                 }
               },
               "required": [
-                "id",
-                "kind",
-                "version",
-                "created_at",
-                "updated_at",
-                "archived",
-                "fields"
+                "id"
               ],
               "additionalProperties": false
             }
@@ -308,206 +286,127 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
+      "effect": "read_only",
       "intents": [
-        "explicit_user_request"
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
+      "resource_scopes": {
+        "folder_id": "notebook"
+      },
       "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "ima.note.append",
-      "input": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "string",
-            "description": "content",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
-          }
-        },
-        "required": [
-          "content",
-          "store_id"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {
-                  "content": {
-                    "type": "string",
-                    "description": "content",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
-            "type": "string",
-            "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
-            ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "provider_write",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     },
     {
       "name": "ima.note.search",
       "input": {
         "type": "object",
-        "properties": {},
-        "required": [],
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "search_type": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          }
+        },
+        "required": [
+          "query"
+        ],
         "additionalProperties": false
       },
       "output": {
         "type": "object",
         "properties": {
-          "result": {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "search"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "reason": {
-                      "type": "string"
-                    },
-                    "score": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "reason"
-                  ],
-                  "additionalProperties": false
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
                 }
               },
-              "summary": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "kind"
-            ],
-            "additionalProperties": false
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
-          "result"
+          "items",
+          "next_cursor"
         ],
         "additionalProperties": false
       },
-      "effect": "read",
+      "effect": "read_only",
       "intents": [
-        "explicit_user_request"
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
+      "resource_scopes": {
+        "account_ref": "account"
+      },
       "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     },
     {
@@ -518,23 +417,14 @@
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 20
           },
           "cursor": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "string",
+            "maxLength": 2000
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": [],
         "additionalProperties": false
       },
       "output": {
@@ -546,40 +436,19 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
                   "type": "string"
                 },
-                "kind": {
+                "content": {
                   "type": "string"
-                },
-                "version": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "created_at": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updated_at": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "archived": {
-                  "type": "boolean"
-                },
-                "fields": {
-                  "type": "object",
-                  "properties": {},
-                  "additionalProperties": false
                 }
               },
               "required": [
-                "id",
-                "kind",
-                "version",
-                "created_at",
-                "updated_at",
-                "archived",
-                "fields"
+                "id"
               ],
               "additionalProperties": false
             }
@@ -597,21 +466,28 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
+      "effect": "read_only",
       "intents": [
-        "explicit_user_request"
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
+      "resource_scopes": {
+        "account_ref": "account"
+      },
       "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     },
     {
@@ -619,108 +495,14 @@
       "input": {
         "type": "object",
         "properties": {
-          "id": {
+          "knowledge_base_id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 2000
           }
         },
         "required": [
-          "id"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "required": [
-          "entity"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "ima.kb.list",
-      "input": {
-        "type": "object",
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100,
-            "default": 50
-          },
-          "cursor": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "include_archived": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "limit"
+          "knowledge_base_id"
         ],
         "additionalProperties": false
       },
@@ -733,40 +515,19 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
                   "type": "string"
                 },
-                "kind": {
+                "content": {
                   "type": "string"
-                },
-                "version": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "created_at": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "updated_at": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "archived": {
-                  "type": "boolean"
-                },
-                "fields": {
-                  "type": "object",
-                  "properties": {},
-                  "additionalProperties": false
                 }
               },
               "required": [
-                "id",
-                "kind",
-                "version",
-                "created_at",
-                "updated_at",
-                "archived",
-                "fields"
+                "id"
               ],
               "additionalProperties": false
             }
@@ -784,351 +545,519 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
+      "effect": "read_only",
       "intents": [
-        "explicit_user_request"
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
+      "resource_scopes": {
+        "knowledge_base_id": "kb"
+      },
       "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
+      ]
+    },
+    {
+      "name": "ima.kb.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "knowledge_base_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read_only",
+      "intents": [
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
+      ],
+      "execution_mode": "standalone",
+      "resource_scopes": {
+        "knowledge_base_id": "kb"
+      },
+      "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
+      "errors": [
+        "invalid_input",
+        "permission_denied",
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     },
     {
       "name": "ima.kb.search",
       "input": {
         "type": "object",
-        "properties": {},
-        "required": [],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
         "properties": {
-          "result": {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "search"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "reason": {
-                      "type": "string"
-                    },
-                    "score": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "reason"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "summary": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "kind"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "ima.media.get",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          }
-        },
-        "required": [
-          "id"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "required": [
-          "entity"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "ima.binding.create",
-      "input": {
-        "type": "object",
-        "properties": {
-          "local_ref": {
-            "type": "object",
-            "properties": {
-              "provider": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              },
-              "store_id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "provider",
-              "kind",
-              "id",
-              "store_id"
-            ],
-            "additionalProperties": false,
-            "description": "明确的私有资源引用"
-          },
-          "remote_kind": {
-            "type": "string",
-            "description": "remote kind",
-            "minLength": 1
-          },
-          "remote_id": {
-            "type": "string",
-            "description": "remote id",
-            "minLength": 1
-          },
-          "store_id": {
+          "query": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
           }
         },
         "required": [
-          "local_ref",
-          "remote_kind",
-          "remote_id",
-          "store_id"
+          "query"
         ],
         "additionalProperties": false
       },
       "output": {
         "type": "object",
         "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {
-                  "local_ref": {
-                    "type": "object",
-                    "properties": {
-                      "provider": {
-                        "type": "string"
-                      },
-                      "kind": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "type": "string"
-                      },
-                      "store_id": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "provider",
-                      "kind",
-                      "id",
-                      "store_id"
-                    ],
-                    "additionalProperties": false,
-                    "description": "明确的私有资源引用"
-                  },
-                  "remote_kind": {
-                    "type": "string",
-                    "description": "remote kind",
-                    "minLength": 1
-                  },
-                  "remote_id": {
-                    "type": "string",
-                    "description": "remote id",
-                    "minLength": 1
-                  }
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
                 },
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
           },
-          "changed": {
-            "type": "boolean"
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read_only",
+      "intents": [
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
+      ],
+      "execution_mode": "standalone",
+      "resource_scopes": {
+        "account_ref": "account"
+      },
+      "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
+      "errors": [
+        "invalid_input",
+        "permission_denied",
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
+      ]
+    },
+    {
+      "name": "ima.knowledge.search",
+      "input": {
+        "type": "object",
+        "properties": {
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "knowledge_base_id",
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "title": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read_only",
+      "intents": [
+        "query"
+      ],
+      "permissions": [
+        "ima.read"
+      ],
+      "execution_mode": "standalone",
+      "resource_scopes": {
+        "knowledge_base_id": "kb"
+      },
+      "transaction": "read_only",
+      "implemented": true,
+      "verified": false,
+      "authorized": false,
+      "errors": [
+        "invalid_input",
+        "permission_denied",
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
+      ]
+    },
+    {
+      "name": "ima.note.delete",
+      "input": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "note_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
           },
           "operation_status": {
             "type": "string",
             "enum": [
-              "committed"
+              "confirmed",
+              "not_submitted"
             ]
           },
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "not_submitted"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
+      "effect": "external_write",
       "intents": [
-        "explicit_user_request"
+        "command"
+      ],
+      "permissions": [
+        "ima.write"
       ],
       "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "provider_write",
+      "resource_scopes": {
+        "note_id": "note"
+      },
+      "transaction": "external_receipt_v1",
+      "implemented": false,
+      "verified": false,
+      "authorized": false,
       "errors": [
         "invalid_input",
-        "not_found",
-        "version_conflict",
         "permission_denied",
-        "storage_error"
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
+      ]
+    },
+    {
+      "name": "ima.note.overwrite",
+      "input": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200000
+          }
+        },
+        "required": [
+          "note_id",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "external_write",
+      "intents": [
+        "command"
+      ],
+      "permissions": [
+        "ima.write"
+      ],
+      "execution_mode": "standalone",
+      "resource_scopes": {
+        "note_id": "note"
+      },
+      "transaction": "external_receipt_v1",
+      "implemented": false,
+      "verified": false,
+      "authorized": false,
+      "errors": [
+        "invalid_input",
+        "permission_denied",
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
+      ]
+    },
+    {
+      "name": "ima.kb.associate",
+      "input": {
+        "type": "object",
+        "properties": {
+          "note_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "note_id",
+          "knowledge_base_id",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "not_submitted"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_submitted"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "external_write",
+      "intents": [
+        "command"
+      ],
+      "permissions": [
+        "ima.write"
+      ],
+      "execution_mode": "standalone",
+      "resource_scopes": {
+        "note_id": "note",
+        "knowledge_base_id": "kb"
+      },
+      "transaction": "external_receipt_v1",
+      "implemented": false,
+      "verified": false,
+      "authorized": false,
+      "errors": [
+        "invalid_input",
+        "permission_denied",
+        "provider_error",
+        "rate_limited",
+        "request_conflict",
+        "outcome_unknown"
       ]
     }
   ]

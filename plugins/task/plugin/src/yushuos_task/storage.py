@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import base64
 import binascii
-import hashlib
 import json
 import math
 from pathlib import Path
@@ -18,9 +17,7 @@ from typing import Any, Iterator, Mapping
 
 from .contracts import FINGERPRINT_SCHEME, PLUGIN_ID
 from .domain import (
-    Mutation,
     Task,
-    TaskDeletedError,
     TaskFilters,
     TaskNotFound,
     TaskRequestConflict,

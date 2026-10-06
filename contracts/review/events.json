@@ -1,52 +1,21 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "review",
   "events": [
     {
-      "name": "review.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "review.created",
+      "payload": "reference-only"
     },
     {
-      "name": "review.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "review.finalize",
+      "payload": "reference-only"
+    },
+    {
+      "name": "review.generate",
+      "payload": "reference-only"
+    },
+    {
+      "name": "review.interpret",
+      "payload": "reference-only"
     }
   ]
 }

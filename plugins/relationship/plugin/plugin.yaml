@@ -1,0 +1,825 @@
+id: yushuos.relationship
+name: YushuOS relationship
+version: 0.1.0
+contract_version: 3
+operation_support: local_commit_v1
+type: domain
+description: Independent local-first relationship domain plugin
+enabled: true
+dependencies: []
+optional_dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties: {}
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 30
+  protocol: json-stdio-v2
+capabilities:
+- name: relationship.person.create
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id005
+      name:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      relationship:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      notes:
+        type: string
+        minLength: 0
+        maxLength: 20000
+      important_facts:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 20000
+        minItems: 0
+        maxItems: 1000
+    required:
+    - name
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id001
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id001
+          archived: &id002
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id002
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.person.create
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.person.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id003
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id003
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.person.get
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.person.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit: &id017
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor: &id018
+        type:
+        - string
+        - 'null'
+      include_archived: &id019
+        type: boolean
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id004
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id004
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.person.list
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.person.update
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: &id008
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expected_version: &id009
+        type: integer
+        minimum: 1
+        maximum: 1000000
+      changes:
+        type: object
+        properties: *id005
+        required: []
+        additionalProperties: false
+    required:
+    - id
+    - expected_version
+    - changes
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id006
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id006
+          archived: &id007
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id007
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.person.update
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.person.archive
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id012
+      id: *id008
+      expected_version: *id009
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id010
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id010
+          archived: &id011
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id011
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.person.archive
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.person.restore
+  effect: internal_write
+  inputs:
+    type: object
+    properties: *id012
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id013
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id013
+          archived: &id014
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id014
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.person.restore
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.interaction.record
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      person_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      at:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      notes:
+        type: string
+        minLength: 0
+        maxLength: 20000
+      source_ref:
+        type: object
+        properties:
+          provider:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          store_id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+        required:
+        - provider
+        - kind
+        - id
+        - store_id
+        additionalProperties: false
+    required:
+    - person_id
+    - at
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id015
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id015
+          archived: &id016
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id016
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.interaction.record
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.interaction.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit: *id017
+      cursor: *id018
+      include_archived: *id019
+      filters:
+        type: object
+        properties:
+          person_id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+        required: []
+        additionalProperties: false
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id020
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id020
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.interaction.list
+  resource_scopes:
+    store_id: relationship_store
+- name: relationship.recent
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      person_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - person_id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type:
+        - object
+        - 'null'
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id021
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id021
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - relationship.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: relationship.recent
+  resource_scopes:
+    store_id: relationship_store
+routes: []
+skill_names:
+- yushuos.relationship
+emitted_events:
+- relationship.interaction.created
+- relationship.person.archive
+- relationship.person.created
+- relationship.person.restore
+- relationship.person.update
+dependency_versions: {}

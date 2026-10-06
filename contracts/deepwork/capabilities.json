@@ -1,191 +1,120 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": 3,
   "plugin": "deepwork",
   "provider_id": "yushuos.deepwork",
   "capabilities": [
     {
       "name": "deepwork.start",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "task_id": {
-            "type": "string",
-            "description": "task id",
-            "minLength": 1
-          },
-          "started_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "started at"
-          },
-          "planned_minutes": {
-            "type": "integer",
-            "description": "planned minutes"
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
-          }
-        },
-        "required": [
-          "task_id",
-          "started_at",
-          "planned_minutes",
-          "store_id"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
+          "task_ref": {
             "type": "object",
             "properties": {
-              "id": {
-                "type": "string"
+              "provider": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
-              "updated_at": {
+              "id": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {
-                  "task_id": {
-                    "type": "string",
-                    "description": "task id",
-                    "minLength": 1
-                  },
-                  "started_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "started at"
-                  },
-                  "planned_minutes": {
-                    "type": "integer",
-                    "description": "planned minutes"
-                  }
-                },
-                "additionalProperties": false
+              "store_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               }
             },
             "required": [
-              "id",
+              "provider",
               "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
+              "id",
+              "store_id"
             ],
             "additionalProperties": false
           },
-          "changed": {
-            "type": "boolean"
+          "plan_ref": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "store_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              }
+            },
+            "required": [
+              "provider",
+              "kind",
+              "id",
+              "store_id"
+            ],
+            "additionalProperties": false
           },
-          "operation_status": {
-            "type": "string",
-            "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
-            ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "deepwork.pause",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          },
-          "store_id": {
+          "at": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
-          },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
+            "maxLength": 20000
           }
         },
         "required": [
-          "id",
-          "store_id",
-          "expected_version"
+          "task_ref",
+          "at"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -193,7 +122,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -219,380 +149,55 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
             ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "deepwork.resume",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
           },
-          "store_id": {
+          "original_request_id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
           },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "id",
-          "store_id",
-          "expected_version"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
+          "code": {
             "type": "string",
             "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "deepwork.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.start",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
     },
     {
-      "name": "deepwork.finish",
-      "input": {
+      "name": "deepwork.get",
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          },
-          "store_id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
-          },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "id",
-          "store_id",
-          "expected_version"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
-            "type": "string",
-            "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
-            ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "deepwork.cancel",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
-          },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "id",
-          "store_id",
-          "expected_version"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
-            "type": "string",
-            "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
-            ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "deepwork.session.get",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
+            "maxLength": 20000
           }
         },
         "required": [
@@ -600,29 +205,36 @@
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -630,7 +242,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -650,33 +263,33 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "deepwork.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.get",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
     },
     {
-      "name": "deepwork.session.list",
-      "input": {
+      "name": "deepwork.list",
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 100
           },
           "cursor": {
             "type": [
@@ -685,16 +298,13 @@
             ]
           },
           "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "boolean"
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": [],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "items": {
@@ -703,22 +313,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "kind": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "version": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 1,
+                  "maximum": 1000000
                 },
                 "created_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "updated_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "archived": {
                   "type": "boolean"
@@ -726,7 +343,8 @@
                 "fields": {
                   "type": "object",
                   "properties": {},
-                  "additionalProperties": false
+                  "required": [],
+                  "additionalProperties": true
                 }
               },
               "required": [
@@ -739,7 +357,9 @@
                 "fields"
               ],
               "additionalProperties": false
-            }
+            },
+            "minItems": 0,
+            "maxItems": 1000
           },
           "next_cursor": {
             "type": [
@@ -754,102 +374,91 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "deepwork.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.list",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
     },
     {
-      "name": "deepwork.interruption.record",
-      "input": {
+      "name": "deepwork.pause",
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "occurred at"
-          },
-          "reason": {
-            "type": "string",
-            "description": "reason",
-            "minLength": 1
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "description": "duration minutes"
-          },
-          "store_id": {
+          "id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
           }
         },
         "required": [
-          "occurred_at",
-          "reason",
-          "duration_minutes",
-          "store_id"
+          "id",
+          "expected_version",
+          "at"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "occurred_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "occurred at"
-                  },
-                  "reason": {
-                    "type": "string",
-                    "description": "reason",
-                    "minLength": 1
-                  },
-                  "duration_minutes": {
-                    "type": "integer",
-                    "description": "duration minutes"
-                  }
-                },
-                "additionalProperties": false
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -875,34 +484,578 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "deepwork.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.pause",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
+    },
+    {
+      "name": "deepwork.resume",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "at"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "deepwork.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.resume",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
+    },
+    {
+      "name": "deepwork.finish",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "at"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "deepwork.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.finish",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
+    },
+    {
+      "name": "deepwork.cancel",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "at"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "deepwork.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.cancel",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
+    },
+    {
+      "name": "deepwork.interrupt",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "at",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "deepwork.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "deepwork.interrupt",
+      "resource_scopes": {
+        "store_id": "deepwork_store"
+      }
     }
   ]
 }

@@ -192,7 +192,7 @@ def test_completed_task_can_be_edited_reopened_then_soft_deleted_without_losing_
 def test_deleted_is_terminal_except_matching_version_delete_noop(tmp_path):
     store = TaskStore(tmp_path / "task.sqlite")
     task_id = create(store).data["task"]["id"]
-    deleted = store.commit_mutation(
+    store.commit_mutation(
         task_id, 1, identity("store-a", "delete", "task.delete"), now="2026-01-01T01:00:00Z"
     )
     repeated = store.commit_mutation(

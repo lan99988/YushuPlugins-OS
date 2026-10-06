@@ -1,52 +1,41 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "habit",
   "events": [
     {
-      "name": "habit.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "habit.archive",
+      "payload": "reference-only"
     },
     {
-      "name": "habit.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "habit.checkin",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.pause",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.resume",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.undo_checkin",
+      "payload": "reference-only"
+    },
+    {
+      "name": "habit.update",
+      "payload": "reference-only"
     }
   ]
 }

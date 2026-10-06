@@ -1,52 +1,37 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "decision",
   "events": [
     {
-      "name": "decision.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "decision.archive",
+      "payload": "reference-only"
     },
     {
-      "name": "decision.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "decision.choose",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.outcome",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.review",
+      "payload": "reference-only"
+    },
+    {
+      "name": "decision.update",
+      "payload": "reference-only"
     }
   ]
 }

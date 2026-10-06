@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "plugin": "yushuos.deepwork",
+  "seed": {
+    "capability": "deepwork.start",
+    "intent": "command",
+    "fields": {
+      "at": "2026-10-06T00:00:00Z",
+      "task_ref": {
+        "provider": "yushuos.task",
+        "kind": "task",
+        "id": "t1",
+        "store_id": "personal"
+      }
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "deepwork"
+}

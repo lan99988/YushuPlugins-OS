@@ -1,52 +1,37 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "planner",
   "events": [
     {
-      "name": "planner.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "planner.apply",
+      "payload": "reference-only"
     },
     {
-      "name": "planner.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "planner.generate",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.apply",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.archive",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.replan",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.plan.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "planner.replan",
+      "payload": "reference-only"
     }
   ]
 }

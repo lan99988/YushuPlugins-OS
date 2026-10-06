@@ -1,7 +1,7 @@
 """Generate independent, locked packages from reviewed sources; no private data."""
 import argparse
 import hashlib
-import importlib.util
+import importlib
 import json
 from pathlib import Path
 import shutil
@@ -29,12 +29,12 @@ def stage(slug, output, *, bootstrap=None):
     (output / "run.py").write_text(bootstrap or f"from business_runtime.adapter import main\nraise SystemExit(main({slug!r}))\n",
                                    encoding="utf-8", newline="\n")
     (output / "README.md").write_text(f"# YushuOS {slug}\n\nPython 3.11+ / Core 0.3.1. See SKILL.md for JSON invocation.\n"
-                                      "Private SQLite belongs to this plugin. Uninstall preserves data.\n", encoding="utf-8")
+                                      "Private SQLite belongs to this plugin. Uninstall preserves data.\n", encoding="utf-8", newline="\n")
     (output / "SKILL.md").write_text(f"---\nname: yushuos-{slug}\ndescription: Use installed YushuOS {slug} capabilities via Core.\n---\n\n"
         "Read `yushuos catalog`. Use declared query/command intent and JSON fields. "
         f"Bind target.store_id to {slug}_store. Preview before authorized writes. "
         "Keep request_id stable. Unknown writes require Core resume, never a new mutation. "
-        "Host-required abilities accept explicit host judgement and evidence; no hidden model call.\n", encoding="utf-8")
+        "Host-required abilities accept explicit host judgement and evidence; no hidden model call.\n", encoding="utf-8", newline="\n")
     (output / "LICENSE").write_bytes((ROOT / "LICENSE").read_bytes())
     checked = lock_plugin(output)
     if checked.get("status") != "succeeded" or not load_manifest(output / "plugin.yaml").package_hash_verified:
@@ -69,7 +69,7 @@ def contract_files(slug, caps, event_names):
               "resources": {"plugin": slug, "reference": {"required": ["provider", "kind", "id", "store_id"]},
                             "scope": {"target.store_id": slug + "_store"}}}
     for name, value in values.items():
-        (path / (name + ".json")).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        (path / (name + ".json")).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def build(output, *, apps=True):
@@ -93,13 +93,7 @@ def build(output, *, apps=True):
     if apps:
         for slug in ("feishu", "ima"):
             folder = ROOT / "plugins" / slug
-            spec = importlib.util.spec_from_file_location("suite_app_" + slug, folder / "adapter.py")
-            module = importlib.util.module_from_spec(spec)
-            sys.path.insert(0, str(folder))
-            try:
-                spec.loader.exec_module(module)
-            finally:
-                sys.path.pop(0)
+            module = importlib.import_module("plugins." + slug + ".adapter")
             plugin = folder / "plugin"
             plugin.mkdir(exist_ok=True)
             for source in folder.glob("*.py"):
@@ -107,8 +101,8 @@ def build(output, *, apps=True):
             for name in ("README.md", "SKILL.md"):
                 if (folder / name).is_file():
                     shutil.copyfile(folder / name, plugin / name)
-            (plugin / "plugin.yaml").write_text(yaml.safe_dump(module.MANIFEST, sort_keys=False), encoding="utf-8")
-            (plugin / "run.py").write_text("from adapter import main\nraise SystemExit(main())\n", encoding="utf-8")
+            (plugin / "plugin.yaml").write_text(yaml.safe_dump(module.MANIFEST, sort_keys=False), encoding="utf-8", newline="\n")
+            (plugin / "run.py").write_text("from adapter import main\nraise SystemExit(main())\n", encoding="utf-8", newline="\n")
             lock_plugin(plugin)
             if not load_manifest(plugin / "plugin.yaml").package_hash_verified:
                 raise ValueError("App package failed lock validation")
@@ -118,8 +112,8 @@ def build(output, *, apps=True):
             index.append({"plugin": "yushuos." + slug, "version": "0.1.0", "file": destination.name,
                           "sha256": archive(plugin, destination),
                           "validation": {"mock": "pending", "live_read": "not_verified", "live_write": "not_verified"}})
-    (output / "suite-manifest.json").write_text(json.dumps({"format": 1, "core": "0.3.1", "plugins": index}, indent=2) + "\n", encoding="utf-8")
-    (output / "SHA256SUMS").write_text("\n".join(f"{p['sha256']}  {p['file']}" for p in index) + "\n", encoding="utf-8")
+    (output / "suite-manifest.json").write_text(json.dumps({"format": 1, "core": "0.3.1", "plugins": index}, indent=2) + "\n", encoding="utf-8", newline="\n")
+    (output / "SHA256SUMS").write_text("\n".join(f"{p['sha256']}  {p['file']}" for p in index) + "\n", encoding="utf-8", newline="\n")
     return index
 
 

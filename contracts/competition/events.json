@@ -1,52 +1,37 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "competition",
   "events": [
     {
-      "name": "competition.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "competition.archive",
+      "payload": "reference-only"
     },
     {
-      "name": "competition.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "competition.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.milestone",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.progress",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.review",
+      "payload": "reference-only"
+    },
+    {
+      "name": "competition.update",
+      "payload": "reference-only"
     }
   ]
 }

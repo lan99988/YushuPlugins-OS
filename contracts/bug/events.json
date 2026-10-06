@@ -1,52 +1,41 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "bug",
   "events": [
     {
-      "name": "bug.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "bug.archive",
+      "payload": "reference-only"
     },
     {
-      "name": "bug.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "bug.close",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.delete",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.link_task",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.reopen",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.resolve",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "bug.update",
+      "payload": "reference-only"
     }
   ]
 }

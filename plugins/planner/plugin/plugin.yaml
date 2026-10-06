@@ -1,0 +1,940 @@
+id: yushuos.planner
+name: YushuOS planner
+version: 0.1.0
+contract_version: 3
+operation_support: local_commit_v1
+type: domain
+description: Independent local-first planner domain plugin
+enabled: true
+dependencies: []
+optional_dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties: {}
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 30
+  protocol: json-stdio-v2
+capabilities:
+- name: planner.plan.create
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      title:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      tasks: &id012
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version: &id006
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            priority:
+              type: string
+              enum:
+              - urgent
+              - high
+              - normal
+              - low
+            estimate_minutes:
+              type: integer
+              minimum: 1
+              maximum: 10080
+            due_at: &id001
+              type: string
+              minLength: 1
+              maxLength: 20000
+            earliest_start: *id001
+          required:
+          - id
+          - version
+          - estimate_minutes
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      windows: &id013
+        type: array
+        items:
+          type: object
+          properties:
+            start: *id001
+            end: *id001
+          required:
+          - start
+          - end
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      energy_budget_minutes: &id014
+        type: integer
+        minimum: 0
+        maximum: 10080
+    required:
+    - title
+    - tasks
+    - windows
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id002
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id002
+          archived: &id003
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id003
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.plan.create
+  resource_scopes:
+    store_id: planner_store
+- name: planner.plan.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id004
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id004
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.plan.get
+  resource_scopes:
+    store_id: planner_store
+- name: planner.plan.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor:
+        type:
+        - string
+        - 'null'
+      include_archived:
+        type: boolean
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id005
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id005
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.plan.list
+  resource_scopes:
+    store_id: planner_store
+- name: planner.plan.archive
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id009
+      id: &id020
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expected_version: *id006
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id007
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id007
+          archived: &id008
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id008
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.plan.archive
+  resource_scopes:
+    store_id: planner_store
+- name: planner.plan.restore
+  effect: internal_write
+  inputs:
+    type: object
+    properties: *id009
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id010
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id010
+          archived: &id011
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id011
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.plan.restore
+  resource_scopes:
+    store_id: planner_store
+- name: planner.generate
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id017
+      tasks: *id012
+      windows: *id013
+      energy_budget_minutes: *id014
+    required:
+    - tasks
+    - windows
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id015
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id015
+          archived: &id016
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id016
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.generate
+  resource_scopes:
+    store_id: planner_store
+- name: planner.preview
+  effect: read_only
+  inputs:
+    type: object
+    properties: *id017
+    required:
+    - tasks
+    - windows
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      plan:
+        type: object
+        properties:
+          scheduled:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                start: &id018
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                end: *id018
+                task_version:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+              required:
+              - id
+              - start
+              - end
+              - task_version
+              additionalProperties: false
+            minItems: 0
+            maxItems: 1000
+          unscheduled:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                reason:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+              required:
+              - id
+              - reason
+              additionalProperties: false
+            minItems: 0
+            maxItems: 1000
+          input_digest:
+            type: string
+            minLength: 1
+            maxLength: 20000
+        required:
+        - scheduled
+        - unscheduled
+        - input_digest
+        additionalProperties: false
+    required:
+    - plan
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.preview
+  resource_scopes:
+    store_id: planner_store
+- name: planner.suggest
+  effect: read_only
+  inputs:
+    type: object
+    properties: *id017
+    required:
+    - tasks
+    - windows
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      plan:
+        type: object
+        properties:
+          scheduled:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                start: &id019
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                end: *id019
+                task_version:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+              required:
+              - id
+              - start
+              - end
+              - task_version
+              additionalProperties: false
+            minItems: 0
+            maxItems: 1000
+          unscheduled:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+                reason:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+              required:
+              - id
+              - reason
+              additionalProperties: false
+            minItems: 0
+            maxItems: 1000
+          input_digest:
+            type: string
+            minLength: 1
+            maxLength: 20000
+        required:
+        - scheduled
+        - unscheduled
+        - input_digest
+        additionalProperties: false
+    required:
+    - plan
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.suggest
+  resource_scopes:
+    store_id: planner_store
+- name: planner.apply
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id020
+      expected_version: *id006
+      input_digest:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    - expected_version
+    - input_digest
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id021
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id021
+          archived: &id022
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id022
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.apply
+  resource_scopes:
+    store_id: planner_store
+- name: planner.replan
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id020
+      expected_version: *id006
+      inputs:
+        type: object
+        properties: *id017
+        required:
+        - tasks
+        - windows
+        additionalProperties: false
+    required:
+    - id
+    - expected_version
+    - inputs
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id023
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id023
+          archived: &id024
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id024
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - planner.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: planner.replan
+  resource_scopes:
+    store_id: planner_store
+routes: []
+skill_names:
+- yushuos.planner
+emitted_events:
+- planner.apply
+- planner.generate
+- planner.plan.apply
+- planner.plan.archive
+- planner.plan.created
+- planner.plan.replan
+- planner.plan.restore
+- planner.replan
+dependency_versions: {}

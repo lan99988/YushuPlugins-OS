@@ -1,0 +1,1020 @@
+id: yushuos.knowledge
+name: YushuOS knowledge
+version: 0.1.0
+contract_version: 3
+operation_support: local_commit_v1
+type: domain
+description: Independent local-first knowledge domain plugin
+enabled: true
+dependencies: []
+optional_dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties: {}
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 30
+  protocol: json-stdio-v2
+capabilities:
+- name: knowledge.create
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id005
+      title:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      content:
+        type: string
+        minLength: 0
+        maxLength: 20000
+      ima_ref: &id019
+        type: object
+        properties:
+          provider:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          store_id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+        required:
+        - provider
+        - kind
+        - id
+        - store_id
+        additionalProperties: false
+      tags:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 20000
+        minItems: 0
+        maxItems: 1000
+    required:
+    - title
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id001
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id001
+          archived: &id002
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id002
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.create
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id003
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id003
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.get
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit: &id024
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor: &id025
+        type:
+        - string
+        - 'null'
+      include_archived: &id026
+        type: boolean
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id004
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id004
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.list
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.update
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: &id008
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expected_version: &id009
+        type: integer
+        minimum: 1
+        maximum: 1000000
+      changes:
+        type: object
+        properties: *id005
+        required: []
+        additionalProperties: false
+    required:
+    - id
+    - expected_version
+    - changes
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id006
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id006
+          archived: &id007
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id007
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.update
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.delete
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id012
+      id: *id008
+      expected_version: *id009
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id010
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id010
+          archived: &id011
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id011
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.delete
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.archive
+  effect: internal_write
+  inputs:
+    type: object
+    properties: *id012
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id013
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id013
+          archived: &id014
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id014
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.archive
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.restore
+  effect: internal_write
+  inputs:
+    type: object
+    properties: *id012
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id015
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id015
+          archived: &id016
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id016
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.restore
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.concept.record
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      knowledge_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      label:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - knowledge_id
+    - label
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id017
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id017
+          archived: &id018
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id018
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.concept.record
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.link.record
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      knowledge_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      target_ref: *id019
+      relation:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - knowledge_id
+    - target_ref
+    - relation
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id020
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id020
+          archived: &id021
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id021
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.link.record
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.insight.record
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      knowledge_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      statement:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      evidence_refs:
+        type: array
+        items: *id019
+        minItems: 0
+        maxItems: 1000
+    required:
+    - knowledge_id
+    - statement
+    - evidence_refs
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id022
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id022
+          archived: &id023
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id023
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.insight.record
+  resource_scopes:
+    store_id: knowledge_store
+- name: knowledge.search
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit: *id024
+      cursor: *id025
+      include_archived: *id026
+      query:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - query
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id027
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id027
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - knowledge.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: knowledge.search
+  resource_scopes:
+    store_id: knowledge_store
+routes: []
+skill_names:
+- yushuos.knowledge
+emitted_events:
+- knowledge.archive
+- knowledge.concept.created
+- knowledge.created
+- knowledge.delete
+- knowledge.insight.created
+- knowledge.link.created
+- knowledge.restore
+- knowledge.update
+dependency_versions: {}

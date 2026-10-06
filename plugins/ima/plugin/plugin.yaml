@@ -1,0 +1,387 @@
+id: yushuos.ima
+name: ima
+version: 0.1.0
+contract_version: 3
+type: app
+enabled: true
+dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties:
+    binding_file: &id001
+      type: string
+      minLength: 1
+      maxLength: 2000
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+emitted_events: []
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 45
+  protocol: json-stdio-v2
+capabilities:
+- name: ima.note.create
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      folder_id: *id001
+      content: &id002
+        type: string
+        minLength: 1
+        maxLength: 200000
+    required:
+    - folder_id
+    - content
+    additionalProperties: false
+  outputs: &id003
+    type: object
+    properties:
+      provider_id: *id001
+      operation_status:
+        type: string
+        enum:
+        - confirmed
+        - not_submitted
+      result_state:
+        type: string
+        enum:
+        - available
+        - not_submitted
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  permissions:
+  - ima.write
+  intents:
+  - command
+  resource_scopes:
+    folder_id: notebook
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.note.append
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      note_id: *id001
+      content: *id002
+    required:
+    - note_id
+    - content
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - ima.write
+  intents:
+  - command
+  resource_scopes:
+    note_id: note
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.note.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      note_id: *id001
+    required:
+    - note_id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity: &id004
+        type: object
+        properties:
+          id: *id001
+          title:
+            type: string
+          content:
+            type: string
+        required:
+        - id
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    note_id: note
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.note.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      folder_id: *id001
+      limit: &id005
+        type: integer
+        minimum: 1
+        maximum: 20
+      cursor: &id006
+        type: string
+        maxLength: 2000
+    required:
+    - folder_id
+    additionalProperties: false
+  outputs: &id007
+    type: object
+    properties:
+      items:
+        type: array
+        items: *id004
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    folder_id: notebook
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.note.search
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      query: *id001
+      start:
+        type: integer
+        minimum: 0
+      limit: *id005
+      cursor: *id006
+      search_type:
+        type: integer
+        enum:
+        - 0
+        - 1
+    required:
+    - query
+    additionalProperties: false
+  outputs: *id007
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    account_ref: account
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.notebook.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit: *id005
+      cursor: *id006
+    required: []
+    additionalProperties: false
+  outputs: *id007
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    account_ref: account
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.kb.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      knowledge_base_id: *id001
+    required:
+    - knowledge_base_id
+    additionalProperties: false
+  outputs: *id007
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    knowledge_base_id: kb
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.kb.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      knowledge_base_id: *id001
+      limit: *id005
+      cursor: *id006
+    required:
+    - knowledge_base_id
+    additionalProperties: false
+  outputs: *id007
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    knowledge_base_id: kb
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.kb.search
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      query: *id001
+      limit: *id005
+      cursor: *id006
+    required:
+    - query
+    additionalProperties: false
+  outputs: *id007
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    account_ref: account
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.knowledge.search
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      knowledge_base_id: *id001
+      query: *id001
+      cursor: *id006
+    required:
+    - knowledge_base_id
+    - query
+    additionalProperties: false
+  outputs: *id007
+  permissions:
+  - ima.read
+  intents:
+  - query
+  resource_scopes:
+    knowledge_base_id: kb
+  execution_mode: standalone
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+- name: ima.note.delete
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      note_id: *id001
+    required:
+    - note_id
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - ima.write
+  intents:
+  - command
+  resource_scopes:
+    note_id: note
+  execution_mode: standalone
+  implemented: false
+  verified: false
+  authorized: false
+  enabled: true
+- name: ima.note.overwrite
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      note_id: *id001
+      content: *id002
+    required:
+    - note_id
+    - content
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - ima.write
+  intents:
+  - command
+  resource_scopes:
+    note_id: note
+  execution_mode: standalone
+  implemented: false
+  verified: false
+  authorized: false
+  enabled: true
+- name: ima.kb.associate
+  effect: external_write
+  inputs:
+    type: object
+    properties:
+      note_id: *id001
+      knowledge_base_id: *id001
+      title: *id001
+    required:
+    - note_id
+    - knowledge_base_id
+    - title
+    additionalProperties: false
+  outputs: *id003
+  permissions:
+  - ima.write
+  intents:
+  - command
+  resource_scopes:
+    note_id: note
+    knowledge_base_id: kb
+  execution_mode: standalone
+  implemented: false
+  verified: false
+  authorized: false
+  enabled: true

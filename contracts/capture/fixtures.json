@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "plugin": "yushuos.capture",
+  "seed": {
+    "capability": "capture.create",
+    "intent": "command",
+    "fields": {
+      "content": "remember",
+      "source": "manual"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "capture"
+}

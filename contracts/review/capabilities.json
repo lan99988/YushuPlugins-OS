@@ -1,338 +1,201 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": 3,
   "plugin": "review",
   "provider_id": "yushuos.review",
   "capabilities": [
     {
       "name": "review.generate",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "subject_kind": {
-            "type": "string",
-            "description": "subject kind",
-            "minLength": 1
-          },
-          "subject_id": {
-            "type": "string",
-            "description": "subject id",
-            "minLength": 1
-          },
           "period_start": {
             "type": "string",
-            "format": "date-time",
-            "description": "period start"
+            "minLength": 1,
+            "maxLength": 20000
           },
           "period_end": {
             "type": "string",
-            "format": "date-time",
-            "description": "period end"
-          }
-        },
-        "required": [],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "result": {
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "sources": {
             "type": "object",
             "properties": {
-              "kind": {
-                "type": "string",
-                "const": "generate"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "reason": {
-                      "type": "string"
-                    },
-                    "score": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "reason"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "summary": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "kind"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "host_required",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "review.get",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          }
-        },
-        "required": [
-          "id"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
+              "task": {
                 "type": "object",
-                "properties": {},
+                "properties": {
+                  "planned": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "completed": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  }
+                },
+                "required": [
+                  "planned",
+                  "completed"
+                ],
+                "additionalProperties": false
+              },
+              "habit": {
+                "type": "object",
+                "properties": {
+                  "expected": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "checkins": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  }
+                },
+                "required": [
+                  "expected",
+                  "checkins"
+                ],
+                "additionalProperties": false
+              },
+              "body": {
+                "type": "object",
+                "properties": {
+                  "records": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "sleep_minutes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "training_minutes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "finance": {
+                "type": "object",
+                "properties": {
+                  "statements": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "income_minor": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "expense_minor": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  }
+                },
+                "required": [],
                 "additionalProperties": false
               }
             },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
+            "required": [],
             "additionalProperties": false
-          }
-        },
-        "required": [
-          "entity"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "review.list",
-      "input": {
-        "type": "object",
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100,
-            "default": 50
           },
-          "cursor": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "missing_sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            "minItems": 0,
+            "maxItems": 1000
           },
-          "include_archived": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "required": [
-          "limit"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "items": {
+          "source_refs": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "id": {
-                  "type": "string"
+                "provider": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "kind": {
-                  "type": "string"
-                },
-                "version": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "created_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
-                "updated_at": {
+                "id": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
-                "archived": {
-                  "type": "boolean"
-                },
-                "fields": {
-                  "type": "object",
-                  "properties": {},
-                  "additionalProperties": false
+                "store_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 }
               },
               "required": [
-                "id",
+                "provider",
                 "kind",
-                "version",
-                "created_at",
-                "updated_at",
-                "archived",
-                "fields"
+                "id",
+                "store_id"
               ],
               "additionalProperties": false
-            }
-          },
-          "next_cursor": {
-            "type": [
-              "string",
-              "null"
-            ]
+            },
+            "minItems": 0,
+            "maxItems": 1000
           }
         },
         "required": [
-          "items",
-          "next_cursor"
+          "period_start",
+          "period_end",
+          "sources",
+          "missing_sources"
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "review.finalize",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
-          },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "id",
-          "store_id",
-          "expected_version"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -340,7 +203,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -366,117 +230,615 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "review.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "review.generate",
+      "resource_scopes": {
+        "store_id": "review_store"
+      }
     },
     {
-      "name": "review.compare",
-      "input": {
+      "name": "review.get",
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
-          "left_review_id": {
+          "id": {
             "type": "string",
-            "description": "left review id",
-            "minLength": 1
-          },
-          "right_review_id": {
-            "type": "string",
-            "description": "right review id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           }
         },
-        "required": [],
+        "required": [
+          "id"
+        ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
-          "result": {
+          "entity": {
             "type": "object",
             "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
               "kind": {
                 "type": "string",
-                "const": "compare"
+                "minLength": 1,
+                "maxLength": 20000
               },
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "reason": {
-                      "type": "string"
-                    },
-                    "score": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "reason"
-                  ],
-                  "additionalProperties": false
-                }
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
               },
-              "summary": {
-                "type": "string"
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
-              "kind"
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
             ],
             "additionalProperties": false
           }
         },
         "required": [
-          "result"
+          "entity"
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "host_required",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "review.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "review.get",
+      "resource_scopes": {
+        "store_id": "review_store"
+      }
+    },
+    {
+      "name": "review.list",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1000000
+                },
+                "created_at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "updated_at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 1000
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "review.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "review.list",
+      "resource_scopes": {
+        "store_id": "review_store"
+      }
+    },
+    {
+      "name": "review.finalize",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "review.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "review.finalize",
+      "resource_scopes": {
+        "store_id": "review_store"
+      }
+    },
+    {
+      "name": "review.compare",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "other_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "id",
+          "other_id"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "left": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": true
+          },
+          "right": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": true
+          },
+          "comparable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "left",
+          "right",
+          "comparable"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "review.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "review.compare",
+      "resource_scopes": {
+        "store_id": "review_store"
+      }
+    },
+    {
+      "name": "review.interpret",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "judgement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "store_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                }
+              },
+              "required": [
+                "provider",
+                "kind",
+                "id",
+                "store_id"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 1000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "reason",
+          "judgement",
+          "evidence_refs"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "review.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "host_required",
+      "description": "review.interpret",
+      "resource_scopes": {
+        "store_id": "review_store"
+      }
     }
   ]
 }

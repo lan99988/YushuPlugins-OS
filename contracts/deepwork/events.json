@@ -1,52 +1,33 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "deepwork",
   "events": [
     {
-      "name": "deepwork.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "deepwork.cancel",
+      "payload": "reference-only"
     },
     {
-      "name": "deepwork.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "deepwork.finish",
+      "payload": "reference-only"
+    },
+    {
+      "name": "deepwork.interrupt",
+      "payload": "reference-only"
+    },
+    {
+      "name": "deepwork.pause",
+      "payload": "reference-only"
+    },
+    {
+      "name": "deepwork.resume",
+      "payload": "reference-only"
+    },
+    {
+      "name": "deepwork.start",
+      "payload": "reference-only"
+    },
+    {
+      "name": "deepwork.started",
+      "payload": "reference-only"
     }
   ]
 }

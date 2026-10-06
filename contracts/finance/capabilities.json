@@ -1,122 +1,119 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": 3,
   "plugin": "finance",
   "provider_id": "yushuos.finance",
   "capabilities": [
     {
       "name": "finance.statement.create",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "account": {
+          "month": {
             "type": "string",
-            "description": "account",
-            "minLength": 1
-          },
-          "period_start": {
-            "type": "string",
-            "format": "date-time",
-            "description": "period start"
-          },
-          "period_end": {
-            "type": "string",
-            "format": "date-time",
-            "description": "period end"
+            "minLength": 1,
+            "maxLength": 20000
           },
           "currency": {
             "type": "string",
-            "description": "currency",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
-          "opening_balance": {
-            "type": "string",
-            "description": "opening balance",
-            "minLength": 1
-          },
-          "closing_balance": {
-            "type": "string",
-            "description": "closing balance",
-            "minLength": 1
-          },
-          "store_id": {
+          "source_id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "income",
+                    "expense"
+                  ]
+                },
+                "category": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "external_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                }
+              },
+              "required": [
+                "amount",
+                "direction"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 1000
           }
         },
         "required": [
-          "account",
-          "period_start",
-          "period_end",
+          "month",
           "currency",
-          "opening_balance",
-          "closing_balance",
-          "store_id"
+          "source_id",
+          "transactions"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "account": {
-                    "type": "string",
-                    "description": "account",
-                    "minLength": 1
-                  },
-                  "period_start": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "period start"
-                  },
-                  "period_end": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "period end"
-                  },
-                  "currency": {
-                    "type": "string",
-                    "description": "currency",
-                    "minLength": 1
-                  },
-                  "opening_balance": {
-                    "type": "string",
-                    "description": "opening balance",
-                    "minLength": 1
-                  },
-                  "closing_balance": {
-                    "type": "string",
-                    "description": "closing balance",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -142,44 +139,55 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "finance.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.statement.create",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
     },
     {
       "name": "finance.statement.get",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           }
         },
         "required": [
@@ -187,29 +195,36 @@
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -217,7 +232,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -237,33 +253,33 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "finance.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.statement.get",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
     },
     {
       "name": "finance.statement.list",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 100
           },
           "cursor": {
             "type": [
@@ -272,16 +288,13 @@
             ]
           },
           "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "boolean"
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": [],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "items": {
@@ -290,22 +303,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "kind": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "version": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 1,
+                  "maximum": 1000000
                 },
                 "created_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "updated_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "archived": {
                   "type": "boolean"
@@ -313,7 +333,8 @@
                 "fields": {
                   "type": "object",
                   "properties": {},
-                  "additionalProperties": false
+                  "required": [],
+                  "additionalProperties": true
                 }
               },
               "required": [
@@ -326,7 +347,9 @@
                 "fields"
               ],
               "additionalProperties": false
-            }
+            },
+            "minItems": 0,
+            "maxItems": 1000
           },
           "next_cursor": {
             "type": [
@@ -341,97 +364,323 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "finance.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.statement.list",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
     },
     {
-      "name": "finance.snapshot.create",
-      "input": {
+      "name": "finance.monthly_snapshot.get",
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
-          "as_of": {
-            "type": "string",
-            "format": "date-time",
-            "description": "as of"
-          },
-          "accounts": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "accounts"
-          },
-          "store_id": {
+          "id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
           }
         },
         "required": [
-          "as_of",
-          "accounts",
-          "store_id"
+          "id"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "as_of": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "as of"
-                  },
-                  "accounts": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "accounts"
-                  }
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "finance.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.monthly_snapshot.get",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
+    },
+    {
+      "name": "finance.monthly_snapshot.list",
+      "effect": "read_only",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
-                "additionalProperties": false
+                "kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1000000
+                },
+                "created_at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "updated_at": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 1000
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "finance.read"
+      ],
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.monthly_snapshot.list",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
+    },
+    {
+      "name": "finance.monthly_snapshot.create",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "income": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expense": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "assets": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "liabilities": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "month",
+          "currency",
+          "source_id",
+          "income",
+          "expense",
+          "assets",
+          "liabilities"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -457,74 +706,98 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "finance.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.monthly_snapshot.create",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
     },
     {
-      "name": "finance.snapshot.get",
-      "input": {
+      "name": "finance.monthly_snapshot.close",
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
           }
         },
         "required": [
-          "id"
+          "id",
+          "expected_version"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -532,7 +805,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -545,136 +819,73 @@
               "fields"
             ],
             "additionalProperties": false
-          }
-        },
-        "required": [
-          "entity"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.read"
-      ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "finance.month.close",
-      "input": {
-        "type": "object",
-        "properties": {
-          "month": {
-            "type": "string",
-            "description": "month",
-            "minLength": 1
           },
-          "currency": {
-            "type": "string",
-            "description": "currency",
-            "minLength": 1
+          "changed": {
+            "type": "boolean"
           },
-          "store_id": {
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
           }
         },
         "required": [
-          "month",
-          "currency",
-          "store_id"
+          "operation_status",
+          "result_state"
         ],
         "additionalProperties": false
       },
-      "output": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "monthclose"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "reason": {
-                      "type": "string"
-                    },
-                    "score": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "reason"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "summary": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "kind"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "finance.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.monthly_snapshot.close",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
     },
     {
-      "name": "finance.summary.get",
-      "input": {
+      "name": "finance.summary",
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "month": {
             "type": "string",
-            "description": "month",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
           "currency": {
             "type": "string",
-            "description": "currency",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           }
         },
         "required": [
@@ -683,69 +894,65 @@
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
-          "result": {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "summary"
-              },
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "reason": {
-                      "type": "string"
-                    },
-                    "score": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "reason"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "summary": {
-                "type": "string"
-              }
+          "month": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "income": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expense": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "statement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
             },
-            "required": [
-              "kind"
-            ],
-            "additionalProperties": false
+            "minItems": 0,
+            "maxItems": 1000
           }
         },
         "required": [
-          "result"
+          "month",
+          "currency",
+          "income",
+          "expense",
+          "statement_ids"
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "finance.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "finance.summary",
+      "resource_scopes": {
+        "store_id": "finance_store"
+      }
     }
   ]
 }

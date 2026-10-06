@@ -1,89 +1,84 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": 3,
   "plugin": "relationship",
   "provider_id": "yushuos.relationship",
   "capabilities": [
     {
       "name": "relationship.person.create",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string",
-            "description": "name",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
-          "relationship_type": {
+          "relationship": {
             "type": "string",
-            "description": "relationship type",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
           "notes": {
             "type": "string",
-            "description": "notes",
-            "minLength": 1
+            "minLength": 0,
+            "maxLength": 20000
           },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
+          "important_facts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20000
+            },
+            "minItems": 0,
+            "maxItems": 1000
           }
         },
         "required": [
-          "name",
-          "relationship_type",
-          "notes",
-          "store_id"
+          "name"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "description": "name",
-                    "minLength": 1
-                  },
-                  "relationship_type": {
-                    "type": "string",
-                    "description": "relationship type",
-                    "minLength": 1
-                  },
-                  "notes": {
-                    "type": "string",
-                    "description": "notes",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -109,44 +104,55 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "relationship.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.person.create",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     },
     {
       "name": "relationship.person.get",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           }
         },
         "required": [
@@ -154,29 +160,36 @@
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -184,7 +197,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -204,33 +218,33 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "relationship.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.person.get",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     },
     {
       "name": "relationship.person.list",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 100
           },
           "cursor": {
             "type": [
@@ -239,16 +253,13 @@
             ]
           },
           "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "boolean"
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": [],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "items": {
@@ -257,22 +268,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "kind": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "version": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 1,
+                  "maximum": 1000000
                 },
                 "created_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "updated_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "archived": {
                   "type": "boolean"
@@ -280,7 +298,8 @@
                 "fields": {
                   "type": "object",
                   "properties": {},
-                  "additionalProperties": false
+                  "required": [],
+                  "additionalProperties": true
                 }
               },
               "required": [
@@ -293,7 +312,9 @@
                 "fields"
               ],
               "additionalProperties": false
-            }
+            },
+            "minItems": 0,
+            "maxItems": 1000
           },
           "next_cursor": {
             "type": [
@@ -308,226 +329,109 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "relationship.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.person.list",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     },
     {
       "name": "relationship.person.update",
-      "input": {
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "id",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 20000
           },
           "expected_version": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "maximum": 1000000
           },
-          "name": {
-            "type": "string",
-            "description": "name",
-            "minLength": 1
-          },
-          "relationship_type": {
-            "type": "string",
-            "description": "relationship type",
-            "minLength": 1
-          },
-          "notes": {
-            "type": "string",
-            "description": "notes",
-            "minLength": 1
-          },
-          "status": {
-            "type": "string",
-            "description": "status",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
+          "changes": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "relationship": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 20000
+              },
+              "important_facts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
+                },
+                "minItems": 0,
+                "maxItems": 1000
+              }
+            },
+            "required": [],
+            "additionalProperties": false
           }
         },
         "required": [
           "id",
           "expected_version",
-          "store_id"
+          "changes"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "fields": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "description": "name",
-                    "minLength": 1
-                  },
-                  "relationship_type": {
-                    "type": "string",
-                    "description": "relationship type",
-                    "minLength": 1
-                  },
-                  "notes": {
-                    "type": "string",
-                    "description": "notes",
-                    "minLength": 1
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "status",
-                    "minLength": 1
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "required": [
-              "id",
-              "kind",
-              "version",
-              "created_at",
-              "updated_at",
-              "archived",
-              "fields"
-            ],
-            "additionalProperties": false
-          },
-          "changed": {
-            "type": "boolean"
-          },
-          "operation_status": {
-            "type": "string",
-            "enum": [
-              "committed"
-            ]
-          },
-          "result_state": {
-            "type": "string",
-            "enum": [
-              "available"
-            ]
-          }
-        },
-        "required": [
-          "entity",
-          "changed",
-          "operation_status",
-          "result_state"
-        ],
-        "additionalProperties": false
-      },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
-      "permissions": [
-        "local.write"
-      ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
-    },
-    {
-      "name": "relationship.person.archive",
-      "input": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id",
-            "minLength": 1
-          },
-          "store_id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "目标私有存储作用域"
-          },
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": [
-          "id",
-          "store_id",
-          "expected_version"
-        ],
-        "additionalProperties": false
-      },
-      "output": {
-        "type": "object",
-        "properties": {
-          "entity": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "kind": {
-                "type": "string"
-              },
-              "version": {
-                "type": "integer",
-                "minimum": 1
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updated_at": {
-                "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -535,7 +439,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -561,138 +466,107 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "relationship.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.person.update",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     },
     {
-      "name": "relationship.interaction.add",
-      "input": {
+      "name": "relationship.person.archive",
+      "effect": "internal_write",
+      "inputs": {
         "type": "object",
         "properties": {
-          "person_id": {
-            "type": "string",
-            "description": "person id",
-            "minLength": 1
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "occurred at"
-          },
-          "channel": {
-            "type": "string",
-            "description": "channel",
-            "minLength": 1
-          },
-          "summary": {
-            "type": "string",
-            "description": "summary",
-            "minLength": 1
-          },
-          "next_follow_up_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "next follow up at"
-          },
-          "store_id": {
+          "id": {
             "type": "string",
             "minLength": 1,
-            "description": "目标私有存储作用域"
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
           }
         },
         "required": [
-          "person_id",
-          "occurred_at",
-          "channel",
-          "summary",
-          "next_follow_up_at",
-          "store_id"
+          "id",
+          "expected_version"
         ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
               },
               "fields": {
                 "type": "object",
-                "properties": {
-                  "person_id": {
-                    "type": "string",
-                    "description": "person id",
-                    "minLength": 1
-                  },
-                  "occurred_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "occurred at"
-                  },
-                  "channel": {
-                    "type": "string",
-                    "description": "channel",
-                    "minLength": 1
-                  },
-                  "summary": {
-                    "type": "string",
-                    "description": "summary",
-                    "minLength": 1
-                  },
-                  "next_follow_up_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "next follow up at"
-                  }
-                },
-                "additionalProperties": false
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -718,45 +592,344 @@
           "result_state": {
             "type": "string",
             "enum": [
-              "available"
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
             ]
           }
         },
         "required": [
-          "entity",
-          "changed",
           "operation_status",
           "result_state"
         ],
         "additionalProperties": false
       },
-      "effect": "write",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.write"
+        "relationship.write"
       ],
-      "transaction": "local_commit_v1",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.person.archive",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
+    },
+    {
+      "name": "relationship.person.restore",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "relationship.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.person.restore",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
+    },
+    {
+      "name": "relationship.interaction.record",
+      "effect": "internal_write",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20000
+          },
+          "source_ref": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "store_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              }
+            },
+            "required": [
+              "provider",
+              "kind",
+              "id",
+              "store_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "person_id",
+          "at"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              },
+              "created_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "updated_at": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "expired"
+            ]
+          },
+          "original_request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "result_expired"
+            ]
+          }
+        },
+        "required": [
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "dependencies": [],
+      "permissions": [
+        "relationship.write"
+      ],
+      "intents": [
+        "command"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.interaction.record",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     },
     {
       "name": "relationship.interaction.list",
-      "input": {
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
         "properties": {
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 100,
-            "default": 50
+            "maximum": 100
           },
           "cursor": {
             "type": [
@@ -765,16 +938,25 @@
             ]
           },
           "include_archived": {
-            "type": "boolean",
-            "default": false
+            "type": "boolean"
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "person_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              }
+            },
+            "required": [],
+            "additionalProperties": false
           }
         },
-        "required": [
-          "limit"
-        ],
+        "required": [],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "items": {
@@ -783,22 +965,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "kind": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "version": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 1,
+                  "maximum": 1000000
                 },
                 "created_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "updated_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "minLength": 1,
+                  "maxLength": 20000
                 },
                 "archived": {
                   "type": "boolean"
@@ -806,7 +995,8 @@
                 "fields": {
                   "type": "object",
                   "properties": {},
-                  "additionalProperties": false
+                  "required": [],
+                  "additionalProperties": true
                 }
               },
               "required": [
@@ -819,7 +1009,9 @@
                 "fields"
               ],
               "additionalProperties": false
-            }
+            },
+            "minItems": 0,
+            "maxItems": 1000
           },
           "next_cursor": {
             "type": [
@@ -834,54 +1026,73 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "relationship.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.interaction.list",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     },
     {
-      "name": "relationship.status.get",
-      "input": {
+      "name": "relationship.recent",
+      "effect": "read_only",
+      "inputs": {
         "type": "object",
-        "properties": {},
-        "required": [],
+        "properties": {
+          "person_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "person_id"
+        ],
         "additionalProperties": false
       },
-      "output": {
+      "outputs": {
         "type": "object",
         "properties": {
           "entity": {
-            "type": "object",
+            "type": [
+              "object",
+              "null"
+            ],
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "kind": {
-                "type": "string"
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
               },
               "version": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "maximum": 1000000
               },
               "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "updated_at": {
                 "type": "string",
-                "format": "date-time"
+                "minLength": 1,
+                "maxLength": 20000
               },
               "archived": {
                 "type": "boolean"
@@ -889,7 +1100,8 @@
               "fields": {
                 "type": "object",
                 "properties": {},
-                "additionalProperties": false
+                "required": [],
+                "additionalProperties": true
               }
             },
             "required": [
@@ -909,22 +1121,22 @@
         ],
         "additionalProperties": false
       },
-      "effect": "read",
-      "intents": [
-        "explicit_user_request"
-      ],
-      "execution_mode": "standalone",
+      "dependencies": [],
       "permissions": [
-        "local.read"
+        "relationship.read"
       ],
-      "transaction": "read_only",
-      "errors": [
-        "invalid_input",
-        "not_found",
-        "version_conflict",
-        "permission_denied",
-        "storage_error"
-      ]
+      "intents": [
+        "query"
+      ],
+      "implemented": true,
+      "verified": true,
+      "authorized": true,
+      "enabled": true,
+      "execution_mode": "standalone",
+      "description": "relationship.recent",
+      "resource_scopes": {
+        "store_id": "relationship_store"
+      }
     }
   ]
 }

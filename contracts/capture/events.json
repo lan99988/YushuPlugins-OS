@@ -1,52 +1,25 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "capture",
   "events": [
     {
-      "name": "capture.record.created",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "capture.archive",
+      "payload": "reference-only"
     },
     {
-      "name": "capture.record.updated",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "store_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "version",
-          "store_id"
-        ],
-        "additionalProperties": false
-      }
+      "name": "capture.created",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.mark_processed",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.restore",
+      "payload": "reference-only"
+    },
+    {
+      "name": "capture.route",
+      "payload": "reference-only"
     }
   ]
 }

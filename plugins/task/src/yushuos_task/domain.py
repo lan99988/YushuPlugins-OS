@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import re
 from typing import Any, Mapping
 import uuid
 
-from .contracts import TASK_FIELDS, UPDATE_FIELDS
+from .contracts import UPDATE_FIELDS
 
 
 _STORE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}$")

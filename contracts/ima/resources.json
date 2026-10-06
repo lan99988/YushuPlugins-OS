@@ -1,93 +1,14 @@
 {
-  "contract_version": "1.0.0",
   "plugin": "ima",
-  "resources": [
-    {
-      "name": "ima_record",
-      "scope": "private_store",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "version": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "archived": {
-            "type": "boolean"
-          },
-          "fields": {
-            "type": "object",
-            "properties": {
-              "local_ref": {
-                "type": "object",
-                "properties": {
-                  "provider": {
-                    "type": "string"
-                  },
-                  "kind": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string"
-                  },
-                  "store_id": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "provider",
-                  "kind",
-                  "id",
-                  "store_id"
-                ],
-                "additionalProperties": false,
-                "description": "明确的私有资源引用"
-              },
-              "remote_kind": {
-                "type": "string",
-                "description": "remote kind",
-                "minLength": 1
-              },
-              "remote_id": {
-                "type": "string",
-                "description": "remote id",
-                "minLength": 1
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        "required": [
-          "id",
-          "kind",
-          "version",
-          "created_at",
-          "updated_at",
-          "archived",
-          "fields"
-        ],
-        "additionalProperties": false
-      },
-      "identity": [
-        "id",
-        "kind",
-        "version"
-      ],
-      "store_id_required": true
-    }
-  ]
+  "reference": {
+    "required": [
+      "provider",
+      "kind",
+      "id",
+      "store_id"
+    ]
+  },
+  "scope": {
+    "target.store_id": "ima_store"
+  }
 }

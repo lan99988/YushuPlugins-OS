@@ -1,7 +1,4 @@
-import json
 import sqlite3
-from pathlib import Path
-import pytest
 import yaml
 from yushuos.runtime import CoreRuntime
 from yushuos.deployment import install_plugin
@@ -26,7 +23,7 @@ def installed(tmp_path, slug="capture", bootstrap=None, grants=None):
 
 
 def request(cap, fields, rid="call1", scope="personal"):
-    return {"request_id": rid, "capability": cap, "intent": "query" if REGISTRY[cap.split('.')[0]][cap]["effect"] == "read_only" else "command",
+    return {"request_id": rid, "capability": cap, "intent": "query" if REGISTRY[cap.split('.')[0].replace('-','_')][cap]["effect"] == "read_only" else "command",
             "fields": fields, "target": {"store_id": scope}}
 
 

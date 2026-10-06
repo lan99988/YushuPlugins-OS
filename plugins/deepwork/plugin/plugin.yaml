@@ -1,0 +1,747 @@
+id: yushuos.deepwork
+name: YushuOS deepwork
+version: 0.1.0
+contract_version: 3
+operation_support: local_commit_v1
+type: domain
+description: Independent local-first deepwork domain plugin
+enabled: true
+dependencies: []
+optional_dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties: {}
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 30
+  protocol: json-stdio-v2
+capabilities:
+- name: deepwork.start
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      task_ref: &id001
+        type: object
+        properties:
+          provider:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          store_id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+        required:
+        - provider
+        - kind
+        - id
+        - store_id
+        additionalProperties: false
+      plan_ref: *id001
+      at: &id006
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - task_ref
+    - at
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id002
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id002
+          archived: &id003
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id003
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.start
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id004
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id004
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.get
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor:
+        type:
+        - string
+        - 'null'
+      include_archived:
+        type: boolean
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id005
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id005
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.list
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.pause
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: &id009
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expected_version: &id010
+        type: integer
+        minimum: 1
+        maximum: 1000000
+      at: *id006
+    required:
+    - id
+    - expected_version
+    - at
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id007
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id007
+          archived: &id008
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id008
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.pause
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.resume
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id009
+      expected_version: *id010
+      at: *id006
+    required:
+    - id
+    - expected_version
+    - at
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id011
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id011
+          archived: &id012
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id012
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.resume
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.finish
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id009
+      expected_version: *id010
+      at: *id006
+    required:
+    - id
+    - expected_version
+    - at
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id013
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id013
+          archived: &id014
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id014
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.finish
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.cancel
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id009
+      expected_version: *id010
+      at: *id006
+    required:
+    - id
+    - expected_version
+    - at
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id015
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id015
+          archived: &id016
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id016
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.cancel
+  resource_scopes:
+    store_id: deepwork_store
+- name: deepwork.interrupt
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id009
+      expected_version: *id010
+      at: *id006
+      reason:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    - expected_version
+    - at
+    - reason
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id017
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id017
+          archived: &id018
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id018
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - deepwork.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: deepwork.interrupt
+  resource_scopes:
+    store_id: deepwork_store
+routes: []
+skill_names:
+- yushuos.deepwork
+emitted_events:
+- deepwork.cancel
+- deepwork.finish
+- deepwork.interrupt
+- deepwork.pause
+- deepwork.resume
+- deepwork.start
+- deepwork.started
+dependency_versions: {}

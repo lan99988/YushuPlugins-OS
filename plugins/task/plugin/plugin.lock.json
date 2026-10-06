@@ -4,9 +4,9 @@
     "run.py": "09b943a215d3907414d47fd07d2862c88196ddc3ac5ecac77986445285408243",
     "src/yushuos_task/__init__.py": "6d8c9734f73ab044eacbdb598d5eb4738a5107f7782aaaf72686bdd6c43fd83c",
     "src/yushuos_task/contracts.py": "022dc5c012eeeea9fdf6fa18fc20c2b4e8d673379160de29fee1e7cde86587fa",
-    "src/yushuos_task/domain.py": "ab99f85010786ce54ae57a08a11dc2a4190267a6d87a4a7f86f3fac00d9c3df2",
+    "src/yushuos_task/domain.py": "cf3d65c86030cb2c8d02316805cf254a39435c350ca0da2330a3a62387641923",
     "src/yushuos_task/plugin.py": "f9bc18940e8d03e375f410845baabe1eeaa9314b04b14ffc5c886e96ce02f405",
-    "src/yushuos_task/storage.py": "30ffb80a418cfcee5b2b52fe98b03e335edda7d51fec85a33e4f00ab97ba2214"
+    "src/yushuos_task/storage.py": "815eea4af1e6d6074f6b035ae7af1fd3d676d16e53918f85f5b9f645b0cf58ce"
   },
   "format": 1,
   "plugin_id": "yushuos.task",

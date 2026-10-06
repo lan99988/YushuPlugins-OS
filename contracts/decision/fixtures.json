@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "plugin": "yushuos.decision",
+  "seed": {
+    "capability": "decision.create",
+    "intent": "command",
+    "fields": {
+      "title": "choose",
+      "options": [
+        {
+          "id": "a",
+          "label": "first"
+        }
+      ]
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "decision"
+}

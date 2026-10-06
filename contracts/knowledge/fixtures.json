@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "plugin": "yushuos.knowledge",
+  "seed": {
+    "capability": "knowledge.create",
+    "intent": "command",
+    "fields": {
+      "title": "fact",
+      "content": "data"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "knowledge"
+}

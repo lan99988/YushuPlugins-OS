@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "plugin": "yushuos.personal_model",
+  "seed": {
+    "capability": "personal-model.hypothesis.create",
+    "intent": "command",
+    "fields": {
+      "statement": "hypothesis",
+      "source": "host",
+      "evidence_refs": []
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "personal-model.hypothesis"
+}

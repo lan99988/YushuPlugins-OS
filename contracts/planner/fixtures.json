@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "plugin": "yushuos.planner",
+  "seed": {
+    "capability": "planner.generate",
+    "intent": "command",
+    "fields": {
+      "tasks": [],
+      "windows": []
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "planner.plan"
+}

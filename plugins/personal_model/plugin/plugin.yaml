@@ -1,0 +1,849 @@
+id: yushuos.personal_model
+name: YushuOS personal_model
+version: 0.1.0
+contract_version: 3
+operation_support: local_commit_v1
+type: domain
+description: Independent local-first personal_model domain plugin
+enabled: true
+dependencies: []
+optional_dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties: {}
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 30
+  protocol: json-stdio-v2
+capabilities:
+- name: personal-model.hypothesis.create
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id006
+      statement:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      confidence: &id021
+        type: number
+        minimum: 0
+        maximum: 1
+      evidence_refs: &id001
+        type: array
+        items: &id018
+          type: object
+          properties:
+            provider:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            store_id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+          required:
+          - provider
+          - kind
+          - id
+          - store_id
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      counterevidence_refs: *id001
+      source:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - statement
+    - source
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id002
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id002
+          archived: &id003
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id003
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.create
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.hypothesis.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id004
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id004
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.get
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.hypothesis.list
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor:
+        type:
+        - string
+        - 'null'
+      include_archived:
+        type: boolean
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id005
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id005
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.list
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.hypothesis.update
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: &id009
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expected_version: &id010
+        type: integer
+        minimum: 1
+        maximum: 1000000
+      changes:
+        type: object
+        properties: *id006
+        required: []
+        additionalProperties: false
+    required:
+    - id
+    - expected_version
+    - changes
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id007
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id007
+          archived: &id008
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id008
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.update
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.hypothesis.withdraw
+  effect: internal_write
+  inputs:
+    type: object
+    properties: &id013
+      id: *id009
+      expected_version: *id010
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id011
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id011
+          archived: &id012
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id012
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.withdraw
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.hypothesis.archive
+  effect: internal_write
+  inputs:
+    type: object
+    properties: *id013
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id014
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id014
+          archived: &id015
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id015
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.archive
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.hypothesis.restore
+  effect: internal_write
+  inputs:
+    type: object
+    properties: *id013
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id016
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id016
+          archived: &id017
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id017
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.hypothesis.restore
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.attach
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id009
+      expected_version: *id010
+      reference: *id018
+    required:
+    - id
+    - expected_version
+    - reference
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id019
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id019
+          archived: &id020
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id020
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: personal-model.attach
+  resource_scopes:
+    store_id: personal_model_store
+- name: personal-model.evaluate
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id: *id009
+      expected_version: *id010
+      reason:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      judgement:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      evidence_refs: *id001
+      confidence: *id021
+    required:
+    - id
+    - expected_version
+    - reason
+    - judgement
+    - evidence_refs
+    - confidence
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id022
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id022
+          archived: &id023
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id023
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - personal_model.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: host_required
+  description: personal-model.evaluate
+  resource_scopes:
+    store_id: personal_model_store
+routes: []
+skill_names:
+- yushuos.personal_model
+emitted_events:
+- personal-model.attach
+- personal-model.evaluate
+- personal-model.hypothesis.archive
+- personal-model.hypothesis.attach
+- personal-model.hypothesis.created
+- personal-model.hypothesis.evaluate
+- personal-model.hypothesis.restore
+- personal-model.hypothesis.update
+- personal-model.hypothesis.withdraw
+dependency_versions: {}

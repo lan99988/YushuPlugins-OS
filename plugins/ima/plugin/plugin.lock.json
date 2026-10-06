@@ -1,0 +1,15 @@
+{
+  "files": {
+    "README.md": "c408c074f6f38c3f826c32e3a0072057eca56b4048a88209d7dd857a9df7c9d1",
+    "SKILL.md": "2dcfb642c74860db99bb452b72b4afbfc020352e2a8b752ba5a001bc6610190c",
+    "adapter.py": "24ab2e46f5417cbf6828dc0ac8ffee075db266d9e8a3e43aeeabf3ca53a6d25f",
+    "configure.py": "8bcafee61768f3d8de1876be9d4b8f2b23b9b85da5b33a12c348c0f2417f5cf8",
+    "definition.py": "ddc3701a63d3ce6560c9caa1906b3a834d079bd45122cdcfc23e454ad812eca3",
+    "plugin.yaml": "e1df13d7c0016d587fabea8208566e833b18478d27e3f65143f73cfd8f5d7203",
+    "protocol.py": "42bc1857ec89ccc39392f92d6809d4c9d34bfd689170cd43d4a7d4fea7d5f431",
+    "run.py": "110754d9da21440f971c8dcb7037c230b5b1a5625364609a4087ae5b903caff1"
+  },
+  "format": 1,
+  "plugin_id": "yushuos.ima",
+  "version": "0.1.0"
+}

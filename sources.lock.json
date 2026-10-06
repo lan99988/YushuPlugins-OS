@@ -2,11 +2,15 @@
   "core": {
     "url": "https://github.com/lan99988/YushuCore-OS.git",
     "commit": "a198be8eb463581b8d18440fb46558c35fe62f5f",
-    "version": "0.3.1"
+    "version": "0.3.1",
+    "license": "MIT"
   },
   "task": {
     "commit": "f0cee1de65f985d55d2a69923331d8911f542de4",
     "version": "0.1.0",
-    "imported_path": "plugins/task"
+    "imported_path": "plugins/task",
+    "derived_version": "0.2.0",
+    "extension_source_commit": "94d5cd54090006424fb323f81bbb2ea09e168368",
+    "license": "MIT"
   }
 }

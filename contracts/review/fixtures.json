@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "plugin": "yushuos.review",
+  "seed": {
+    "capability": "review.generate",
+    "intent": "command",
+    "fields": {
+      "period_start": "2026-10-01",
+      "period_end": "2026-10-07",
+      "sources": {},
+      "missing_sources": [
+        "task"
+      ]
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "review"
+}

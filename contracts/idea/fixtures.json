@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "plugin": "yushuos.idea",
+  "seed": {
+    "capability": "idea.create",
+    "intent": "command",
+    "fields": {
+      "title": "book"
+    },
+    "target": {
+      "store_id": "personal"
+    }
+  },
+  "expected_resource_kind": "idea"
+}

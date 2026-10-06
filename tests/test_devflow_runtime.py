@@ -71,7 +71,6 @@ class AdditionalRuntimeTests(unittest.TestCase):
         from devflow.runtime import overlaps
         self.assertTrue(overlaps(['plugins/a/'],['plugins/a/file.py']))
         self.assertFalse(overlaps(['plugins/a/'],['plugins/ab/']))
-from unittest.mock import patch
 class GhCredentialTests(unittest.TestCase):
     def test_gh_credential_is_private_and_proxy_retry_scoped(self):
         from devflow.runtime import gh_environment

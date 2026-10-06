@@ -1,0 +1,718 @@
+id: yushuos.finance
+name: YushuOS finance
+version: 0.1.0
+contract_version: 3
+operation_support: local_commit_v1
+type: domain
+description: Independent local-first finance domain plugin
+enabled: true
+dependencies: []
+optional_dependencies: []
+permissions: []
+data_path: data
+supported_runtimes:
+- python>=3.11
+configuration:
+  type: object
+  properties: {}
+  required: []
+  additionalProperties: false
+error_policy: fail_closed
+audit_policy: metadata_only
+runner:
+  command:
+  - '{python}'
+  - '{plugin_root}/run.py'
+  timeout_seconds: 30
+  protocol: json-stdio-v2
+capabilities:
+- name: finance.statement.create
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      month: &id008
+        type: string
+        minLength: 1
+        maxLength: 20000
+      currency: &id009
+        type: string
+        minLength: 1
+        maxLength: 20000
+      source_id: &id010
+        type: string
+        minLength: 1
+        maxLength: 20000
+      transactions:
+        type: array
+        items:
+          type: object
+          properties:
+            amount:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            direction:
+              type: string
+              enum:
+              - income
+              - expense
+            category:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            at:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            external_id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+          required:
+          - amount
+          - direction
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+    required:
+    - month
+    - currency
+    - source_id
+    - transactions
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id001
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id001
+          archived: &id002
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id002
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.statement.create
+  resource_scopes:
+    store_id: finance_store
+- name: finance.statement.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id003
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id003
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.statement.get
+  resource_scopes:
+    store_id: finance_store
+- name: finance.statement.list
+  effect: read_only
+  inputs:
+    type: object
+    properties: &id006
+      limit:
+        type: integer
+        minimum: 1
+        maximum: 100
+      cursor:
+        type:
+        - string
+        - 'null'
+      include_archived:
+        type: boolean
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id004
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id004
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.statement.list
+  resource_scopes:
+    store_id: finance_store
+- name: finance.monthly_snapshot.get
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - id
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id005
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id005
+          archived:
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+    required:
+    - entity
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.monthly_snapshot.get
+  resource_scopes:
+    store_id: finance_store
+- name: finance.monthly_snapshot.list
+  effect: read_only
+  inputs:
+    type: object
+    properties: *id006
+    required: []
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            kind:
+              type: string
+              minLength: 1
+              maxLength: 20000
+            version:
+              type: integer
+              minimum: 1
+              maximum: 1000000
+            created_at: &id007
+              type: string
+              minLength: 1
+              maxLength: 20000
+            updated_at: *id007
+            archived:
+              type: boolean
+            fields:
+              type: object
+              properties: {}
+              required: []
+              additionalProperties: true
+          required:
+          - id
+          - kind
+          - version
+          - created_at
+          - updated_at
+          - archived
+          - fields
+          additionalProperties: false
+        minItems: 0
+        maxItems: 1000
+      next_cursor:
+        type:
+        - string
+        - 'null'
+    required:
+    - items
+    - next_cursor
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.monthly_snapshot.list
+  resource_scopes:
+    store_id: finance_store
+- name: finance.monthly_snapshot.create
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      month: *id008
+      currency: *id009
+      source_id: *id010
+      income:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expense:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      assets:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      liabilities:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      notes:
+        type: string
+        minLength: 0
+        maxLength: 20000
+    required:
+    - month
+    - currency
+    - source_id
+    - income
+    - expense
+    - assets
+    - liabilities
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id011
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id011
+          archived: &id012
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id012
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.monthly_snapshot.create
+  resource_scopes:
+    store_id: finance_store
+- name: finance.monthly_snapshot.close
+  effect: internal_write
+  inputs:
+    type: object
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expected_version:
+        type: integer
+        minimum: 1
+        maximum: 1000000
+    required:
+    - id
+    - expected_version
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      entity:
+        type: object
+        properties:
+          id:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          kind:
+            type: string
+            minLength: 1
+            maxLength: 20000
+          version:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+          created_at: &id013
+            type: string
+            minLength: 1
+            maxLength: 20000
+          updated_at: *id013
+          archived: &id014
+            type: boolean
+          fields:
+            type: object
+            properties: {}
+            required: []
+            additionalProperties: true
+        required:
+        - id
+        - kind
+        - version
+        - created_at
+        - updated_at
+        - archived
+        - fields
+        additionalProperties: false
+      changed: *id014
+      operation_status:
+        type: string
+        enum:
+        - committed
+      result_state:
+        type: string
+        enum:
+        - available
+        - expired
+      original_request_id:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      code:
+        type: string
+        enum:
+        - result_expired
+    required:
+    - operation_status
+    - result_state
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.write
+  intents:
+  - command
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.monthly_snapshot.close
+  resource_scopes:
+    store_id: finance_store
+- name: finance.summary
+  effect: read_only
+  inputs:
+    type: object
+    properties:
+      month:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      currency:
+        type: string
+        minLength: 1
+        maxLength: 20000
+    required:
+    - month
+    - currency
+    additionalProperties: false
+  outputs:
+    type: object
+    properties:
+      month:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      currency:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      income:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      expense:
+        type: string
+        minLength: 1
+        maxLength: 20000
+      statement_ids:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 20000
+        minItems: 0
+        maxItems: 1000
+    required:
+    - month
+    - currency
+    - income
+    - expense
+    - statement_ids
+    additionalProperties: false
+  dependencies: []
+  permissions:
+  - finance.read
+  intents:
+  - query
+  implemented: true
+  verified: true
+  authorized: true
+  enabled: true
+  execution_mode: standalone
+  description: finance.summary
+  resource_scopes:
+    store_id: finance_store
+routes: []
+skill_names:
+- yushuos.finance
+emitted_events:
+- finance.month.closed
+- finance.monthly_snapshot.close
+- finance.monthly_snapshot.created
+- finance.statement.created
+dependency_versions: {}

@@ -5,10 +5,14 @@ build-backend = "setuptools.build_meta"
 name = "yushuos-plugin-suite"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = ["PyYAML>=6,<7", "jsonschema>=4,<5", "yushuos-core>=0.3.1,<0.4"]
+dependencies = ["PyYAML>=6,<7", "jsonschema>=4,<5", "tzdata>=2025.2", "yushuos-core>=0.3.1,<0.4"]
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.11"]
 [tool.setuptools.packages.find]
-include = ["devflow*", "business_runtime*", "integration*"]
+include = ["devflow*", "business_runtime*", "integration*", "scripts*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+[tool.ruff]
+include = ["*.py", "*.pyi"]
+extend-exclude = ["plugins/*/plugin"]
+force-exclude = true
