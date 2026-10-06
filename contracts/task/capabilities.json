@@ -1,0 +1,1175 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "task",
+  "provider_id": "yushuos.task",
+  "capabilities": [
+    {
+      "name": "task.create",
+      "input": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "title",
+            "minLength": 1
+          },
+          "project": {
+            "type": "string",
+            "description": "project",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "description": "priority",
+            "minLength": 1
+          },
+          "energy_level": {
+            "type": "string",
+            "description": "energy level",
+            "minLength": 1
+          },
+          "estimated_duration": {
+            "type": "number",
+            "description": "estimated duration"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "deadline"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "date"
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "title",
+          "project",
+          "priority",
+          "energy_level",
+          "estimated_duration",
+          "deadline",
+          "date",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "title",
+                    "minLength": 1
+                  },
+                  "project": {
+                    "type": "string",
+                    "description": "project",
+                    "minLength": 1
+                  },
+                  "priority": {
+                    "type": "string",
+                    "description": "priority",
+                    "minLength": 1
+                  },
+                  "energy_level": {
+                    "type": "string",
+                    "description": "energy level",
+                    "minLength": 1
+                  },
+                  "estimated_duration": {
+                    "type": "number",
+                    "description": "estimated duration"
+                  },
+                  "deadline": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "deadline"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "date"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.update",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "title",
+            "minLength": 1
+          },
+          "project": {
+            "type": "string",
+            "description": "project",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "description": "priority",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "description": "status",
+            "minLength": 1
+          },
+          "energy_level": {
+            "type": "string",
+            "description": "energy level",
+            "minLength": 1
+          },
+          "is_hard_bone": {
+            "type": "boolean",
+            "description": "is hard bone"
+          },
+          "subject_category": {
+            "type": "string",
+            "description": "subject category",
+            "minLength": 1
+          },
+          "estimated_duration": {
+            "type": "number",
+            "description": "estimated duration"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time",
+            "description": "deadline"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "date"
+          },
+          "attachment": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "attachment"
+          },
+          "related_doc": {
+            "type": "string",
+            "description": "related doc",
+            "minLength": 1
+          },
+          "owner": {
+            "type": "string",
+            "description": "owner",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "date",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "title",
+                    "minLength": 1
+                  },
+                  "project": {
+                    "type": "string",
+                    "description": "project",
+                    "minLength": 1
+                  },
+                  "priority": {
+                    "type": "string",
+                    "description": "priority",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "status",
+                    "minLength": 1
+                  },
+                  "energy_level": {
+                    "type": "string",
+                    "description": "energy level",
+                    "minLength": 1
+                  },
+                  "is_hard_bone": {
+                    "type": "boolean",
+                    "description": "is hard bone"
+                  },
+                  "subject_category": {
+                    "type": "string",
+                    "description": "subject category",
+                    "minLength": 1
+                  },
+                  "estimated_duration": {
+                    "type": "number",
+                    "description": "estimated duration"
+                  },
+                  "deadline": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "deadline"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "date"
+                  },
+                  "attachment": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "attachment"
+                  },
+                  "related_doc": {
+                    "type": "string",
+                    "description": "related doc",
+                    "minLength": 1
+                  },
+                  "owner": {
+                    "type": "string",
+                    "description": "owner",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.complete",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.reopen",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.delete",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.cancel",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "task.archive",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    }
+  ]
+}

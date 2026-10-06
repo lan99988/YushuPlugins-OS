@@ -1,0 +1,88 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "lifeadmin",
+  "resources": [
+    {
+      "name": "lifeadmin_record",
+      "scope": "private_store",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "item_id": {
+                "type": "string",
+                "description": "item id",
+                "minLength": 1
+              },
+              "renewed_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "renewed at"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "expires at"
+              },
+              "provider": {
+                "type": "string",
+                "description": "provider",
+                "minLength": 1
+              },
+              "amount": {
+                "type": "string",
+                "description": "amount",
+                "minLength": 1
+              },
+              "currency": {
+                "type": "string",
+                "description": "currency",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "version",
+          "created_at",
+          "updated_at",
+          "archived",
+          "fields"
+        ],
+        "additionalProperties": false
+      },
+      "identity": [
+        "id",
+        "kind",
+        "version"
+      ],
+      "store_id_required": true
+    }
+  ]
+}

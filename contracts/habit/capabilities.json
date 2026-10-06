@@ -1,0 +1,1056 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "habit",
+  "provider_id": "yushuos.habit",
+  "capabilities": [
+    {
+      "name": "habit.create",
+      "input": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "name",
+            "minLength": 1
+          },
+          "cadence": {
+            "type": "string",
+            "description": "cadence",
+            "minLength": 1
+          },
+          "target": {
+            "type": "number",
+            "description": "target"
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "name",
+          "cadence",
+          "target",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name",
+                    "minLength": 1
+                  },
+                  "cadence": {
+                    "type": "string",
+                    "description": "cadence",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "type": "number",
+                    "description": "target"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.update",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "name",
+            "minLength": 1
+          },
+          "cadence": {
+            "type": "string",
+            "description": "cadence",
+            "minLength": 1
+          },
+          "target": {
+            "type": "number",
+            "description": "target"
+          },
+          "notes": {
+            "type": "string",
+            "description": "notes",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name",
+                    "minLength": 1
+                  },
+                  "cadence": {
+                    "type": "string",
+                    "description": "cadence",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "type": "number",
+                    "description": "target"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "notes",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.archive",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.checkin",
+      "input": {
+        "type": "object",
+        "properties": {
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "occurred at"
+          },
+          "value": {
+            "type": "number",
+            "description": "value"
+          },
+          "note": {
+            "type": "string",
+            "description": "note",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "occurred_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "occurred at"
+                  },
+                  "value": {
+                    "type": "number",
+                    "description": "value"
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "note",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.undo_checkin",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.pause",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "habit.resume",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    }
+  ]
+}

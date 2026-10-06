@@ -1,0 +1,77 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "competition",
+  "resources": [
+    {
+      "name": "competition_record",
+      "scope": "private_store",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "competition_id": {
+                "type": "string",
+                "description": "competition id",
+                "minLength": 1
+              },
+              "assessed_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "assessed at"
+              },
+              "score": {
+                "type": "number",
+                "description": "score"
+              },
+              "notes": {
+                "type": "string",
+                "description": "notes",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "version",
+          "created_at",
+          "updated_at",
+          "archived",
+          "fields"
+        ],
+        "additionalProperties": false
+      },
+      "identity": [
+        "id",
+        "kind",
+        "version"
+      ],
+      "store_id_required": true
+    }
+  ]
+}

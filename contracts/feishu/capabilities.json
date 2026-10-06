@@ -1,0 +1,1720 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "feishu",
+  "provider_id": "yushuos.feishu",
+  "capabilities": [
+    {
+      "name": "feishu.calendar.event.create",
+      "input": {
+        "type": "object",
+        "properties": {
+          "calendar_id": {
+            "type": "string",
+            "description": "calendar id",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "description": "summary",
+            "minLength": 1
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "start at"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "end at"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "timezone",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "description",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "calendar_id",
+          "summary",
+          "start_at",
+          "end_at",
+          "timezone",
+          "description",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "calendar_id": {
+                    "type": "string",
+                    "description": "calendar id",
+                    "minLength": 1
+                  },
+                  "summary": {
+                    "type": "string",
+                    "description": "summary",
+                    "minLength": 1
+                  },
+                  "start_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "start at"
+                  },
+                  "end_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "end at"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "timezone",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.calendar.event.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.calendar.event.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.calendar.event.update",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "summary": {
+            "type": "string",
+            "description": "summary",
+            "minLength": 1
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "start at"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "end at"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "timezone",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "description",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "summary": {
+                    "type": "string",
+                    "description": "summary",
+                    "minLength": 1
+                  },
+                  "start_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "start at"
+                  },
+                  "end_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "end at"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "timezone",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.calendar.event.delete",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.calendar.busy",
+      "input": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "description": "from"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "description": "to"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "timezone",
+            "minLength": 1
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "busy"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "score": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.task.create",
+      "input": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "title",
+            "minLength": 1
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "due at"
+          },
+          "description": {
+            "type": "string",
+            "description": "description",
+            "minLength": 1
+          },
+          "assignee_id": {
+            "type": "string",
+            "description": "assignee id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "title",
+          "due_at",
+          "description",
+          "assignee_id",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "title",
+                    "minLength": 1
+                  },
+                  "due_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "due at"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description",
+                    "minLength": 1
+                  },
+                  "assignee_id": {
+                    "type": "string",
+                    "description": "assignee id",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.task.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.task.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.task.update",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "title",
+            "minLength": 1
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "due at"
+          },
+          "description": {
+            "type": "string",
+            "description": "description",
+            "minLength": 1
+          },
+          "assignee_id": {
+            "type": "string",
+            "description": "assignee id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "id",
+          "expected_version",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "title",
+                    "minLength": 1
+                  },
+                  "due_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "due at"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description",
+                    "minLength": 1
+                  },
+                  "assignee_id": {
+                    "type": "string",
+                    "description": "assignee id",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.task.complete",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.binding.create",
+      "input": {
+        "type": "object",
+        "properties": {
+          "local_ref": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "store_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "kind",
+              "id",
+              "store_id"
+            ],
+            "additionalProperties": false,
+            "description": "明确的私有资源引用"
+          },
+          "remote_kind": {
+            "type": "string",
+            "description": "remote kind",
+            "minLength": 1
+          },
+          "remote_id": {
+            "type": "string",
+            "description": "remote id",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "local_ref",
+          "remote_kind",
+          "remote_id",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "local_ref": {
+                    "type": "object",
+                    "properties": {
+                      "provider": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "store_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "provider",
+                      "kind",
+                      "id",
+                      "store_id"
+                    ],
+                    "additionalProperties": false,
+                    "description": "明确的私有资源引用"
+                  },
+                  "remote_kind": {
+                    "type": "string",
+                    "description": "remote kind",
+                    "minLength": 1
+                  },
+                  "remote_id": {
+                    "type": "string",
+                    "description": "remote id",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.binding.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "feishu.message.send",
+      "input": {
+        "type": "object",
+        "properties": {
+          "chat_id": {
+            "type": "string",
+            "description": "chat id",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "description": "text",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "chat_id",
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "chat_id": {
+                    "type": "string",
+                    "description": "chat id",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "text",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "provider_write",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    }
+  ]
+}

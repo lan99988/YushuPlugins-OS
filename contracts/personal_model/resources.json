@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "personal_model",
+  "resources": [
+    {
+      "name": "personal_model_record",
+      "scope": "private_store",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "hypothesis_id": {
+                "type": "string",
+                "description": "hypothesis id",
+                "minLength": 1
+              },
+              "as_of": {
+                "type": "string",
+                "format": "date-time",
+                "description": "as of"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "version",
+          "created_at",
+          "updated_at",
+          "archived",
+          "fields"
+        ],
+        "additionalProperties": false
+      },
+      "identity": [
+        "id",
+        "kind",
+        "version"
+      ],
+      "store_id_required": true
+    }
+  ]
+}

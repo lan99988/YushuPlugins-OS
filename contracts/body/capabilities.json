@@ -1,0 +1,786 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "body",
+  "provider_id": "yushuos.body",
+  "capabilities": [
+    {
+      "name": "body.state.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "body.record.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "body.record.get_latest",
+      "input": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "body.history",
+      "input": {
+        "type": "object",
+        "properties": {
+          "metric": {
+            "type": "string",
+            "description": "metric",
+            "minLength": 1
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "description": "from"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "description": "to"
+          },
+          "limit": {
+            "type": "string",
+            "description": "limit",
+            "minLength": 1
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "history"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "score": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "body.sleep.record",
+      "input": {
+        "type": "object",
+        "properties": {
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "started at"
+          },
+          "ended_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ended at"
+          },
+          "quality": {
+            "type": "string",
+            "description": "quality",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "description": "notes",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "started_at",
+          "ended_at",
+          "quality",
+          "notes",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "started_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "started at"
+                  },
+                  "ended_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ended at"
+                  },
+                  "quality": {
+                    "type": "string",
+                    "description": "quality",
+                    "minLength": 1
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "notes",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "body.training.record",
+      "input": {
+        "type": "object",
+        "properties": {
+          "activity": {
+            "type": "string",
+            "description": "activity",
+            "minLength": 1
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "started at"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "description": "duration minutes"
+          },
+          "load": {
+            "type": "number",
+            "description": "load"
+          },
+          "notes": {
+            "type": "string",
+            "description": "notes",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "activity",
+          "started_at",
+          "duration_minutes",
+          "load",
+          "notes",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "activity": {
+                    "type": "string",
+                    "description": "activity",
+                    "minLength": 1
+                  },
+                  "started_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "started at"
+                  },
+                  "duration_minutes": {
+                    "type": "integer",
+                    "description": "duration minutes"
+                  },
+                  "load": {
+                    "type": "number",
+                    "description": "load"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "notes",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "body.recovery.record",
+      "input": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "date"
+          },
+          "readiness": {
+            "type": "string",
+            "description": "readiness",
+            "minLength": 1
+          },
+          "soreness": {
+            "type": "string",
+            "description": "soreness",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "description": "notes",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "date",
+          "readiness",
+          "soreness",
+          "notes",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "date"
+                  },
+                  "readiness": {
+                    "type": "string",
+                    "description": "readiness",
+                    "minLength": 1
+                  },
+                  "soreness": {
+                    "type": "string",
+                    "description": "soreness",
+                    "minLength": 1
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "notes",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    }
+  ]
+}

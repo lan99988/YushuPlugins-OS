@@ -1,0 +1,849 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "planner",
+  "provider_id": "yushuos.planner",
+  "capabilities": [
+    {
+      "name": "planner.plan.create",
+      "input": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "date"
+          },
+          "energy_budget_minutes": {
+            "type": "integer",
+            "description": "energy budget minutes"
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "constraints"
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "date",
+          "energy_budget_minutes",
+          "constraints",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "date"
+                  },
+                  "energy_budget_minutes": {
+                    "type": "integer",
+                    "description": "energy budget minutes"
+                  },
+                  "constraints": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "constraints"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.plan.get",
+      "input": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "id",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.plan.list",
+      "input": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "version",
+                "created_at",
+                "updated_at",
+                "archived",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.schedule.generate",
+      "input": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "date"
+          },
+          "available_minutes": {
+            "type": "integer",
+            "description": "available minutes"
+          },
+          "energy_budget_minutes": {
+            "type": "integer",
+            "description": "energy budget minutes"
+          }
+        },
+        "required": [
+          "date",
+          "available_minutes",
+          "energy_budget_minutes"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "generate"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "score": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.schedule.preview",
+      "input": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "date"
+          },
+          "available_minutes": {
+            "type": "integer",
+            "description": "available minutes"
+          },
+          "energy_budget_minutes": {
+            "type": "integer",
+            "description": "energy budget minutes"
+          }
+        },
+        "required": [
+          "date",
+          "available_minutes",
+          "energy_budget_minutes"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "preview"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "score": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.schedule.apply",
+      "input": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "plan id",
+            "minLength": 1
+          },
+          "expected_version": {
+            "type": "string",
+            "description": "expected version",
+            "minLength": 1
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "plan_id",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "plan_id": {
+                    "type": "string",
+                    "description": "plan id",
+                    "minLength": 1
+                  },
+                  "expected_version": {
+                    "type": "string",
+                    "description": "expected version",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.schedule.replan",
+      "input": {
+        "type": "object",
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "description": "plan id",
+            "minLength": 1
+          },
+          "remaining_minutes": {
+            "type": "integer",
+            "description": "remaining minutes"
+          },
+          "energy_budget_minutes": {
+            "type": "integer",
+            "description": "energy budget minutes"
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "目标私有存储作用域"
+          }
+        },
+        "required": [
+          "plan_id",
+          "remaining_minutes",
+          "energy_budget_minutes",
+          "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "fields": {
+                "type": "object",
+                "properties": {
+                  "plan_id": {
+                    "type": "string",
+                    "description": "plan id",
+                    "minLength": 1
+                  },
+                  "remaining_minutes": {
+                    "type": "integer",
+                    "description": "remaining minutes"
+                  },
+                  "energy_budget_minutes": {
+                    "type": "integer",
+                    "description": "energy budget minutes"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "version",
+              "created_at",
+              "updated_at",
+              "archived",
+              "fields"
+            ],
+            "additionalProperties": false
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "operation_status": {
+            "type": "string",
+            "enum": [
+              "committed"
+            ]
+          },
+          "result_state": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          }
+        },
+        "required": [
+          "entity",
+          "changed",
+          "operation_status",
+          "result_state"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "write",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.write"
+      ],
+      "transaction": "local_commit_v1",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    },
+    {
+      "name": "planner.next_action.suggest",
+      "input": {
+        "type": "object",
+        "properties": {
+          "available_minutes": {
+            "type": "integer",
+            "description": "available minutes"
+          },
+          "energy_level": {
+            "type": "string",
+            "description": "energy level",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "available_minutes"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "suggest"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "score": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "effect": "read",
+      "intents": [
+        "explicit_user_request"
+      ],
+      "execution_mode": "standalone",
+      "permissions": [
+        "local.read"
+      ],
+      "transaction": "read_only",
+      "errors": [
+        "invalid_input",
+        "not_found",
+        "version_conflict",
+        "permission_denied",
+        "storage_error"
+      ]
+    }
+  ]
+}

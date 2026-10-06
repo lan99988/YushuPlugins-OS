@@ -1,0 +1,52 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "planner",
+  "events": [
+    {
+      "name": "planner.record.created",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "store_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "store_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "planner.record.updated",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "store_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "store_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

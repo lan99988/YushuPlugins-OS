@@ -1,0 +1,68 @@
+{
+  "contract_version": "1.0.0",
+  "plugin": "review",
+  "resources": [
+    {
+      "name": "review_record",
+      "scope": "private_store",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "left_review_id": {
+                "type": "string",
+                "description": "left review id",
+                "minLength": 1
+              },
+              "right_review_id": {
+                "type": "string",
+                "description": "right review id",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "version",
+          "created_at",
+          "updated_at",
+          "archived",
+          "fields"
+        ],
+        "additionalProperties": false
+      },
+      "identity": [
+        "id",
+        "kind",
+        "version"
+      ],
+      "store_id_required": true
+    }
+  ]
+}
