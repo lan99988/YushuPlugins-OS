@@ -17,10 +17,11 @@ def verification():
 
 
 class ReadOnlyReviewer(CommandRunner):
-    def __init__(self, mutate=False):
+    def __init__(self, mutate=False, findings=None):
         super().__init__()
         self.calls = []
         self.mutate = mutate
+        self.findings = findings or []
 
     def codex(self, worktree, prompt, model, effort, sandbox, schema, output, log, timeout=1800):
         self.calls.append(sandbox)
@@ -28,7 +29,7 @@ class ReadOnlyReviewer(CommandRunner):
         assert 'TEST_EVIDENCE=' in prompt
         assert json.loads(prompt.split('TEST_EVIDENCE=')[1])[-1]['passed']
         binding = json.loads(prompt.split('EVIDENCE_BINDING=')[1].split('\n')[0])
-        Path(output).write_text(json.dumps(dict(binding, outcome='pass', summary='audited', tests=[], findings=[])))
+        Path(output).write_text(json.dumps(dict(binding, outcome='fail' if self.findings else 'pass', summary='audited', tests=[], findings=self.findings)))
         if self.mutate:
             (Path(worktree) / 'README.md').write_text('tampered')
         return {'session': 'review-only', 'usage': {'input_tokens': 4}}
@@ -52,6 +53,15 @@ def test_verify_rejects_source_mutation(verification):
     worker = Coordinator(verification.repo, verification.store, runner=ReadOnlyReviewer(mutate=True))
     worker.run()
     assert verification.store.task('a')['status'] != 'verified'
+
+
+def test_verification_findings_block_without_repeating_model_turns(verification):
+    reviewer = ReadOnlyReviewer(findings=['P2: reproduced defect'])
+    Coordinator(verification.repo, verification.store, runner=reviewer).run()
+    task = verification.store.task('a')
+    assert reviewer.calls == ['read-only']
+    assert task['status'] == 'blocked' and task['attempt'] == 1
+    assert 'reproduced defect' in task['error']
 
 
 def test_verification_task_cannot_request_publication():

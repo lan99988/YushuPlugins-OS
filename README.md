@@ -55,7 +55,7 @@ python3 -m venv .venv
 python -m pip install -e ../yushuos-core -e '.[dev]'
 ~~~
 
-本轮 MVP 的 20 个模拟插件包已构建，独立安装路径已验证。五项跨平台 CI 仍在运行，尚不能报告全部通过；Feishu/IMA 的真实 App 读写仍为 <code>not_verified</code>。构建包、模拟安装与真实 App 验收是不同证据。安装只复制并校验不可变插件版本；还要配置 Core 版本选择、资源绑定和权限。Core 没有 <code>init</code>、<code>enable</code> 或 <code>uninstall-plugin</code> 子命令；插件数据保存在独立目录，移除包不会删除数据。
+本轮 MVP 的 20 个插件包支持独立构建和安装。各版本的跨平台 CI、审查和模拟验收证据见 [Actions](https://github.com/lan99988/YushuPlugins-OS/actions) 与 [Release](https://github.com/lan99988/YushuPlugins-OS/releases)；从源码构建不自动获得正式发布的验收状态。Feishu/IMA 的真实 App 读写仍为 <code>not_verified</code>。安装只复制并校验不可变插件版本；还要配置 Core 版本选择、资源绑定和权限。Core 没有 <code>init</code>、<code>enable</code> 或 <code>uninstall-plugin</code> 子命令；插件数据保存在独立目录，移除包不会删除数据。
 
 ## 安全和执行边界
 

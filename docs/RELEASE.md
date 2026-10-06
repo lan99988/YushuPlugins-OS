@@ -4,7 +4,7 @@ Core 固定来源见 <code>sources.lock.json</code>。领域插件源在 <code>p
 
 ## 当前交付状态
 
-MVP 的 20 个模拟插件包已构建，独立安装路径已验证。五项跨平台 CI（Linux/Python 3.11、3.12、3.13；Windows/Python 3.12；macOS/Python 3.12）仍在运行；结果全部确认前不能宣称 CI 全绿。Feishu/IMA 的真实 App live-read/live-write 仍为 <code>not_verified</code>，模拟接合不能替代真实账号验收。
+MVP 包含 20 个独立插件包。每个版本的真实状态见 GitHub Actions 和 Release 所附验收报告：五项必需 CI 是 Linux/Python 3.11、3.12、3.13，Windows/Python 3.12 和 macOS/Python 3.12。只有全部通过且独立审查闭环后才能发布。Feishu/IMA 的真实 App live-read/live-write 仍为 <code>not_verified</code>，模拟接合不能替代真实账号验收。
 
 Suite 不发布到 PyPI。构建 ZIP、锁和独立安装验证不自动构成正式发布。每个发行包应绑定经过审查的源码 SHA、manifest、SHA256SUMS 与实际验证证据。
 
@@ -40,7 +40,7 @@ Windows autostart 脚本应先以 <code>-Mode Plan</code> 检查，再以 <code>
 
 ## English
 
-The current MVP's 20 mock plugin packages have been built, and the independent install path has been verified. The five-platform CI matrix (Linux/Python 3.11, 3.12, and 3.13; Windows/Python 3.12; macOS/Python 3.12) is still in progress. Do not report it as green until every required result is confirmed. Feishu/IMA live App reads and writes remain <code>not_verified</code>; mock integration does not prove a real account was accepted.
+The MVP contains 20 independent plugin packages. GitHub Actions and each Release's verification report record the actual version-specific state. The five required jobs are Linux/Python 3.11, 3.12, and 3.13; Windows/Python 3.12; and macOS/Python 3.12. Release only after all pass and independent review findings are resolved. Feishu/IMA live App reads and writes remain <code>not_verified</code>; mock integration does not prove a real account was accepted.
 
 The Suite is not published on PyPI. Building ZIPs, validating locks, and checking independent installation do not by themselves constitute a release. Every release must bind its reviewed source SHA, manifest, SHA256SUMS, and verification evidence.
 

@@ -55,7 +55,7 @@ python3 -m venv .venv
 python -m pip install -e ../yushuos-core -e '.[dev]'
 ~~~
 
-The current MVP's 20 mock packages have been built and independently installed. The five-platform CI matrix is still in progress, so it is not yet a green result. Feishu/IMA live App reads and writes remain <code>not_verified</code>. A package installation copies and verifies an immutable plugin version; Core still needs explicit version selection, resource bindings, and grants. Core 0.3.1 has no <code>init</code>, <code>enable</code>, or <code>uninstall-plugin</code> command. Removing a package does not remove its private data.
+The MVP's 20 plugin packages can be built and installed independently. See [Actions](https://github.com/lan99988/YushuPlugins-OS/actions) and [Releases](https://github.com/lan99988/YushuPlugins-OS/releases) for version-specific CI, review, and mock-verification evidence; a local source build does not inherit release verification. Feishu/IMA live App reads and writes remain <code>not_verified</code>. A package installation copies and verifies an immutable plugin version; Core still needs explicit version selection, resource bindings, and grants. Core 0.3.1 has no <code>init</code>, <code>enable</code>, or <code>uninstall-plugin</code> command. Removing a package does not remove its private data.
 
 ## Execution boundaries
 

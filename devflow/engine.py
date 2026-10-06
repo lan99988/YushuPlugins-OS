@@ -155,6 +155,7 @@ class Store:
             reset=re.search(r'resets?At[\"\s:=]+(\d{9,}|\d+)',error,re.IGNORECASE)
             if reset: delay=max(0,float(reset.group(1))-now)
         elif kind=='network': status='waiting_network'; delay=min(900,30*2**min(attempt,5))
+        elif t.get('kind')=='verify': status='blocked'
         elif attempt>=4: status='blocked'
         else: level=min(3,level+1) if repeated or attempt>=2 else level
         self.set_task(id,fence=fence,status=status,next_run=now+delay,level=level,error=error,failure_kind=kind,last_failure=error,quota_waits=t.get('quota_waits',0)+(status=='waiting_quota'))
