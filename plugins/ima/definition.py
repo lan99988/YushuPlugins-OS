@@ -128,8 +128,10 @@ def manifest(app, capabilities):
                 "resource_scopes": c["resource_scopes"],
                 "execution_mode": c["execution_mode"],
                 "implemented": c["implemented"],
-                "verified": False,
-                "authorized": False,
+                # These flags describe tested code support, not account membership.
+                # The private binding and Core grants still gate every invocation.
+                "verified": bool(c["implemented"]),
+                "authorized": bool(c["implemented"]),
                 "enabled": True,
             }
             for c in capabilities.values()

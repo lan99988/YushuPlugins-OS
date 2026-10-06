@@ -20,7 +20,9 @@
 }
 ```
 
-逐项验收后才登记 verified_capabilities；只有已有明确授权才登记 authorized_capabilities 和 grants。发行版清单所有能力 verified=false、authorized=false，真实 App 验收状态 not_verified；不得将模拟测试等同真实账户验收。秘密只能来自环境变量或仓库外用户 binding，禁止写入清单、Descriptor、ZIP、测试样例和日志。
+逐项验收后才登记 verified_capabilities；只有已有明确授权才登记 authorized_capabilities 和 grants。发行版清单已实现能力的 verified/authorized=true 表示代码与模拟测试支持，供 Core 注册；未实现能力仍为 false。实际账户仍由仓库外 binding 的 configured、能力名单、grants，再与 Core grants 和资源 scope 共同门控，默认名单为空，真实 App 验收状态 not_verified。不得将模拟测试等同真实账户验收。秘密只能来自环境变量或仓库外用户 binding，禁止写入清单、Descriptor、ZIP、测试样例和日志。
+
+不可变发布包包含 configure.py；先准备仓库外现存 Core 配置和共享台账，再运行 `python C:/FAKE/release/configure.py --core-root C:/FAKE/core --binding-file C:/FAKE/account-binding.json`。工具安装锁定包、生成 native active_pointer 并接合 binding_file；不创建共享台账、不增补任何资源绑定或权限。省略 binding-file 时只生成未配置的空名单模板。
 
 ## 调用
 
