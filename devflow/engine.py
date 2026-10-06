@@ -43,9 +43,11 @@ def validate_manifest(tasks):
         if not ready: raise ValueError('cyclic dependency')
         seen|=ready
 
-def publish_gate(head,pr,review_head):
+def publish_gate(head,pr,review_head,policy=None):
+    policy={'known':True,'required_reviews':True} if policy is None else policy
+    reviews_ok=policy.get('known') and (not policy.get('required_reviews') or pr.get('reviewDecision')=='APPROVED')
     checks=pr.get('statusCheckRollup') or []
-    return bool(head==review_head==pr.get('headRefOid') and pr.get('reviewDecision')=='APPROVED' and checks and all((c.get('conclusion')=='SUCCESS' and c.get('status')=='COMPLETED') or c.get('state')=='SUCCESS' for c in checks))
+    return bool(head==review_head==pr.get('headRefOid') and reviews_ok and checks and all((c.get('conclusion')=='SUCCESS' and c.get('status')=='COMPLETED') or c.get('state')=='SUCCESS' for c in checks))
 
 class Store:
     def __init__(self,path):
@@ -62,6 +64,8 @@ class Store:
     def meta(self,key,default=None):
         with self.connect() as db: row=db.execute('SELECT value FROM meta WHERE key=?',(key,)).fetchone()
         return json.loads(row[0]) if row else default
+    def set_meta(self,key,value):
+        with self.connect() as db: db.execute('INSERT OR REPLACE INTO meta VALUES (?,?)',(key,json.dumps(value)))
     def control(self,value):
         with self.connect() as db: db.execute('INSERT OR REPLACE INTO meta VALUES (?,?)',('control',json.dumps(value)))
     def initialize(self,tasks):

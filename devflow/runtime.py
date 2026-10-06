@@ -20,6 +20,24 @@ def gh_environment(credential_run=None):
                 if line.startswith('password='): env['GH_TOKEN']=line.split('=',1)[1]
     return env
 
+def branch_review_policy(runner,repo,gh,base):
+    try:
+        identity=json.loads(runner.run([gh,'repo','view','--json','nameWithOwner'],repo))['nameWithOwner']
+        owner,name=identity.split('/',1)
+        query='query($owner:String!,$name:String!,$ref:String!){repository(owner:$owner,name:$name){ref(qualifiedName:$ref){branchProtectionRule{requiresApprovingReviews requiredApprovingReviewCount}}}}'
+        answer=json.loads(runner.run([gh,'api','graphql','-f','query='+query,'-f','owner='+owner,'-f','name='+name,'-f','ref=refs/heads/'+base],repo))
+        if answer.get('errors'): return {'known':False,'required_reviews':True}
+        ref=answer['data']['repository']['ref']
+        if ref is None: return {'known':False,'required_reviews':True}
+        protection=ref['branchProtectionRule']
+        required=bool(protection and (protection['requiresApprovingReviews'] or protection['requiredApprovingReviewCount']))
+        # Legacy branch protection and repository/org rulesets are separate gates.
+        rules=json.loads(runner.run([gh,'api',f'repos/{identity}/rules/branches/{base}'],repo))
+        if not isinstance(rules,list): return {'known':False,'required_reviews':True}
+        required=required or any(rule.get('type')=='pull_request' and rule.get('parameters',{}).get('required_approving_review_count',0)>0 for rule in rules)
+        return {'known':True,'required_reviews':bool(required)}
+    except (RuntimeError,ValueError,KeyError,TypeError): return {'known':False,'required_reviews':True}
+
 def process_identity(pid):
     if os.name=='nt':
         import ctypes
@@ -67,7 +85,7 @@ class CommandRunner:
         with self.lock:
             for p,birth in self.processes.values(): self.kill(p)
     def run(self,argv,cwd,input=None,timeout=1800,log=None,env=None,_proxy_retry=False):
-        kwargs={'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP} if os.name=='nt' else {'start_new_session':True}
+        kwargs={'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {'start_new_session':True}
         is_gh=Path(argv[0]).name.lower() in ('gh','gh.exe')
         if env is None and is_gh: env=gh_environment()
         p=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',env=env,**kwargs)
@@ -87,7 +105,8 @@ class CommandRunner:
         finally:
             with self.lock: self.processes.pop(p.pid,None); self.record_processes()
     def codex(self,worktree,prompt,model,effort,sandbox,schema,output,log,timeout=1800):
-        command=os.environ.get('DEVFLOW_CODEX','codex')
+        from .capabilities import resolve_codex
+        command=getattr(self,'codex_command',None) or resolve_codex()
         argv=[command,'exec','--json','--output-schema',str(schema),'--output-last-message',str(output),'-m',model,'-c',f'model_reasoning_effort="{effort}"','--sandbox',sandbox,'-']
         out=self.run(argv,worktree,input=prompt,timeout=timeout,log=log); session=None; usage={}
         for line in out.splitlines():
@@ -115,6 +134,19 @@ class Coordinator:
         self.repo=Path(repo).resolve(); self.store=store; self.workers=max(1,min(3,workers)); self.runner=runner or CommandRunner(); self.publish=publish
         self.owner=uuid.uuid4().hex; self.fence=None; self.state=store.path.parent; self.state.mkdir(parents=True,exist_ok=True)
         self.runner.registry=self.state/'processes.json'
+        self.capabilities=store.meta('capabilities')
+        if self.capabilities: self.runner.codex_command=self.capabilities['command']
+    def desired_model(self,risk,level):
+        policy=self.store.meta('models_policy')
+        if not policy: return model_for(risk,level)
+        index=min(3,{'low':0,'medium':1,'high':2,'critical':3}[risk]+level)
+        item=policy['levels'][index]; return item['model'],item['effort']
+    def verified_model(self,model,effort):
+        if not self.capabilities: return model,effort,None
+        from .capabilities import select_verified_model
+        policy=self.store.meta('models_policy')
+        fallback=policy.get('l4_fallback') if policy and model==policy['levels'][3]['model'] else {}
+        return select_verified_model(model,effort,self.capabilities['models'],fallback)
     def update(self,id,**values): self.store.set_task(id,fence=self.fence,**values)
     def check_scope(self,t,worktree):
         paths=changed_paths(worktree,t['base_sha'])
@@ -140,7 +172,8 @@ class Coordinator:
         try:
             t=self.store.task(id); worktree=self.worktree(t); t=self.store.task(id)
             risk=resolved_risk(t.get('risk_resolved',t.get('risk','low')),t['allowed_paths'])
-            model,effort=model_for(risk,t['level']); attempt=t['attempt']+1
+            model,effort=self.desired_model(risk,t['level']); model,effort,fallback=self.verified_model(model,effort); attempt=t['attempt']+1
+            if fallback: self.update(id,fallback_reason=fallback)
             artifact=self.state/'evidence'/id/str(attempt); artifact.mkdir(parents=True,exist_ok=True)
             schema=artifact/'schema.json'; schema.write_text(json.dumps(REPORT_SCHEMA),encoding='utf-8')
             self.update(id,status='running',attempt=attempt,model=model,reasoning=effort,risk_resolved=risk)
@@ -162,7 +195,9 @@ class Coordinator:
             self.update(id,status='reviewing',tree_sha=tree,rules_sha=rules,evidence=test_evidence)
             binding={'task_id':id,'tree_sha':tree,'contract_sha':t['contract_sha'],'rules_sha':rules}
             prompt='Review this task read-only. Independently inspect diff against '+t['base_sha']+', task contract, AGENTS rules and test evidence. Return pass only when correct and no findings.\nEVIDENCE_BINDING='+json.dumps(binding)+'\nTASK='+json.dumps(t)+'\nTEST_EVIDENCE='+json.dumps(test_evidence)
-            review_model,review_effort=model_for(risk,max(2,t['level']))
+            review_model,review_effort=self.desired_model(risk,max(2,t['level']))
+            review_model,review_effort,review_fallback=self.verified_model(review_model,review_effort)
+            if review_fallback: self.update(id,review_fallback_reason=review_fallback)
             try: review=self.runner.codex(worktree,prompt,review_model,review_effort,'read-only',schema,artifact/'review.json',artifact/'review.jsonl')
             except RuntimeError as exc:
                 if review_model=='gpt-6-astra' and any(s in str(exc).lower() for s in ('model not found','model unavailable','unsupported model','not available')):
@@ -198,7 +233,9 @@ class Coordinator:
             pr={'url':url}
         self.update(id,pr=pr,status='awaiting_gates')
         data=json.loads(self.runner.run([gh,'pr','view',pr.get('url',str(pr.get('number'))),'--json','headRefOid,reviewDecision,statusCheckRollup,state'],worktree))
-        if not publish_gate(head,data,t['review_head']): return
+        policy=branch_review_policy(self.runner,worktree,gh,base)
+        self.update(id,branch_policy=policy)
+        if not publish_gate(head,data,t['review_head'],policy): return
         if data['state']!='MERGED': self.runner.run([gh,'pr','merge',pr.get('url',str(pr.get('number'))),'--merge','--match-head-commit',head],worktree)
         confirmed=json.loads(self.runner.run([gh,'pr','view',pr.get('url',str(pr.get('number'))),'--json','state,mergeCommit'],worktree))
         if confirmed['state']!='MERGED': return

@@ -35,7 +35,7 @@ python -m devflow --repo C:/path/repo report
 
 模型阶梯为 L1 `gpt-6-luna/medium`、L2 `gpt-6.1-sol/medium`、L3 `gpt-6.1-sol/high`、L4 `gpt-6-astra/high`。任务风险决定起点；敏感路径自动升至 L4。普通错误最多 4 次，重复失败或后续失败升级。仅明确不可用的 Astra 才回退到 Sol/max，记录原因。网络失败指数退避；额度不足等待 30/60 分钟或服务 resetAt；认证失败阻塞。单命令 30 分钟超时，终止进程树。重新启动依据 PID 和进程创建标识清理登记的遗留进程，保留差异；中断任务需 `resume`。
 
-发布默认 `manual`。`auto` 仅对清单 `publish.enabled=true` 项推送并创建/复用 PR。发布再次检查 head、tree、干净状态；PR head 必须等于本地审查 head，必须有通过的 CI 检查及 `APPROVED`，然后使用 `gh pr merge --match-head-commit`。不使用管理员绕过或关闭分支保护。待 CI/审批期间保留 `awaiting_gates` 并继续轮询。合并后可创建指向 merge commit 的版本标签和 GitHub Release，重复执行验证已有标签目标。
+发布默认 `manual`。`auto` 仅对清单 `publish.enabled=true` 项推送并创建/复用 PR。发布再次检查 head、tree、干净状态；PR head 必须等于本地审查 head，必须有当前提交通过的 CI 检查；通过 GraphQL 查询实际分支保护，再查询仓库/组织的活动 branch rulesets。规则要求外部审批时必须 `APPROVED`，明确无外部审批要求时使用本地独立 head 审查；未知规则（包括无法判断权限的 404）保持等待。然后使用 `gh pr merge --match-head-commit`。不使用管理员绕过或关闭分支保护。待 CI/审批期间保留 `awaiting_gates` 并继续轮询。合并后可创建指向 merge commit 的版本标签和 GitHub Release，重复执行验证已有标签目标。
 
 Codex prompt 使用 stdin，固定 `--json --output-schema --output-last-message -m -c model_reasoning_effort`，实现用 `workspace-write`，审查用 `read-only`。可通过 `DEVFLOW_CODEX` / `DEVFLOW_GH` 指定命令路径。gh 在缺少令牌时从 Git Credential Manager 获取 GitHub 凭据，只注入该子进程环境；日志和错误清除令牌。仅 gh 传输 EOF/代理错误时去除该子进程代理重试一次。
 
@@ -46,3 +46,33 @@ Codex prompt 使用 stdin，固定 `--json --output-schema --output-last-message
 ```powershell
 python -m unittest discover -s tests -p 'test_devflow*.py'
 ```
+
+
+## 本机能力核对与显式模型策略
+
+`init` 读取本机原生 Codex 可执行文件，运行 `--help`、`exec --help`，再通过 app-server 的 `initialize/model/list` 协议获取当前动态模型清单及支持的 reasoning effort。这不会发起 agent turn 或业务 App 写入。Windows npm 包自动解析其原生 `codex.exe`，避免后台执行 PowerShell 包装脚本失败。版本、路径、模型清单、effort 与最终选择保存在仓库外数据库；`status/report` 可以查看。
+
+默认计划阶梯保持 6 系列。实际 CLI 未列出所需模型或 effort 时，初始化标记 `blocked_capability`；清单缺失或为空时标记 `blocked_spec`。未知模型不会按桌面工具列表猜测为可用，已观察到的能力证据保留。需要备用模型时，显式提供 `init --models-policy C:/absolute/models.json`；文件有四个顺序级别，全部核对动态清单：
+
+```json
+{
+  "levels": [
+    {"model": "gpt-5.6-luna", "effort": "medium"},
+    {"model": "gpt-5.6-sol", "effort": "medium"},
+    {"model": "gpt-5.6-sol", "effort": "high"},
+    {"model": "gpt-5.6-sol", "effort": "max"}
+  ]
+}
+```
+
+这是备用策略格式示例，默认不会自动采用。可选 `l4_fallback` 具有 `model/effort`，仅 L4 模型明确不在动态清单时使用，并记录原因。模型存在但指定 effort 不受支持会阻塞。
+
+## Windows 后台登录启动
+
+`devflow/install_autostart.ps1` 提供 `Plan/Install/Launch/Uninstall`。必须传绝对 Repo、Python、Manifest、Codex、Gh、State 路径；State 位于仓库外。先完成 `init` 能力核对和清单初始化。`Plan` 只输出可审查计划，不注册系统任务：
+
+```powershell
+powershell -NoProfile -File C:/path/repo/devflow/install_autostart.ps1 -Mode Plan -Repo C:/path/repo -Python C:/path/.venv/Scripts/python.exe -Manifest C:/path/tasks.json -Codex C:/path/codex.exe -Gh 'C:/Program Files/GitHub CLI/gh.exe' -State C:/path/external-state
+```
+
+将 Mode 改为 Install 才注册登录启动；可选 `-StartNow` 立即启动。任务名包含仓库摘要，配置与日志写到外部 State。调度器 `IgnoreNew`、全局命名 mutex 和数据库租约共同避免双实例；所有 native 参数使用 Windows 引号规则。PowerShell 和 Python 子进程隐藏窗口，子进程失败 30 秒后重启，登录任务也配置失败重启。`stop` 或能力/清单阻塞会令启动器结束，不运行业务写入。未在测试中实际注册计划任务。

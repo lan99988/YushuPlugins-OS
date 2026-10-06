@@ -4,7 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from devflow.engine import Store
+from devflow.engine import Store, publish_gate
 from devflow.runtime import Coordinator, CommandRunner, changed_paths, git
 
 class RuntimeTests(unittest.TestCase):
@@ -59,7 +59,9 @@ class AdditionalRuntimeTests(unittest.TestCase):
             repo=Path(tmp)/'repo'; repo.mkdir()
             subprocess.run(['git','init',str(repo)],check=True,capture_output=True)
             command=[sys.executable,'-m','devflow','--repo',str(repo),'--state',str(state)]
-            subprocess.run(command+['init','--manifest',str(manifest)],check=True,capture_output=True)
+            from devflow.__main__ import main
+            with patch('devflow.capabilities.probe_cli',return_value={'command':'fake','models':[{'model':m,'supportedReasoningEfforts':[{'reasoningEffort':e} for e in ['medium','high','max']]} for m in ['gpt-6-luna','gpt-6.1-sol','gpt-6-astra']]}):
+                self.assertEqual(main(command[3:]+['init','--manifest',str(manifest)]),0)
             subprocess.run(command+['pause'],check=True,capture_output=True)
             info=json.loads(subprocess.run(command+['status'],check=True,capture_output=True,text=True).stdout)
             self.assertEqual(info['control'],'paused')
@@ -103,6 +105,9 @@ class DependencyTests(RuntimeTests):
             def __init__(self): super().__init__(); self.calls=[]
             def run(self,argv,cwd,**kwargs):
                 self.calls.append(argv)
+                if argv[1:3]==['repo','view']: return '{"nameWithOwner":"owner/repo"}'
+                if argv[1:3]==['api','graphql']: return '{"data":{"repository":{"ref":{"branchProtectionRule":null}}}}'
+                if argv[1]=='api': return '[]'
                 if argv[1:3]==['pr','list']: return json.dumps([{'number':1,'url':'https://github.invalid/pull/1','headRefOid':head}])
                 if argv[1:3]==['pr','view']:
                     if argv[-1]=='state,mergeCommit': return json.dumps({'state':'MERGED','mergeCommit':{'oid':head}})
@@ -142,3 +147,65 @@ class GhTransportTests(unittest.TestCase):
             self.assertNotIn('private-token',log.read_text())
             self.assertEqual(environments[0]['HTTP_PROXY'],'proxy')
             self.assertNotIn('HTTP_PROXY',environments[1])
+class BranchPolicyTests(unittest.TestCase):
+    def test_unprotected_branch_local_head_review_suffices(self):
+        pr={'headRefOid':'h','reviewDecision':None,'statusCheckRollup':[{'status':'COMPLETED','conclusion':'SUCCESS'}]}
+        self.assertTrue(publish_gate('h',pr,'h',{'known':True,'required_reviews':False}))
+        self.assertFalse(publish_gate('h',pr,'h',{'known':False,'required_reviews':False}))
+        self.assertFalse(publish_gate('h',pr,'h',{'known':True,'required_reviews':True}))
+        self.assertFalse(publish_gate('h',pr,'stale',{'known':True,'required_reviews':False}))
+    def test_protection_policy_and_ruleset_combined(self):
+        from devflow.runtime import branch_review_policy
+        class Fake(CommandRunner):
+            def __init__(self,rule): super().__init__(); self.rule=rule
+            def run(self,argv,cwd,**kwargs):
+                if argv[1:3]==['repo','view']: return '{"nameWithOwner":"owner/repo"}'
+                if argv[1:3]==['api','graphql']: return json.dumps({'data':{'repository':{'ref':{'branchProtectionRule':self.rule}}}})
+                return '[]'
+        self.assertEqual(branch_review_policy(Fake(None),'.','gh','main'),{'known':True,'required_reviews':False})
+        self.assertEqual(branch_review_policy(Fake({'requiresApprovingReviews':True,'requiredApprovingReviewCount':1}),'.','gh','main'),{'known':True,'required_reviews':True})
+
+class CapabilityTests(unittest.TestCase):
+    def test_unknown_model_is_blocked_not_guessed(self):
+        from devflow.capabilities import select_verified_model
+        catalog=[{'model':'gpt-6.1-sol','supportedReasoningEfforts':[{'reasoningEffort':'max'}]}]
+        self.assertEqual(select_verified_model('gpt-6-astra','high',catalog),('gpt-6.1-sol','max','gpt-6-astra unavailable in CLI model/list'))
+        with self.assertRaises(RuntimeError): select_verified_model('gpt-6-luna','medium',catalog)
+    def test_missing_manifest_is_blocked_spec(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            command=[sys.executable,'-m','devflow','--repo',str(Path(tmp)),'--state',str(Path(tmp).parent/'devflow-test-state'),'init','--manifest','missing.json']
+            result=subprocess.run(command,capture_output=True,text=True)
+            self.assertNotEqual(result.returncode,0)
+            self.assertIn('blocked_spec',result.stderr)
+class ModelPolicyTests(unittest.TestCase):
+    def test_explicit_policy_effort_verified(self):
+        from devflow.capabilities import validate_model_policy
+        models=[{'model':'available','supportedReasoningEfforts':[{'reasoningEffort':'high'}]}]
+        policy={'levels':[{'model':'available','effort':'high'}]*4}
+        self.assertEqual(validate_model_policy(policy,models),[('available','high',None)]*4)
+        bad={'levels':[{'model':'available','effort':'max'}]*4}
+        with self.assertRaises(RuntimeError): validate_model_policy(bad,models)
+    def test_blocked_init_retains_observed_capabilities(self):
+        from devflow.__main__ import main
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); repo=root/'repo'; repo.mkdir(); subprocess.run(['git','init',str(repo)],capture_output=True,check=True)
+            manifest=root/'tasks.json'; manifest.write_text(json.dumps({'version':1,'tasks':[{'id':'a','deps':[],'allowed_paths':['a/'],'tests':[[sys.executable,'-V']],'prompt':'a','risk':'low'}]}))
+            with patch('devflow.capabilities.probe_cli',return_value={'command':'fake','models':[{'model':'available','supportedReasoningEfforts':[]}]}):
+                self.assertEqual(main(['--repo',str(repo),'--state',str(root/'state'),'init','--manifest',str(manifest)]),1)
+            store=Store(root/'state/state.db')
+            self.assertEqual(store.meta('capabilities')['models'][0]['model'],'available')
+            self.assertEqual(store.meta('control'),'blocked_capability')
+class AutostartTests(unittest.TestCase):
+    def test_windows_launcher_plan_quotes_absolute_paths_without_registration(self):
+        if os.name!='nt': self.skipTest('Windows scheduler script')
+        with tempfile.TemporaryDirectory(prefix='devflow path ') as tmp:
+            root=Path(tmp); repo=root/'repo'; repo.mkdir(); manifest=root/'tasks file.json'; manifest.write_text('{"version":1,"tasks":[]}')
+            script=Path.cwd()/'devflow/install_autostart.ps1'
+            from devflow.capabilities import resolve_codex
+            gh=Path('C:/Program Files/GitHub CLI/gh.exe')
+            result=subprocess.run(['powershell','-NoProfile','-File',str(script),'-Mode','Plan','-Repo',str(repo),'-Python',sys.executable,'-Manifest',str(manifest),'-Codex',resolve_codex(),'-Gh',str(gh),'-State',str(root/'outside state')],capture_output=True,text=True,encoding='utf-8')
+            self.assertEqual(result.returncode,0,result.stderr)
+            plan=json.loads(result.stdout)
+            self.assertTrue(plan['TaskName'].startswith('YushuOS-Devflow-'))
+            self.assertIn('"'+str(root/'outside state')+'"',plan['Arguments'])
+            self.assertEqual(plan['MultipleInstances'],'IgnoreNew')
