@@ -50,7 +50,7 @@ CLI model/list 和非交互选项必须真实支持所选模型；不支持时 b
 本机当前 ChatGPT CLI 已拒绝 gpt-6.1-sol，这个环境限制不能靠调度器修改消除。桌面智能体完成的交付与后台 CLI 队列分别报告。
 
 Windows autostart 脚本先 PlanOnly 查看，再注册登录启动；它使用隐藏窗口、重启和禁止重复实例。电脑关机期间不运行。
-恢复 session、失败证据、使用量和发布逻辑的实际支持以 devflow/README.md 为准；不能将 fresh retry 声称为恢复旧会话。
+恢复 session、失败证据、使用量和发布逻辑的实际支持以 DEVFLOW.md 为准；不能将 fresh retry 声称为恢复旧会话。
 
 ## English
 

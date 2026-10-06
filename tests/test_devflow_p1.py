@@ -8,7 +8,7 @@ import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-import test_devflow_runtime as fixtures
+from tests import test_devflow_runtime as fixtures
 from devflow.engine import Store, model_for
 from devflow.runtime import Coordinator, CommandRunner, git
 
