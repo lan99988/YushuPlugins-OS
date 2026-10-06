@@ -5,7 +5,7 @@
     "SKILL.md": "e2ac78b74d6bdfd076937971eaad4fdef9cb5e5dced48f7c43420322fce5dc39",
     "business_runtime/__init__.py": "ddce81071f7789574684d14eac94dd19c50fa55f56c74e2fa1439824f8d75f3f",
     "business_runtime/adapter.py": "fa6c8de2c7676ae36bdd2d8efb22f53459ffda82628e5c2a91b8eb30635f6aa5",
-    "business_runtime/contracts.py": "0c05c0914be1025228918e8d7315bf5e3d0ce562daee0576dce8751dd1b48f8d",
+    "business_runtime/contracts.py": "f194aeef9cb580ace716450fa191551cbadbbccb931c826a0734244b8e6ce6a0",
     "business_runtime/domains.py": "09d5f5a939ddf24d2c4ff258ae641b8f8979b0b22c5d99e92402e513bfb4afc0",
     "business_runtime/store.py": "e4a6d5b344714752304861b2275ac24c3684fd1ea6ad6263dd710bbafdaa336d",
     "plugin.yaml": "7503044263cfd3826a857816267268654f9f439f6c60fb943ccc91b491512a60",

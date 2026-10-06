@@ -210,7 +210,9 @@ class Coordinator:
         paths=changed_paths(worktree,t['base_sha'])
         bad=[p for p in paths if not allowed(p,t['allowed_paths'])]
         if bad: raise RuntimeError('out of scope: '+', '.join(bad))
-        if not paths: raise RuntimeError('no implementation diff')
+        if t.get('kind')=='verify':
+            if paths: raise RuntimeError('verification task modified source')
+        elif not paths: raise RuntimeError('no implementation diff')
         return paths
     def dependency_snapshot(self,t):
         snapshot={}
@@ -219,6 +221,7 @@ class Coordinator:
             if dependency['status'] not in ('verified','published') or not head or dependency.get('review_head')!=head: raise RuntimeError('blocked_dependency: dependency review invalidated')
             if dependency.get('worktree') and Path(dependency['worktree']).is_dir():
                 if git(dependency['worktree'],'rev-parse','HEAD')!=head or git(dependency['worktree'],'status','--porcelain'): raise RuntimeError('blocked_dependency: dependency checkout changed')
+                if rules_sha(dependency['worktree'])!=dependency.get('rules_sha'): raise RuntimeError('blocked_dependency: dependency rules changed')
             tree=git(self.repo,'rev-parse',head+'^{tree}')
             if dependency.get('review_tree')!=tree: raise RuntimeError('blocked_dependency: dependency tree invalidated')
             snapshot[id]={'head_sha':head,'tree_sha':tree,'contract_sha':dependency['contract_sha'],'rules_sha':dependency.get('rules_sha')}
@@ -232,7 +235,7 @@ class Coordinator:
             if not Path(t['worktree']).is_dir(): raise RuntimeError('saved worktree missing; recovery requires inspection')
             return Path(t['worktree'])
         worktree=self.state/'worktrees'/t['id']; worktree.parent.mkdir(parents=True,exist_ok=True)
-        base=git(self.repo,'rev-parse','HEAD'); branch='devflow/'+self.owner[:8]+'/'+t['id']
+        base=git(self.repo,'rev-parse','HEAD'); branch='codex/devflow/'+self.owner[:8]+'/'+t['id']
         git(self.repo,'worktree','add','-b',branch,str(worktree),base)
         self.update(t['id'],worktree=str(worktree),base_sha=base,branch=branch)
         for dep in t.get('deps',[]):
@@ -258,16 +261,22 @@ class Coordinator:
                 if self.state in log_path.parents and log_path.is_file(): failure_context['log_tails'].append(log_path.read_text(encoding='utf-8')[-12000:])
             instructions+='\nREPAIR_EVIDENCE='+json.dumps(failure_context)
             instructions+='\nIMPLEMENTATION_CONTRACT='+json.dumps({'task_id':id,'contract_sha':t['contract_sha'],'rules_sha':rules_sha(worktree)})+'\nReturn strict schema report with tree_sha equal to git write-tree after staging final changes. Recompute rules_sha after final changes using devflow.runtime.rules_sha(worktree): SHA256 of json.dumps(mapping,sort_keys=True).encode(), mapping each repository-relative AGENTS.md path to its UTF-8 text, excluding .git. The initial rules_sha is only a starting value. Retry uses a fresh session with retained worktree and supplied failure evidence.'
-            result=self.invoke_codex(id,attempt,'implementation',worktree,instructions,model,effort,'workspace-write',schema,artifact/'implementation.json',artifact/'implementation.jsonl')
-            self.update(id,session=result['session'],status='validating')
-            t=self.store.task(id); paths=self.check_scope(t,worktree)
-            risk=resolved_risk(risk,paths); self.update(id,risk_resolved=risk)
-            try: implementation=parse_report((artifact/'implementation.json').read_text(encoding='utf-8'),id,tree_sha(worktree),t['contract_sha'],rules_sha(worktree))
-            except (ValueError,OSError) as error: raise RuntimeError('implementation report invalid: '+str(error)) from error
-            if implementation['outcome']!='pass' or implementation['findings']: raise RuntimeError('implementation report failed: '+implementation['summary'])
-            test_evidence=[]; validated_tree=tree_sha(worktree)
+            verify_only=t.get('kind')=='verify'
+            if not verify_only:
+                result=self.invoke_codex(id,attempt,'implementation',worktree,instructions,model,effort,'workspace-write',schema,artifact/'implementation.json',artifact/'implementation.jsonl')
+                self.update(id,session=result['session'],status='validating')
+                t=self.store.task(id); paths=self.check_scope(t,worktree)
+                risk=resolved_risk(risk,paths); self.update(id,risk_resolved=risk)
+                try: implementation=parse_report((artifact/'implementation.json').read_text(encoding='utf-8'),id,tree_sha(worktree),t['contract_sha'],rules_sha(worktree))
+                except (ValueError,OSError) as error: raise RuntimeError('implementation report invalid: '+str(error)) from error
+                if implementation['outcome']!='pass' or implementation['findings']: raise RuntimeError('implementation report failed: '+implementation['summary'])
+            else:
+                self.check_scope(t,worktree)
+                self.update(id,status='validating')
+            test_evidence=[]; validated_tree=tree_sha(worktree); validated_rules=rules_sha(worktree)
             for index,command in enumerate(t['tests']):
                 if tree_sha(worktree)!=validated_tree: raise RuntimeError('test tree drift before test')
+                if rules_sha(worktree)!=validated_rules: raise RuntimeError('test rules drift before test')
                 command=[part.replace('{python}',sys.executable).replace('{worktree}',str(worktree)) for part in command]
                 log=artifact/f'test-{index}.txt'
                 passed=False
@@ -278,11 +287,14 @@ class Coordinator:
                     evidence={'argv':command,'log':str(log),'sha':digest(log.read_text(encoding='utf-8')) if log.exists() else None,'tree_sha':validated_tree,'after_tree_sha':after_tree,'passed':passed}
                     test_evidence.append(evidence); self.update(id,evidence=test_evidence)
                     if after_tree!=validated_tree: raise RuntimeError('test tree drift after test')
+                    if rules_sha(worktree)!=validated_rules: raise RuntimeError('test rules drift after test')
             self.check_scope(t,worktree); tree=tree_sha(worktree); rules=rules_sha(worktree)
             self.update(id,status='reviewing',tree_sha=tree,rules_sha=rules,evidence=test_evidence)
             binding={'task_id':id,'tree_sha':tree,'contract_sha':t['contract_sha'],'rules_sha':rules}
             prompt='Review this task read-only. Independently inspect diff against '+t['base_sha']+', task contract, AGENTS rules and test evidence. Return pass only when correct and no findings.\nEVIDENCE_BINDING='+json.dumps(binding)+'\nTASK='+json.dumps(t)+'\nTEST_EVIDENCE='+json.dumps(test_evidence)
-            review_model,review_effort=self.desired_model(risk,max(2,t['level']))
+            if verify_only:
+                prompt='Verify existing source in the task allowed_paths, including its contracts and recovery joins. Make no edits, commits, calls to live Apps, or publication. A zero diff is expected.\n'+prompt
+            review_model,review_effort=self.desired_model(max((risk,'medium'),key=lambda r: ['low','medium','high','critical'].index(r)),t['level']) if verify_only else self.desired_model(risk,max(2,t['level']))
             review_model,review_effort,review_fallback=self.verified_model(review_model,review_effort)
             if review_fallback: self.update(id,review_fallback_reason=review_fallback)
             review=self.invoke_codex(id,attempt,'review',worktree,prompt,review_model,review_effort,'read-only',schema,artifact/'review.json',artifact/'review.jsonl')
@@ -290,7 +302,7 @@ class Coordinator:
             if report['outcome']!='pass' or report['findings']: raise RuntimeError('review failed: '+report['summary']+' '+json.dumps(report['findings']))
             if tree_sha(worktree)!=tree or rules_sha(worktree)!=rules: raise RuntimeError('review drift')
             self.check_scope(t,worktree)
-            git(worktree,'commit','-m',f'devflow: {id}')
+            if not verify_only: git(worktree,'commit','-m',f'devflow: {id}')
             head=git(worktree,'rev-parse','HEAD')
             self.update(id,status='verified',head_sha=head,review_head=head,review_tree=tree,review_session=review['session'],review_usage=review['usage'],review_report=str(artifact/'review.json'))
         except Exception as exc:
@@ -301,6 +313,8 @@ class Coordinator:
     def _publish_task(self,id):
         if self.store.task(id)['status']=='published': return
         t=self.store.task(id); self.check_dependencies(t); worktree=Path(t['worktree']); head=git(worktree,'rev-parse','HEAD')
+        if t.get('kind')=='verify': raise RuntimeError('verification tasks cannot publish')
+        if rules_sha(worktree)!=t.get('rules_sha'): raise RuntimeError('publish rules drift')
         if head!=t['head_sha'] or git(worktree,'status','--porcelain') or git(worktree,'rev-parse','HEAD^{tree}')!=t['review_tree']: raise RuntimeError('publish drift')
         self.update(id,status='publishing')
         gh=os.environ.get('DEVFLOW_GH','gh'); branch=t['branch']; base=t.get('publish',{}).get('base','main')

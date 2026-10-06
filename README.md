@@ -25,7 +25,7 @@ YushuOS Plugins 是一套独立安装的本地优先个人管理插件。仓库�
 | Cognition | <code>cognition</code> / <code>yushuos.cognition</code> | 模式 CRUD、分析/复核（host 提供判断） |
 | Task | <code>task</code> / <code>yushuos.task</code> | <code>task.create/get/list/update/complete/reopen/delete/cancel/archive</code> |
 | Feishu | <code>feishu</code> / <code>yushuos.feishu</code> | 日历/任务/消息适配；模拟接合已测，线上读写未验收 |
-| IMA | <code>ima</code> / <code>yushuos.ima</code> | 日历/任务/消息适配；模拟接合已测，线上读写未验收 |
+| IMA | <code>ima</code> / <code>yushuos.ima</code> | 笔记、笔记本、知识库读取/检索及笔记创建/追加；模拟接合已测，线上读写未验收 |
 
 17 个本地领域插件共定义 155 项能力。以 <code>business_runtime/contracts.py</code>、Task 契约和各 App adapter manifest 为准。Personal model 的 slug 是 <code>personal_model</code>，plugin ID 是 <code>yushuos.personal_model</code>；其能力名使用 <code>personal-model.*</code> 前缀，避免 Core 的能力前缀解析问题。
 

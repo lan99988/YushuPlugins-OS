@@ -31,6 +31,8 @@ def validate_manifest(tasks):
     ids={t['id'] for t in tasks}
     if len(ids)!=len(tasks): raise ValueError('duplicate task')
     for t in tasks:
+        if t.get('kind','implement') not in ('implement','verify'): raise ValueError('task kind')
+        if t.get('kind')=='verify' and t.get('publish',{}).get('enabled'): raise ValueError('verification tasks cannot publish')
         if not t['id'].replace('-','').replace('_','').isalnum(): raise ValueError('unsafe id')
         if not t.get('allowed_paths') or any(not allowed(p,t['allowed_paths']) for p in t['allowed_paths']): raise ValueError('unsafe allowlist')
         if not t.get('tests') or any(not isinstance(c,list) or not c or any(not isinstance(x,str) for x in c) for c in t['tests']): raise ValueError('tests argv required')

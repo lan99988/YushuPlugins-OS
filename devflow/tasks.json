@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "note": "Desktop-delivered implementations exist. This queue completes narrowly scoped audits/repairs; it is not evidence of already completed background work. Requires approved CLI models.",
+  "note": "Desktop implementations are delivered; twenty read-only acceptance tasks avoid redundant implementation. Each runs actual tests then one independent review, makes no commit/publication, and retains findings. New development uses separate implement tasks. Requires approved CLI models.",
   "tasks": [
     {
-      "id": "task-contract",
+      "id": "task-acceptance",
       "plugin": "task",
-      "risk": "low",
+      "risk": "high",
       "deps": [],
       "allowed_paths": [
         "plugins/task/",
         "contracts/task/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/task/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -27,105 +27,19 @@
           "plugins/task/tests",
           "-q"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "task-business",
-      "plugin": "task",
-      "risk": "low",
-      "deps": [
-        "task-contract"
-      ],
-      "allowed_paths": [
-        "plugins/task/",
-        "contracts/task/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/task/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/task/tests",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "task-reliability",
-      "plugin": "task",
-      "risk": "high",
-      "deps": [
-        "task-business"
-      ],
-      "allowed_paths": [
-        "plugins/task/",
-        "contracts/task/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/task/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/task/tests",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "task-installation",
-      "plugin": "task",
-      "risk": "low",
-      "deps": [
-        "task-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/task/",
-        "contracts/task/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/task/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/task/tests",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "capture-contract",
+      "id": "capture-acceptance",
       "plugin": "capture",
-      "risk": "low",
+      "risk": "medium",
       "deps": [],
       "allowed_paths": [
         "plugins/capture/",
         "contracts/capture/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/capture/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -139,119 +53,27 @@
           "-m",
           "pytest",
           "plugins/capture/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "capture"
-        ]
-      ]
-    },
-    {
-      "id": "capture-business",
-      "plugin": "capture",
-      "risk": "low",
-      "deps": [
-        "capture-contract"
-      ],
-      "allowed_paths": [
-        "plugins/capture/",
-        "contracts/capture/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/capture/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "capture",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/capture/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "capture"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "capture-reliability",
-      "plugin": "capture",
-      "risk": "high",
-      "deps": [
-        "capture-business"
-      ],
-      "allowed_paths": [
-        "plugins/capture/",
-        "contracts/capture/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/capture/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/capture/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "capture"
-        ]
-      ]
-    },
-    {
-      "id": "capture-installation",
-      "plugin": "capture",
-      "risk": "low",
-      "deps": [
-        "capture-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/capture/",
-        "contracts/capture/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/capture/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/capture/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "capture"
-        ]
-      ]
-    },
-    {
-      "id": "idea-contract",
+      "id": "idea-acceptance",
       "plugin": "idea",
-      "risk": "low",
-      "deps": [],
+      "risk": "medium",
+      "deps": [
+        "task-acceptance"
+      ],
       "allowed_paths": [
         "plugins/idea/",
         "contracts/idea/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/idea/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -265,119 +87,27 @@
           "-m",
           "pytest",
           "plugins/idea/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "idea"
-        ]
-      ]
-    },
-    {
-      "id": "idea-business",
-      "plugin": "idea",
-      "risk": "low",
-      "deps": [
-        "idea-contract"
-      ],
-      "allowed_paths": [
-        "plugins/idea/",
-        "contracts/idea/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/idea/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "idea",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/idea/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "idea"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "idea-reliability",
-      "plugin": "idea",
-      "risk": "high",
-      "deps": [
-        "idea-business"
-      ],
-      "allowed_paths": [
-        "plugins/idea/",
-        "contracts/idea/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/idea/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/idea/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "idea"
-        ]
-      ]
-    },
-    {
-      "id": "idea-installation",
-      "plugin": "idea",
-      "risk": "low",
-      "deps": [
-        "idea-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/idea/",
-        "contracts/idea/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/idea/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/idea/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "idea"
-        ]
-      ]
-    },
-    {
-      "id": "bug-contract",
+      "id": "bug-acceptance",
       "plugin": "bug",
-      "risk": "low",
-      "deps": [],
+      "risk": "medium",
+      "deps": [
+        "task-acceptance"
+      ],
       "allowed_paths": [
         "plugins/bug/",
         "contracts/bug/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/bug/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -391,119 +121,25 @@
           "-m",
           "pytest",
           "plugins/bug/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "bug"
-        ]
-      ]
-    },
-    {
-      "id": "bug-business",
-      "plugin": "bug",
-      "risk": "low",
-      "deps": [
-        "bug-contract"
-      ],
-      "allowed_paths": [
-        "plugins/bug/",
-        "contracts/bug/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/bug/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "bug",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/bug/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "bug"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "bug-reliability",
-      "plugin": "bug",
-      "risk": "high",
-      "deps": [
-        "bug-business"
-      ],
-      "allowed_paths": [
-        "plugins/bug/",
-        "contracts/bug/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/bug/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/bug/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "bug"
-        ]
-      ]
-    },
-    {
-      "id": "bug-installation",
-      "plugin": "bug",
-      "risk": "low",
-      "deps": [
-        "bug-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/bug/",
-        "contracts/bug/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/bug/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/bug/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "bug"
-        ]
-      ]
-    },
-    {
-      "id": "finance-contract",
+      "id": "finance-acceptance",
       "plugin": "finance",
-      "risk": "low",
+      "risk": "high",
       "deps": [],
       "allowed_paths": [
         "plugins/finance/",
         "contracts/finance/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/finance/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -517,119 +153,25 @@
           "-m",
           "pytest",
           "plugins/finance/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "finance"
-        ]
-      ]
-    },
-    {
-      "id": "finance-business",
-      "plugin": "finance",
-      "risk": "low",
-      "deps": [
-        "finance-contract"
-      ],
-      "allowed_paths": [
-        "plugins/finance/",
-        "contracts/finance/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/finance/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "finance",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/finance/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "finance"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "finance-reliability",
-      "plugin": "finance",
-      "risk": "high",
-      "deps": [
-        "finance-business"
-      ],
-      "allowed_paths": [
-        "plugins/finance/",
-        "contracts/finance/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/finance/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/finance/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "finance"
-        ]
-      ]
-    },
-    {
-      "id": "finance-installation",
-      "plugin": "finance",
-      "risk": "low",
-      "deps": [
-        "finance-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/finance/",
-        "contracts/finance/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/finance/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/finance/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "finance"
-        ]
-      ]
-    },
-    {
-      "id": "relationship-contract",
+      "id": "relationship-acceptance",
       "plugin": "relationship",
-      "risk": "low",
+      "risk": "medium",
       "deps": [],
       "allowed_paths": [
         "plugins/relationship/",
         "contracts/relationship/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/relationship/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -643,119 +185,25 @@
           "-m",
           "pytest",
           "plugins/relationship/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "relationship"
-        ]
-      ]
-    },
-    {
-      "id": "relationship-business",
-      "plugin": "relationship",
-      "risk": "low",
-      "deps": [
-        "relationship-contract"
-      ],
-      "allowed_paths": [
-        "plugins/relationship/",
-        "contracts/relationship/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/relationship/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "relationship",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/relationship/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "relationship"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "relationship-reliability",
-      "plugin": "relationship",
-      "risk": "high",
-      "deps": [
-        "relationship-business"
-      ],
-      "allowed_paths": [
-        "plugins/relationship/",
-        "contracts/relationship/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/relationship/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/relationship/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "relationship"
-        ]
-      ]
-    },
-    {
-      "id": "relationship-installation",
-      "plugin": "relationship",
-      "risk": "low",
-      "deps": [
-        "relationship-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/relationship/",
-        "contracts/relationship/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/relationship/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/relationship/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "relationship"
-        ]
-      ]
-    },
-    {
-      "id": "habit-contract",
+      "id": "habit-acceptance",
       "plugin": "habit",
-      "risk": "low",
+      "risk": "medium",
       "deps": [],
       "allowed_paths": [
         "plugins/habit/",
         "contracts/habit/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/habit/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -769,119 +217,25 @@
           "-m",
           "pytest",
           "plugins/habit/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "habit"
-        ]
-      ]
-    },
-    {
-      "id": "habit-business",
-      "plugin": "habit",
-      "risk": "low",
-      "deps": [
-        "habit-contract"
-      ],
-      "allowed_paths": [
-        "plugins/habit/",
-        "contracts/habit/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/habit/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "habit",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/habit/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "habit"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "habit-reliability",
-      "plugin": "habit",
-      "risk": "high",
-      "deps": [
-        "habit-business"
-      ],
-      "allowed_paths": [
-        "plugins/habit/",
-        "contracts/habit/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/habit/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/habit/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "habit"
-        ]
-      ]
-    },
-    {
-      "id": "habit-installation",
-      "plugin": "habit",
-      "risk": "low",
-      "deps": [
-        "habit-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/habit/",
-        "contracts/habit/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/habit/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/habit/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "habit"
-        ]
-      ]
-    },
-    {
-      "id": "body-contract",
+      "id": "body-acceptance",
       "plugin": "body",
-      "risk": "low",
+      "risk": "medium",
       "deps": [],
       "allowed_paths": [
         "plugins/body/",
         "contracts/body/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/body/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -895,119 +249,25 @@
           "-m",
           "pytest",
           "plugins/body/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "body"
-        ]
-      ]
-    },
-    {
-      "id": "body-business",
-      "plugin": "body",
-      "risk": "low",
-      "deps": [
-        "body-contract"
-      ],
-      "allowed_paths": [
-        "plugins/body/",
-        "contracts/body/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/body/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "body",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/body/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "body"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "body-reliability",
-      "plugin": "body",
-      "risk": "high",
-      "deps": [
-        "body-business"
-      ],
-      "allowed_paths": [
-        "plugins/body/",
-        "contracts/body/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/body/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/body/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "body"
-        ]
-      ]
-    },
-    {
-      "id": "body-installation",
-      "plugin": "body",
-      "risk": "low",
-      "deps": [
-        "body-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/body/",
-        "contracts/body/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/body/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/body/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "body"
-        ]
-      ]
-    },
-    {
-      "id": "lifeadmin-contract",
+      "id": "lifeadmin-acceptance",
       "plugin": "lifeadmin",
-      "risk": "low",
+      "risk": "medium",
       "deps": [],
       "allowed_paths": [
         "plugins/lifeadmin/",
         "contracts/lifeadmin/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/lifeadmin/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1021,119 +281,25 @@
           "-m",
           "pytest",
           "plugins/lifeadmin/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "lifeadmin"
-        ]
-      ]
-    },
-    {
-      "id": "lifeadmin-business",
-      "plugin": "lifeadmin",
-      "risk": "low",
-      "deps": [
-        "lifeadmin-contract"
-      ],
-      "allowed_paths": [
-        "plugins/lifeadmin/",
-        "contracts/lifeadmin/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/lifeadmin/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "lifeadmin",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/lifeadmin/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "lifeadmin"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "lifeadmin-reliability",
-      "plugin": "lifeadmin",
-      "risk": "high",
-      "deps": [
-        "lifeadmin-business"
-      ],
-      "allowed_paths": [
-        "plugins/lifeadmin/",
-        "contracts/lifeadmin/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/lifeadmin/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/lifeadmin/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "lifeadmin"
-        ]
-      ]
-    },
-    {
-      "id": "lifeadmin-installation",
-      "plugin": "lifeadmin",
-      "risk": "low",
-      "deps": [
-        "lifeadmin-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/lifeadmin/",
-        "contracts/lifeadmin/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/lifeadmin/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/lifeadmin/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "lifeadmin"
-        ]
-      ]
-    },
-    {
-      "id": "decision-contract",
+      "id": "decision-acceptance",
       "plugin": "decision",
-      "risk": "low",
+      "risk": "medium",
       "deps": [],
       "allowed_paths": [
         "plugins/decision/",
         "contracts/decision/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/decision/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1147,111 +313,17 @@
           "-m",
           "pytest",
           "plugins/decision/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "decision"
-        ]
-      ]
-    },
-    {
-      "id": "decision-business",
-      "plugin": "decision",
-      "risk": "low",
-      "deps": [
-        "decision-contract"
-      ],
-      "allowed_paths": [
-        "plugins/decision/",
-        "contracts/decision/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/decision/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "decision",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/decision/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "decision"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "decision-reliability",
-      "plugin": "decision",
-      "risk": "high",
-      "deps": [
-        "decision-business"
-      ],
-      "allowed_paths": [
-        "plugins/decision/",
-        "contracts/decision/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/decision/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/decision/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "decision"
-        ]
-      ]
-    },
-    {
-      "id": "decision-installation",
-      "plugin": "decision",
-      "risk": "low",
-      "deps": [
-        "decision-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/decision/",
-        "contracts/decision/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/decision/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/decision/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "decision"
-        ]
-      ]
-    },
-    {
-      "id": "feishu-contract",
+      "id": "feishu-acceptance",
       "plugin": "feishu",
       "risk": "high",
       "deps": [],
@@ -1259,7 +331,7 @@
         "plugins/feishu/",
         "contracts/feishu/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/feishu/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1274,102 +346,16 @@
           "pytest",
           "tests/test_app_connectors.py",
           "tests/test_app_connectors_core.py",
+          "tests/test_feishu_calendar_identity.py",
+          "-k",
+          "feishu",
           "-q"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "feishu-business",
-      "plugin": "feishu",
-      "risk": "high",
-      "deps": [
-        "feishu-contract"
-      ],
-      "allowed_paths": [
-        "plugins/feishu/",
-        "contracts/feishu/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/feishu/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_app_connectors.py",
-          "tests/test_app_connectors_core.py",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "feishu-reliability",
-      "plugin": "feishu",
-      "risk": "high",
-      "deps": [
-        "feishu-business"
-      ],
-      "allowed_paths": [
-        "plugins/feishu/",
-        "contracts/feishu/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/feishu/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_app_connectors.py",
-          "tests/test_app_connectors_core.py",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "feishu-installation",
-      "plugin": "feishu",
-      "risk": "high",
-      "deps": [
-        "feishu-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/feishu/",
-        "contracts/feishu/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/feishu/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_app_connectors.py",
-          "tests/test_app_connectors_core.py",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "ima-contract",
+      "id": "ima-acceptance",
       "plugin": "ima",
       "risk": "high",
       "deps": [],
@@ -1377,7 +363,7 @@
         "plugins/ima/",
         "contracts/ima/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/ima/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1392,113 +378,27 @@
           "pytest",
           "tests/test_app_connectors.py",
           "tests/test_app_connectors_core.py",
+          "tests/test_feishu_calendar_identity.py",
+          "-k",
+          "ima",
           "-q"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "ima-business",
-      "plugin": "ima",
-      "risk": "high",
-      "deps": [
-        "ima-contract"
-      ],
-      "allowed_paths": [
-        "plugins/ima/",
-        "contracts/ima/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/ima/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_app_connectors.py",
-          "tests/test_app_connectors_core.py",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "ima-reliability",
-      "plugin": "ima",
-      "risk": "high",
-      "deps": [
-        "ima-business"
-      ],
-      "allowed_paths": [
-        "plugins/ima/",
-        "contracts/ima/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/ima/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_app_connectors.py",
-          "tests/test_app_connectors_core.py",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "ima-installation",
-      "plugin": "ima",
-      "risk": "high",
-      "deps": [
-        "ima-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/ima/",
-        "contracts/ima/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/ima/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_app_connectors.py",
-          "tests/test_app_connectors_core.py",
-          "-q"
-        ]
-      ]
-    },
-    {
-      "id": "planner-contract",
+      "id": "planner-acceptance",
       "plugin": "planner",
       "risk": "high",
       "deps": [
-        "task-contract",
-        "body-contract"
+        "task-acceptance",
+        "body-acceptance"
       ],
       "allowed_paths": [
         "plugins/planner/",
         "contracts/planner/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/planner/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1512,122 +412,28 @@
           "-m",
           "pytest",
           "plugins/planner/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "planner"
-        ]
-      ]
-    },
-    {
-      "id": "planner-business",
-      "plugin": "planner",
-      "risk": "high",
-      "deps": [
-        "planner-contract"
-      ],
-      "allowed_paths": [
-        "plugins/planner/",
-        "contracts/planner/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/planner/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "planner",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/planner/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "planner"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "planner-reliability",
-      "plugin": "planner",
-      "risk": "high",
-      "deps": [
-        "planner-business"
-      ],
-      "allowed_paths": [
-        "plugins/planner/",
-        "contracts/planner/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/planner/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/planner/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "planner"
-        ]
-      ]
-    },
-    {
-      "id": "planner-installation",
-      "plugin": "planner",
-      "risk": "high",
-      "deps": [
-        "planner-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/planner/",
-        "contracts/planner/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/planner/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/planner/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "planner"
-        ]
-      ]
-    },
-    {
-      "id": "deepwork-contract",
+      "id": "deepwork-acceptance",
       "plugin": "deepwork",
-      "risk": "low",
+      "risk": "medium",
       "deps": [
-        "task-contract",
-        "planner-contract"
+        "task-acceptance",
+        "planner-acceptance"
       ],
       "allowed_paths": [
         "plugins/deepwork/",
         "contracts/deepwork/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/deepwork/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1641,121 +447,27 @@
           "-m",
           "pytest",
           "plugins/deepwork/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "deepwork"
-        ]
-      ]
-    },
-    {
-      "id": "deepwork-business",
-      "plugin": "deepwork",
-      "risk": "low",
-      "deps": [
-        "deepwork-contract"
-      ],
-      "allowed_paths": [
-        "plugins/deepwork/",
-        "contracts/deepwork/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/deepwork/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "deepwork",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/deepwork/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "deepwork"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "deepwork-reliability",
-      "plugin": "deepwork",
-      "risk": "high",
-      "deps": [
-        "deepwork-business"
-      ],
-      "allowed_paths": [
-        "plugins/deepwork/",
-        "contracts/deepwork/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/deepwork/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/deepwork/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "deepwork"
-        ]
-      ]
-    },
-    {
-      "id": "deepwork-installation",
-      "plugin": "deepwork",
-      "risk": "low",
-      "deps": [
-        "deepwork-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/deepwork/",
-        "contracts/deepwork/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/deepwork/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/deepwork/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "deepwork"
-        ]
-      ]
-    },
-    {
-      "id": "competition-contract",
+      "id": "competition-acceptance",
       "plugin": "competition",
-      "risk": "low",
+      "risk": "medium",
       "deps": [
-        "task-contract"
+        "task-acceptance"
       ],
       "allowed_paths": [
         "plugins/competition/",
         "contracts/competition/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/competition/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1769,121 +481,27 @@
           "-m",
           "pytest",
           "plugins/competition/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "competition"
-        ]
-      ]
-    },
-    {
-      "id": "competition-business",
-      "plugin": "competition",
-      "risk": "low",
-      "deps": [
-        "competition-contract"
-      ],
-      "allowed_paths": [
-        "plugins/competition/",
-        "contracts/competition/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/competition/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "competition",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/competition/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "competition"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "competition-reliability",
-      "plugin": "competition",
-      "risk": "high",
-      "deps": [
-        "competition-business"
-      ],
-      "allowed_paths": [
-        "plugins/competition/",
-        "contracts/competition/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/competition/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/competition/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "competition"
-        ]
-      ]
-    },
-    {
-      "id": "competition-installation",
-      "plugin": "competition",
-      "risk": "low",
-      "deps": [
-        "competition-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/competition/",
-        "contracts/competition/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/competition/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/competition/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "competition"
-        ]
-      ]
-    },
-    {
-      "id": "knowledge-contract",
+      "id": "knowledge-acceptance",
       "plugin": "knowledge",
-      "risk": "low",
+      "risk": "medium",
       "deps": [
-        "ima-contract"
+        "ima-acceptance"
       ],
       "allowed_paths": [
         "plugins/knowledge/",
         "contracts/knowledge/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/knowledge/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -1897,122 +515,28 @@
           "-m",
           "pytest",
           "plugins/knowledge/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "knowledge"
-        ]
-      ]
-    },
-    {
-      "id": "knowledge-business",
-      "plugin": "knowledge",
-      "risk": "low",
-      "deps": [
-        "knowledge-contract"
-      ],
-      "allowed_paths": [
-        "plugins/knowledge/",
-        "contracts/knowledge/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/knowledge/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "knowledge",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/knowledge/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "knowledge"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "knowledge-reliability",
-      "plugin": "knowledge",
-      "risk": "high",
-      "deps": [
-        "knowledge-business"
-      ],
-      "allowed_paths": [
-        "plugins/knowledge/",
-        "contracts/knowledge/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/knowledge/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/knowledge/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "knowledge"
-        ]
-      ]
-    },
-    {
-      "id": "knowledge-installation",
-      "plugin": "knowledge",
-      "risk": "low",
-      "deps": [
-        "knowledge-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/knowledge/",
-        "contracts/knowledge/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/knowledge/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/knowledge/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "knowledge"
-        ]
-      ]
-    },
-    {
-      "id": "creation-contract",
+      "id": "creation-acceptance",
       "plugin": "creation",
-      "risk": "low",
+      "risk": "medium",
       "deps": [
-        "idea-contract",
-        "task-contract"
+        "idea-acceptance",
+        "task-acceptance"
       ],
       "allowed_paths": [
         "plugins/creation/",
         "contracts/creation/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/creation/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -2026,125 +550,30 @@
           "-m",
           "pytest",
           "plugins/creation/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "creation"
-        ]
-      ]
-    },
-    {
-      "id": "creation-business",
-      "plugin": "creation",
-      "risk": "low",
-      "deps": [
-        "creation-contract"
-      ],
-      "allowed_paths": [
-        "plugins/creation/",
-        "contracts/creation/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/creation/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "creation",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/creation/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "creation"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "creation-reliability",
-      "plugin": "creation",
-      "risk": "high",
-      "deps": [
-        "creation-business"
-      ],
-      "allowed_paths": [
-        "plugins/creation/",
-        "contracts/creation/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/creation/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/creation/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "creation"
-        ]
-      ]
-    },
-    {
-      "id": "creation-installation",
-      "plugin": "creation",
-      "risk": "low",
-      "deps": [
-        "creation-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/creation/",
-        "contracts/creation/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/creation/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/creation/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "creation"
-        ]
-      ]
-    },
-    {
-      "id": "review-contract",
+      "id": "review-acceptance",
       "plugin": "review",
-      "risk": "low",
+      "risk": "medium",
       "deps": [
-        "task-contract",
-        "body-contract",
-        "finance-contract",
-        "habit-contract",
-        "deepwork-contract"
+        "task-acceptance",
+        "finance-acceptance",
+        "habit-acceptance",
+        "body-acceptance"
       ],
       "allowed_paths": [
         "plugins/review/",
         "contracts/review/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/review/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -2158,122 +587,28 @@
           "-m",
           "pytest",
           "plugins/review/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "review"
-        ]
-      ]
-    },
-    {
-      "id": "review-business",
-      "plugin": "review",
-      "risk": "low",
-      "deps": [
-        "review-contract"
-      ],
-      "allowed_paths": [
-        "plugins/review/",
-        "contracts/review/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/review/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "review",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/review/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "review"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "review-reliability",
-      "plugin": "review",
-      "risk": "high",
-      "deps": [
-        "review-business"
-      ],
-      "allowed_paths": [
-        "plugins/review/",
-        "contracts/review/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/review/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/review/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "review"
-        ]
-      ]
-    },
-    {
-      "id": "review-installation",
-      "plugin": "review",
-      "risk": "low",
-      "deps": [
-        "review-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/review/",
-        "contracts/review/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/review/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/review/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "review"
-        ]
-      ]
-    },
-    {
-      "id": "personal_model-contract",
+      "id": "personal_model-acceptance",
       "plugin": "personal_model",
       "risk": "high",
       "deps": [
-        "review-contract",
-        "decision-contract"
+        "review-acceptance",
+        "decision-acceptance"
       ],
       "allowed_paths": [
         "plugins/personal_model/",
         "contracts/personal_model/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/personal_model/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -2287,124 +622,30 @@
           "-m",
           "pytest",
           "plugins/personal_model/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "personal_model"
-        ]
-      ]
-    },
-    {
-      "id": "personal_model-business",
-      "plugin": "personal_model",
-      "risk": "high",
-      "deps": [
-        "personal_model-contract"
-      ],
-      "allowed_paths": [
-        "plugins/personal_model/",
-        "contracts/personal_model/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/personal_model/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "personal_model",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/personal_model/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "personal_model"
         ]
-      ]
+      ],
+      "kind": "verify"
     },
     {
-      "id": "personal_model-reliability",
-      "plugin": "personal_model",
-      "risk": "high",
-      "deps": [
-        "personal_model-business"
-      ],
-      "allowed_paths": [
-        "plugins/personal_model/",
-        "contracts/personal_model/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/personal_model/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/personal_model/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "personal_model"
-        ]
-      ]
-    },
-    {
-      "id": "personal_model-installation",
-      "plugin": "personal_model",
-      "risk": "high",
-      "deps": [
-        "personal_model-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/personal_model/",
-        "contracts/personal_model/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/personal_model/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/personal_model/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "personal_model"
-        ]
-      ]
-    },
-    {
-      "id": "cognition-contract",
+      "id": "cognition-acceptance",
       "plugin": "cognition",
       "risk": "high",
       "deps": [
-        "knowledge-contract",
-        "decision-contract",
-        "review-contract",
-        "personal_model-contract"
+        "knowledge-acceptance",
+        "decision-acceptance",
+        "review-acceptance",
+        "personal_model-acceptance"
       ],
       "allowed_paths": [
         "plugins/cognition/",
         "contracts/cognition/"
       ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/cognition/README.md. Audit and complete contract against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
+      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md, docs/PLUGIN-SPECS.md and this plugin README/contracts. Independently verify the existing MVP code and actual test evidence. Do not edit, rewrite shared code, grant permissions, publish, or call live Apps. Reproduce concrete findings and report only evidence. A zero diff is expected. Escalate a shared defect; never force changes to already valid code.",
       "tests": [
         [
           "{python}",
@@ -2418,108 +659,14 @@
           "-m",
           "pytest",
           "plugins/cognition/tests",
+          "tests/test_all_capabilities.py",
           "tests/test_plugin_join_faults.py",
-          "-q",
           "-k",
-          "cognition"
-        ]
-      ]
-    },
-    {
-      "id": "cognition-business",
-      "plugin": "cognition",
-      "risk": "high",
-      "deps": [
-        "cognition-contract"
-      ],
-      "allowed_paths": [
-        "plugins/cognition/",
-        "contracts/cognition/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/cognition/README.md. Audit and complete business against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
+          "cognition",
           "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/cognition/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "cognition"
         ]
-      ]
-    },
-    {
-      "id": "cognition-reliability",
-      "plugin": "cognition",
-      "risk": "high",
-      "deps": [
-        "cognition-business"
       ],
-      "allowed_paths": [
-        "plugins/cognition/",
-        "contracts/cognition/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/cognition/README.md. Audit and complete reliability against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/cognition/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "cognition"
-        ]
-      ]
-    },
-    {
-      "id": "cognition-installation",
-      "plugin": "cognition",
-      "risk": "high",
-      "deps": [
-        "cognition-reliability"
-      ],
-      "allowed_paths": [
-        "plugins/cognition/",
-        "contracts/cognition/"
-      ],
-      "prompt": "Read AGENTS.md, docs/PLUGIN-STANDARD.md and plugins/cognition/README.md. Audit and complete installation against the implemented frozen capability schemas. The desktop implementation already exists: preserve valid behavior, reproduce concrete missing coverage first, and repair only demonstrated gaps. Do not rewrite shared runtime or other plugins. Do not invent success, grant real permissions, or call live writes. Escalate a shared defect rather than patching a vendored helper alone. Record actual tests and remaining findings in the required report.",
-      "tests": [
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "tests/test_contract_inventory.py",
-          "-q"
-        ],
-        [
-          "{python}",
-          "-m",
-          "pytest",
-          "plugins/cognition/tests",
-          "tests/test_plugin_join_faults.py",
-          "-q",
-          "-k",
-          "cognition"
-        ]
-      ]
+      "kind": "verify"
     }
   ]
 }

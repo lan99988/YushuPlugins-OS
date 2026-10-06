@@ -93,7 +93,7 @@ class P2Tests(P1Tests):
         self.cleanup_worktree()
     def test_dependency_change_blocks_existing_worktree(self):
         first=Coordinator(self.repo,self.store).worktree(self.store.task('a')); head=git(first,'rev-parse','HEAD')
-        self.store.set_task('a',status='verified',head_sha=head,review_head=head,review_tree=git(first,'rev-parse','HEAD^{tree}'))
+        self.store.set_task('a',status='verified',head_sha=head,review_head=head,review_tree=git(first,'rev-parse','HEAD^{tree}'),rules_sha=fixtures.rules_sha(first))
         original={'id':'a','deps':[],'allowed_paths':['plugins/a/'],'tests':[[sys.executable,'-c','from pathlib import Path; assert Path("plugins/a/file.txt").read_text()=="ok"']],'risk':'low','prompt':'create file'}
         self.store.initialize([original,{'id':'b','deps':['a'],'allowed_paths':['b/'],'tests':[[sys.executable,'-V']],'risk':'low','prompt':'b'}])
         worker=Coordinator(self.repo,self.store); second=worker.worktree(self.store.task('b'))

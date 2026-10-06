@@ -28,3 +28,12 @@ def test_no_installed_domain_does_not_invent_source_metrics(tmp_path):
     review = Flows(core, stores, "missing").period_review("2026-10-01", "2026-10-07", currency="CNY", habit_expected={})["entity"]
     assert review["fields"]["sources"] == {}
     assert {"task", "habit", "finance", "body"} <= set(review["fields"]["missing_sources"])
+
+
+def test_monthly_review_accepts_amounts_above_ten_thousand_major_units(tmp_path):
+    core, stores = suite(tmp_path, ["finance", "review"])
+    flow = Flows(core, stores, "large-month")
+    flow.call("statement", "finance.statement.create", {"month": "2026-10", "currency": "CNY", "source_id": "large-bill",
+              "transactions": [{"amount": "10001.00", "direction": "income"}, {"amount": "10002.30", "direction": "expense"}]})
+    result = flow.period_review("2026-10-01", "2026-10-31", currency="CNY", habit_expected={})["entity"]
+    assert result["fields"]["sources"]["finance"] == {"statements": 1, "income_minor": 1000100, "expense_minor": 1000230}

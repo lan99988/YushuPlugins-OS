@@ -83,6 +83,7 @@ def test_publish_rejects_wrong_actual_base():
         head = fixtures.git(worktree, "rev-parse", "HEAD")
         fixture.store.set_task("a", status="verified", head_sha=head, review_head=head,
                               review_tree=fixtures.git(worktree, "rev-parse", "HEAD^{tree}"), review_report="fake",
+                              rules_sha=rules_sha(worktree),
                               publish={"base": "main"})
         class WrongBase(CommandRunner):
             def __init__(self):

@@ -25,7 +25,7 @@ YushuOS Plugins is a local-first suite of independently installed personal-manag
 | Cognition | <code>cognition</code> / <code>yushuos.cognition</code> | Pattern CRUD and analysis/review (host supplies judgement) |
 | Task | <code>task</code> / <code>yushuos.task</code> | <code>task.create/get/list/update/complete/reopen/delete/cancel/archive</code> |
 | Feishu | <code>feishu</code> / <code>yushuos.feishu</code> | Calendar/task/message adapter; mock integration tested, live access unverified |
-| IMA | <code>ima</code> / <code>yushuos.ima</code> | Calendar/task/message adapter; mock integration tested, live access unverified |
+| IMA | <code>ima</code> / <code>yushuos.ima</code> | Note/notebook/knowledge-base reads and search, note creation/appending; mock integration tested, live access unverified |
 
 The 17 local domain plugins define 155 capabilities. <code>business_runtime/contracts.py</code>, the Task contract, and each App adapter manifest are authoritative. The personal-model slug is <code>personal_model</code> and its plugin ID is <code>yushuos.personal_model</code>; its capabilities use the <code>personal-model.*</code> prefix to satisfy Core's capability-prefix parser.
 

@@ -93,7 +93,7 @@ class DependencyTests(RuntimeTests):
         first=Coordinator(self.repo,self.store).worktree(self.store.task('a'))
         (first/'marker.txt').write_text('dependency')
         git(first,'add','.'); git(first,'commit','-m','dependency')
-        self.store.set_task('a',status='verified',head_sha=git(first,'rev-parse','HEAD'),review_head=git(first,'rev-parse','HEAD'),review_tree=git(first,'rev-parse','HEAD^{tree}'))
+        self.store.set_task('a',status='verified',head_sha=git(first,'rev-parse','HEAD'),review_head=git(first,'rev-parse','HEAD'),review_tree=git(first,'rev-parse','HEAD^{tree}'),rules_sha=rules_sha(first))
         self.store.initialize([{'id':'a','deps':[],'allowed_paths':['plugins/a/'],'tests':[[sys.executable,'-c','from pathlib import Path; assert Path("plugins/a/file.txt").read_text()=="ok"']],'risk':'low','prompt':'create file'}, {'id':'b','deps':['a'],'allowed_paths':['plugins/b/'],'tests':[[sys.executable,'-V']],'risk':'low','prompt':'b'}])
         worker=Coordinator(self.repo,self.store)
         worktree=worker.worktree(self.store.task('b'))
@@ -104,7 +104,7 @@ class DependencyTests(RuntimeTests):
         worker=Coordinator(self.repo,self.store)
         worktree=worker.worktree(self.store.task('a'))
         head=git(worktree,'rev-parse','HEAD')
-        self.store.set_task('a',head_sha=head,review_head=head,review_tree=git(worktree,'rev-parse','HEAD^{tree}'),review_report='review.json',status='verified')
+        self.store.set_task('a',head_sha=head,review_head=head,review_tree=git(worktree,'rev-parse','HEAD^{tree}'),review_report='review.json',status='verified',rules_sha=rules_sha(worktree))
         class FakeGh(CommandRunner):
             def __init__(self): super().__init__(); self.calls=[]
             def run(self,argv,cwd,**kwargs):
@@ -212,5 +212,6 @@ class AutostartTests(unittest.TestCase):
             self.assertEqual(result.returncode,0,result.stderr)
             plan=json.loads(result.stdout)
             self.assertTrue(plan['TaskName'].startswith('YushuOS-Devflow-'))
-            self.assertIn('"'+str(root/'outside state')+'"',plan['Arguments'])
+            self.assertEqual(Path(plan['State']).resolve(),(root/'outside state').resolve())
+            self.assertIn('"'+plan['State']+'"',plan['Arguments'])
             self.assertEqual(plan['MultipleInstances'],'IgnoreNew')

@@ -174,7 +174,8 @@ SOURCE_METRICS = obj({
     "task": obj({"planned": integer(), "completed": integer()}, ("planned", "completed")),
     "habit": obj({"expected": integer(), "checkins": integer()}, ("expected", "checkins")),
     "body": obj({"records": integer(), "sleep_minutes": integer(), "training_minutes": integer()}),
-    "finance": obj({"statements": integer(), "income_minor": integer(), "expense_minor": integer()}),
+    "finance": obj({"statements": integer(), "income_minor": integer(maximum=9007199254740991),
+                    "expense_minor": integer(maximum=9007199254740991)}),
 })
 add("review.generate", {"period_start": DATE, "period_end": DATE, "sources": SOURCE_METRICS,
                         "missing_sources": STRING_LIST, "source_refs": REFS,

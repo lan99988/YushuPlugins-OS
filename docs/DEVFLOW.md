@@ -95,4 +95,6 @@ powershell -NoProfile -File C:/path/repo/devflow/install_autostart.ps1 -Mode Pla
 确认 PR merge SHA 后，在仓库外建立独立 detached checkout 构建。publish 可提供 build_commands，每项是 argv，支持 {python}/{output_dir}；统一套件入口为 [{python}, -m, scripts.build_suite, --output, {output_dir}]。构建器生成 checkout 文件时，必须在 build_write_paths 明确声明生成路径（如 contracts/ 和各 plugins/<slug>/plugin/）；源文件变化则拒绝。assets 可声明额外外部输出文件，统一构建的 ZIP、suite-manifest.json 自动收集，构建器校验和保留为 suite-SHA256SUMS。
 
 每次发布包含合并 SHA 的 source ZIP、release.lock.json（merge/source/build tree、来源锁、契约和逐资产 SHA256）及总 SHA256SUMS。GitHub release 创建时上传资产，重试核对已有资产 digest 或下载后哈希；哈希不符拒绝覆盖。版本标签必须绑定确认的 merge commit。
-初始化会先校验并持久化完整任务队列，再核对 CLI 能力；blocked_capability 时任务仍显示 pending，同一 manifest 重新 init 保留既有工作树和状态。Windows 隐藏 watch 可以在能力阻塞期间每 30 分钟重探测，能力真正满足后恢复协调器；保持等待期间不会启动不受支持的模型。task kind=verify 尚未实现，普通任务仍要求实际实现 diff。
+初始化会先校验并持久化完整任务队列，再核对 CLI 能力；blocked_capability 时任务仍显示 pending，同一 manifest 重新 init 保留既有工作树和状态。Windows 隐藏 watch 可以在能力阻塞期间每 30 分钟重探测，能力真正满足后恢复协调器；保持等待期间不会启动不受支持的模型。
+
+默认队列是 20 项已交付插件的独立验收，不重复开发桌面已完成的代码。`kind=verify` 先由程序运行测试，再只发起一次独立 `read-only` 审查；无 diff 是正常状态，任何源码变更或规则漂移都拒绝。成功证据绑定现有 head/tree/contract/rules，不创建空提交、PR 或 Release，verify 任务不能启用 publish。发现缺陷会保存证据并阻塞，不要求审查者偷偷修复。新增开发任务使用 `kind=implement`（默认值），保留实际 diff、独立测试、独立审查和可选自动发布流程。两个路径都重新核对测试期间的规则，以及发布/依赖现场的实际规则摘要；Git 忽略的 AGENTS.md 也会使旧证据失效。

@@ -207,8 +207,10 @@ class Flows:
             missing.append("habit")
         if "finance" in self.stores and start.day == 1 and start.year == end.year and start.month == end.month and end.day == monthrange(end.year, end.month)[1]:
             summary = self.call("period_finance", "finance.summary", {"month": period_start[:7], "currency": currency})
-            sources["finance"] = {"statements": len(summary["statement_ids"]), "income_minor": int(Decimal(summary["income"]) * 100),
-                                  "expense_minor": int(Decimal(summary["expense"]) * 100)}
+            amounts = {kind + "_minor": int(Decimal(summary[kind]) * 100) for kind in ("income", "expense")}
+            if any(value > 9007199254740991 for value in amounts.values()):
+                raise ValueError("review_minor_amount_out_of_range")
+            sources["finance"] = {"statements": len(summary["statement_ids"]), **amounts}
             metadata["finance_context"] = {"currency": currency, "month": period_start[:7], "unit": "minor"}
             refs.extend(reference("yushuos.finance", "finance.statement", rid, self.stores["finance"]) for rid in summary["statement_ids"])
         else:
