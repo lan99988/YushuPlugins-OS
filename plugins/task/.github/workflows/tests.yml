@@ -1,0 +1,172 @@
+name: Task plugin checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Optional repository variables may override the published immutable baseline.
+env:
+  CORE_SOURCE: ${{ vars.YUSHUOS_CORE_SOURCE || 'lan99988/YushuCore-OS' }}
+  CORE_REF: ${{ vars.YUSHUOS_CORE_REF || '3d784c23034b8cd590327da36f6fa8d41f0dd362' }}
+
+jobs:
+  test-package-install:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: ubuntu-latest
+            python: "3.12"
+          - os: ubuntu-latest
+            python: "3.13"
+          - os: macos-latest
+            python: "3.12"
+          - os: windows-latest
+            python: "3.12"
+
+    steps:
+      - name: Check out Task
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Require an explicit pinned Core source
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import sys
+
+          source = os.environ.get("CORE_SOURCE", "")
+          revision = os.environ.get("CORE_REF", "")
+          if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source):
+              sys.exit("Set repository variable YUSHUOS_CORE_SOURCE to owner/repository.")
+          if not re.fullmatch(r"[0-9a-f]{40}", revision):
+              sys.exit("Set YUSHUOS_CORE_REF to a published Core 0.3.1 commit SHA (40 lowercase hex characters).")
+          PY
+
+      - name: Check out pinned Core
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CORE_SOURCE }}
+          ref: ${{ env.CORE_REF }}
+          path: core
+
+      - name: Install Core SDK and Task development dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./core
+          python -m pip install -e ".[dev]"
+
+      - name: Run tests, including real Core runner integration tests
+        shell: bash
+        env:
+          YUSHUOS_CORE_SOURCE: ${{ github.workspace }}/core
+        run: python -m pytest -q
+
+      - name: Build Task wheel
+        shell: bash
+        run: python -m pip wheel --no-deps --wheel-dir dist .
+
+      - name: Lock the isolated plugin directory and build the plugin ZIP
+        shell: bash
+        run: |
+          python scripts/render_manifest.py --check
+          python scripts/stage_plugin.py --check
+          python scripts/build_plugin.py --core-path core
+
+      - name: Safely unpack and install the ZIP through the Core CLI
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          archive = Path("dist/yushuos-task-0.1.0.zip")
+          root = Path(".ci-release/unpacked").resolve()
+          root.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(archive) as package:
+              for name in package.namelist():
+                  destination = (root / name).resolve()
+                  if destination != root and root not in destination.parents:
+                      raise SystemExit(f"Unsafe ZIP member: {name}")
+              package.extractall(root)
+          PY
+          yushuos --config-root .ci-core install-plugin --path .ci-release/unpacked/plugin
+          python - <<'PY'
+          import json
+          import subprocess
+
+          result = json.loads(subprocess.check_output(
+              ["yushuos", "--config-root", ".ci-core", "catalog", "--details"],
+              text=True,
+              encoding="utf-8",
+          ))
+          plugin = next((item for item in result["plugins"] if item["id"] == "yushuos.task"), None)
+          if plugin is None or plugin["version"] != "0.1.0":
+              raise SystemExit("The installed Task release is missing from Core catalog.")
+          PY
+
+      - name: Disable and remove only the isolated installed code version
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          config_path = Path(".ci-core/config.yaml")
+          config_path.parent.mkdir(parents=True, exist_ok=True)
+          config = yaml.safe_load(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+          config = config or {}
+          disabled = set(config.get("user_disabled", []))
+          disabled.add("yushuos.task")
+          config["user_disabled"] = sorted(disabled)
+          config_path.write_text(yaml.safe_dump(config, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+          from yushuos.config import load_config
+          effective = load_config(".ci-core")
+          if "yushuos.task" not in effective["user_disabled"]:
+              raise SystemExit("Core did not retain the user disable decision.")
+
+          install_root = Path(".ci-core/plugins").resolve()
+          version_dir = (install_root / "yushuos.task" / "0.1.0").resolve()
+          if version_dir.parent != (install_root / "yushuos.task").resolve() or install_root not in version_dir.parents:
+              raise SystemExit("Resolved install path is not the exact Task version directory.")
+          if version_dir.exists():
+              import shutil
+              shutil.rmtree(version_dir)
+          PY
+          python - <<'PY'
+          import json
+          import subprocess
+
+          catalog = json.loads(subprocess.check_output(
+              ["yushuos", "--config-root", ".ci-core", "catalog", "--details"],
+              text=True,
+              encoding="utf-8",
+          ))
+          if any(item["id"] == "yushuos.task" for item in catalog["plugins"]):
+              raise SystemExit("Task is still discoverable after isolated code removal.")
+          if catalog["manifest_errors"]:
+              raise SystemExit("Core reported manifest errors after isolated code removal.")
+          doctor = json.loads(subprocess.check_output(
+              ["yushuos", "--config-root", ".ci-core", "doctor"],
+              text=True,
+              encoding="utf-8",
+          ))
+          if doctor["manifest_errors"]:
+              raise SystemExit("Core doctor reported manifest errors after isolated code removal.")
+          PY

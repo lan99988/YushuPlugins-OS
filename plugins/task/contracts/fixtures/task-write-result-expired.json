@@ -1,0 +1,7 @@
+{
+  "operation_status": "committed",
+  "result_state": "expired",
+  "code": "task.result_expired",
+  "task_id": "tsk_0123456789abcdef0123456789abcdef",
+  "original_request_id": "task-create-2026-10-05-001"
+}

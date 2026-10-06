@@ -1,0 +1,14 @@
+{
+  "files": {
+    "plugin.yaml": "662b70a0248406daf853203fa576f7c69e912cc559921e1579ad75e8bee11b0a",
+    "run.py": "09b943a215d3907414d47fd07d2862c88196ddc3ac5ecac77986445285408243",
+    "src/yushuos_task/__init__.py": "6d8c9734f73ab044eacbdb598d5eb4738a5107f7782aaaf72686bdd6c43fd83c",
+    "src/yushuos_task/contracts.py": "c48dfb30e58b172818631624ede60d926d4dfdb1e2f63f80ecde1b96db14c194",
+    "src/yushuos_task/domain.py": "159696d1d2e09ed72008c6c41984e73fb78553244e7e6edcf813050d4b534fcf",
+    "src/yushuos_task/plugin.py": "016a015af65702c3b860606409c3b8d9a97904001bf6406fb35f63a2913c9f47",
+    "src/yushuos_task/storage.py": "47b343fcdd1d2101c5dfd58ae7c40c1ffb9debca8b6e39adb86eac713bd2b900"
+  },
+  "format": 1,
+  "plugin_id": "yushuos.task",
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "status": "succeeded",
+  "request_id": "fixture-invoke-001",
+  "message": "Fixture response.",
+  "resource": {},
+  "data": {
+    "received": "hello"
+  },
+  "error": null
+}

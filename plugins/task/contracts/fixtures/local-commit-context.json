@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "plugin_id": "fixture.protocol",
+  "plugin_version": "0.1.0",
+  "provider_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "intent": "read",
+  "project_ref": "fixture.project",
+  "request_id": "fixture-invoke-001",
+  "state_ledger_path": "<runtime-bound-state-ledger>",
+  "data_path": "<runtime-bound-plugin-data>",
+  "emitted_events": [],
+  "run_id": "",
+  "root_event_id": "",
+  "causation_id": "",
+  "depth": 0,
+  "mode": "preview",
+  "host_mode": "readonly",
+  "resources": {},
+  "operation_support": "local_commit_v1",
+  "fingerprint_scheme": "jcs-operation-v1"
+}

@@ -1,0 +1,26 @@
+{
+  "protocol": "json-stdio-v2",
+  "action": "invoke",
+  "plugin_id": "fixture.protocol",
+  "plugin_version": "0.1.0",
+  "capability": "fixture.echo",
+  "capability_effect": "read_only",
+  "request": {
+    "request_id": "fixture-invoke-001",
+    "capability": "fixture.echo",
+    "intent": "read",
+    "fields": {
+      "message": "hello"
+    },
+    "target": {},
+    "project_ref": "fixture.project"
+  },
+  "mode": "preview",
+  "host_mode": "readonly",
+  "config_root": "<runtime-bound-config-root>",
+  "project_file": "",
+  "state_ledger_path": "",
+  "app_binding": {},
+  "plugin_config": {},
+  "data_path": "<runtime-bound-plugin-data>"
+}

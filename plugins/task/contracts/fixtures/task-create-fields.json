@@ -1,0 +1,10 @@
+{
+  "title": "Prepare quarterly review",
+  "notes": "Collect the project updates before Friday.",
+  "priority": "high",
+  "project_ref": "project-q3",
+  "due_at": "2026-10-09T17:00:00+08:00",
+  "estimate_minutes": 45,
+  "tags": ["planning", "review"],
+  "source_ref": "inbox:42"
+}
