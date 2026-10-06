@@ -52,7 +52,7 @@ python -m unittest discover -s tests -p 'test_devflow*.py'
 
 `init` 读取本机原生 Codex 可执行文件，运行 `--help`、`exec --help`，再通过 app-server 的 `initialize/model/list` 协议获取当前动态模型清单及支持的 reasoning effort。这不会发起 agent turn 或业务 App 写入。Windows npm 包自动解析其原生 `codex.exe`，避免后台执行 PowerShell 包装脚本失败。版本、路径、模型清单、effort 与最终选择保存在仓库外数据库；`status/report` 可以查看。
 
-默认计划阶梯保持 6 系列。实际 CLI 未列出所需模型或 effort 时，初始化标记 `blocked_capability`；清单缺失或为空时标记 `blocked_spec`。未知模型不会按桌面工具列表猜测为可用，已观察到的能力证据保留。需要备用模型时，显式提供 `init --models-policy C:/absolute/models.json`；文件有四个顺序级别，全部核对动态清单：
+默认计划阶梯保持 6 系列。实际 CLI 未列出所需模型或 effort 时，初始化标记 `blocked_capability`；清单缺失或为空时标记 `blocked_spec`。未知模型不会按桌面工具列表猜测为可用，已观察到的能力证据保留。需要调整已授权模型的四级策略时，显式提供 `init --models-policy C:/absolute/models.json`；文件有四个顺序级别，全部核对动态清单：
 
 ```json
 {
@@ -65,7 +65,13 @@ python -m unittest discover -s tests -p 'test_devflow*.py'
 }
 ```
 
-这是备用策略格式示例，默认不会自动采用。策略只接受四级 levels，不允许 l4_fallback。仅 Sol 与 Luna/max 可被授权；模型不存在、CLI 账号拒绝，或指定 effort 不受支持均阻塞，不能改用 5.6。
+以上是默认四级策略的文件形式。策略只接受四级 levels，不允许 l4_fallback。仅 Sol 与 Luna/max 可被授权；模型不存在、CLI 账号拒绝，或指定 effort 不受支持均阻塞，不能改用 5.6。
+
+`run --watch` 在能力阻塞时进入普通程序的等待循环，此时尚未启动开发协调器，也不会派发 Agent 或发起模型 turn。首次重探测在初始化失败或旧状态进入 watch 后 30 分钟进行，之后每 30 分钟重试；截止时间持久化，重启等待进程不会触发快速重试。普通 Python 探测子进程只调用 CLI 帮助、版本及 app-server `initialize/model/list`，然后按数据库中保存的模型策略重新校验全部四级。模型清单查询成功但策略仍不受支持时保存新的观察证据并保持阻塞；查询失败时保留原证据、准确错误及任务状态。等待期间所有 pending 任务、工作树、用量和 attempt 都保留。
+
+只有所需模型与 effort 全部明确可用时，watch 才保存含 `selected` 的新证据、清除能力错误，并启动普通 Coordinator。不会自动降低至 5.6、Astra 或改变策略。`status/report` 的 `capability_watch` 提供 `waiting/probing/last_probe_at/next_probe_at`，时间为 Unix 秒；处于等待状态表示等待模型能力，不能据此宣称自动开发已经运行。单次 `run` 在阻塞时仍返回非零和具体原因。`resume` 不会绕过未通过的能力核对。
+
+等待循环每最多 5 秒检查 `pause/stop`，包括探测正在进行时。暂停期间不开始新探测，也不派发任务；已在途的只读能力探测可以完成并保存证据，但不会解除用户暂停。`resume` 后在到期时探测，或在已有成功证据时继续协调器。`stop` 与 `blocked_spec` 退出等待进程；停止会取消在途探测子树，不等待 CLI 协议超时。此轮重探测不包含业务 App 调用，也不记为模型 token 用量。
 
 ## Windows 后台登录启动
 
@@ -75,7 +81,7 @@ python -m unittest discover -s tests -p 'test_devflow*.py'
 powershell -NoProfile -File C:/path/repo/devflow/install_autostart.ps1 -Mode Plan -Repo C:/path/repo -Python C:/path/.venv/Scripts/python.exe -Manifest C:/path/tasks.json -Codex C:/path/codex.exe -Gh 'C:/Program Files/GitHub CLI/gh.exe' -State C:/path/external-state
 ```
 
-将 Mode 改为 Install 才注册登录启动；可选 `-StartNow` 立即启动。任务名包含仓库摘要，配置与日志写到外部 State。调度器 `IgnoreNew`、全局命名 mutex 和数据库租约共同避免双实例；所有 native 参数使用 Windows 引号规则。PowerShell 和 Python 子进程隐藏窗口，子进程失败 30 秒后重启，登录任务也配置失败重启。`stop` 或能力/清单阻塞会令启动器结束，不运行业务写入。未在测试中实际注册计划任务。
+将 Mode 改为 Install 才注册登录启动；可选 `-StartNow` 立即启动。任务名包含仓库摘要，配置与日志写到外部 State。调度器 `IgnoreNew`、全局命名 mutex 和数据库租约共同避免双实例；所有 native 参数使用 Windows 引号规则。PowerShell 和 Python 子进程隐藏窗口，子进程失败 30 秒后重启，登录任务也配置失败重启。`blocked_capability` 会启动并保持隐藏的普通程序 watch，等待模型能力；此时不代表自动开发已运行。`stop` 或 `blocked_spec` 会令启动器结束。未在测试中实际注册计划任务。
 
 
 ## 验证、重试与发布资产
@@ -89,4 +95,4 @@ powershell -NoProfile -File C:/path/repo/devflow/install_autostart.ps1 -Mode Pla
 确认 PR merge SHA 后，在仓库外建立独立 detached checkout 构建。publish 可提供 build_commands，每项是 argv，支持 {python}/{output_dir}；统一套件入口为 [{python}, -m, scripts.build_suite, --output, {output_dir}]。构建器生成 checkout 文件时，必须在 build_write_paths 明确声明生成路径（如 contracts/ 和各 plugins/<slug>/plugin/）；源文件变化则拒绝。assets 可声明额外外部输出文件，统一构建的 ZIP、suite-manifest.json 自动收集，构建器校验和保留为 suite-SHA256SUMS。
 
 每次发布包含合并 SHA 的 source ZIP、release.lock.json（merge/source/build tree、来源锁、契约和逐资产 SHA256）及总 SHA256SUMS。GitHub release 创建时上传资产，重试核对已有资产 digest 或下载后哈希；哈希不符拒绝覆盖。版本标签必须绑定确认的 merge commit。
-初始化会先校验并持久化完整任务队列，再核对 CLI 能力；blocked_capability 时任务仍显示 pending，同一 manifest 重新 init 保留既有工作树和状态。当前 Windows 启动器遇到能力阻塞会正常退出，不启动不受支持的模型，也不会进入失败重启循环。此版本尚未提供能力阻塞期间的定时重探测；需能力变更后重 init 并重新启动。task kind=verify 尚未实现，普通任务仍要求实际实现 diff。
+初始化会先校验并持久化完整任务队列，再核对 CLI 能力；blocked_capability 时任务仍显示 pending，同一 manifest 重新 init 保留既有工作树和状态。Windows 隐藏 watch 可以在能力阻塞期间每 30 分钟重探测，能力真正满足后恢复协调器；保持等待期间不会启动不受支持的模型。task kind=verify 尚未实现，普通任务仍要求实际实现 diff。

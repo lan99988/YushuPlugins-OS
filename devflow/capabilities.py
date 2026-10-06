@@ -36,8 +36,8 @@ def validate_model_policy(policy,catalog):
         if not isinstance(item,dict) or set(item)!={'model','effort'} or any(not isinstance(item[k],str) or not item[k] for k in ['model','effort']): raise RuntimeError('blocked_capability: model policy fields')
         selected.append(select_verified_model(item['model'],item['effort'],catalog))
     return selected
-def probe_catalog(command,timeout=30):
-    options={'creationflags':subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {'start_new_session':True}
+def probe_catalog(command,timeout=30,contained=False):
+    options={'creationflags':subprocess.CREATE_NO_WINDOW} if os.name=='nt' else ({} if contained else {'start_new_session':True})
     process=subprocess.Popen([command,'app-server','--stdio'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,encoding='utf-8',env=non_gh_environment(),**options)
     responses=queue.Queue()
     def read():
@@ -70,10 +70,10 @@ def probe_catalog(command,timeout=30):
         try: process.wait(timeout=5)
         except subprocess.TimeoutExpired: process.kill(); process.wait()
         process.stdin.close(); process.stdout.close()
-def probe_cli(runner,repo):
+def probe_cli(runner,repo,contained=False):
     command=resolve_codex()
     help_text=runner.run([command,'--help'],repo,timeout=30)
     exec_help=runner.run([command,'exec','--help'],repo,timeout=30)
     if 'app-server' not in help_text or any(flag not in exec_help for flag in REQUIRED_FLAGS): raise RuntimeError('blocked_capability: installed CLI lacks required protocol or flags')
-    catalog=probe_catalog(command)
+    catalog=probe_catalog(command,contained=contained)
     return {'command':command,'version':runner.run([command,'--version'],repo,timeout=30).strip(),'models':catalog}

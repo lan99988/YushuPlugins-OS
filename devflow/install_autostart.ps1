@@ -41,7 +41,7 @@ if ($Mode -eq 'Launch') {
         while ($true) {
             $statusArguments = @('-m','devflow','--repo',$Repo,'--state',$State,'status')
             $status = (& $Python @statusArguments | Out-String | ConvertFrom-Json)
-            if ($status.control -in @('stopped','blocked_capability','blocked_spec')) { exit 0 }
+            if ($status.control -in @('stopped','blocked_spec')) { exit 0 }
             $child = Start-Process -FilePath $Python -ArgumentList $nativeArguments -WorkingDirectory $Repo -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $State 'daemon.stdout.log') -RedirectStandardError (Join-Path $State 'daemon.stderr.log')
             $child.WaitForExit()
             if ($child.ExitCode -eq 0) { exit 0 }
